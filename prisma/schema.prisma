@@ -1,66 +1,1722 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
     provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "sqlite"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+    provider = "sqlserver"
     url      = env("DATABASE_URL")
 }
 
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model AtendimentoConclusao {
+    AtendConclusaoID Int     @id(map: "PK_AtendimentoConclusao") @default(autoincrement())
+    AtendConclusaoDS String? @db.NVarChar(50)
+    RegAtivo         String? @db.NVarChar(1)
 }
 
-// Necessary for Next auth
-model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String? // @db.Text
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model bairro {
+    CODIGO    String? @db.NVarChar(255)
+    MUNICIPIO String? @db.NVarChar(255)
+    DESCRICAO String? @db.NVarChar(255)
+    AREA      Float?
 
-    @@unique([provider, providerAccountId])
+    @@ignore
 }
 
-model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model CA_ItensAcesso {
+    AcessoCod    String  @db.NVarChar(50)
+    AcessoOBS    String? @db.NVarChar(100)
+    AcessoModulo String  @db.NVarChar(30)
+
+    @@id([AcessoCod, AcessoModulo], map: "PK_CA_ItensAcesso")
 }
 
-model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
+model CA_Perfil {
+    PerfilCOD       Int               @id(map: "PK_CA_Perfil") @default(autoincrement())
+    PerfilNM        String?           @db.NVarChar(50)
+    AtivacaoDT      DateTime?         @db.SmallDateTime
+    InativacaoDT    DateTime?         @db.SmallDateTime
+    RegSistema      Int?
+    RegAtivo        Int?
+    OperadoresDados OperadoresDados[]
 }
 
-model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+model CA_PerfilPermissaoPadrao {
+    PerfilPermissaoCOD Int     @id(map: "PK_CA_PerfilPermissaoPadrao") @default(autoincrement())
+    PerfilCOD          Int?
+    AcessoCOD          String? @db.NVarChar(50)
+    AcessoTP           String? @db.NVarChar(1)
+    AcessoModulo       String? @db.NVarChar(30)
+}
 
-    @@unique([identifier, token])
+model CancelamentoTP {
+    CancelTP     Int       @id(map: "PK_CancelamentoTP") @default(autoincrement())
+    CancelDS     String?   @db.NVarChar(100)
+    RegAtivo     String?   @db.NVarChar(1)
+    AtivacaoDT   DateTime? @db.SmallDateTime
+    InativacaoDT DateTime? @db.SmallDateTime
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model ChamadasTelefones {
+    DtHrChamada DateTime? @db.SmallDateTime
+    IPEstacao   String?   @db.NVarChar(12)
+    OperadorID  Int?
+    TelefoneDDD String?   @db.NVarChar(2)
+    TelefoneNM  String?   @db.NVarChar(8)
+
+    @@ignore
+}
+
+model CIDX {
+    CIDXCOD                           String                              @id(map: "PK_CIDX") @db.NVarChar(5)
+    CIDXDS                            String?                             @db.VarChar(300)
+    RegAtivo                          String?                             @db.NVarChar(1)
+    AtivacaoDT                        DateTime?                           @db.SmallDateTime
+    InativacaoDT                      DateTime?                           @db.SmallDateTime
+    OCORRENCIA_AVALIACAO_PACIENTE_CID OCORRENCIA_AVALIACAO_PACIENTE_CID[]
+}
+
+model CLASSIFICACAO_RISCO {
+    RISCOCOD   Int          @id(map: "PK_CLASSIFICACAO_RISCO")
+    RISCODS    String?      @db.VarChar(20)
+    SEQ        Int?
+    RISCOABREV String?      @db.VarChar(2)
+    REGISTROST String?      @db.VarChar(1)
+    REGSISTEMA String?      @default("0", map: "DF_CLASSIFICACAO_RISCO_REGSISTEMA") @db.VarChar(1)
+    RISCOCOR   String?      @db.VarChar(7)
+    Ocorrencia Ocorrencia[]
+}
+
+model ClassifVitima {
+    ClassifVitimaID Int       @id(map: "PK_ClassifVitima") @default(autoincrement())
+    ClassifVitimaDS String?   @db.NVarChar(50)
+    OperadorID      String?   @db.NVarChar(50)
+    RegistroDT      String?   @db.NVarChar(50)
+    RegAtivo        String?   @db.NVarChar(1)
+    AtivacaoDT      DateTime? @db.SmallDateTime
+    InativacaoDT    DateTime? @db.SmallDateTime
+}
+
+model Conclusao {
+    OcorrenciaID        BigInt
+    VitimaID            Int
+    FichaNM             Int
+    UnidadeCOD          String?   @db.NVarChar(8)
+    VeiculoID           Int?
+    TransporteID        Int?
+    AtendConclusaoID    Int?
+    IntercorrenciaID    Int?
+    IntercorrenciaOutra String?   @db.NVarChar(50)
+    ObitoID             Int?
+    EnfermagemOBS       String?   @db.NText
+    MedicasOBS          String?   @db.NText
+    RegistroDT          DateTime? @db.SmallDateTime
+    OperadorID          Int?
+
+    @@id([OcorrenciaID, VitimaID, FichaNM], map: "PK_Conclusao")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model DECISAO_TECNICA {
+    TransporteID Float?
+    TransporteDS String? @db.NVarChar(255)
+    RegAtivo     Float?
+    F4           String? @db.NVarChar(255)
+    F5           String? @db.NVarChar(255)
+
+    @@map("DECISAO TECNICA")
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model DistribuicaoChamadasRecebidas {
+    IP          String  @db.NVarChar(15)
+    AparelhoCOD String  @db.NVarChar(1)
+    PortaCOD    Int?    @db.SmallInt
+    TelefoneDDD String? @db.NVarChar(50)
+    TelefoneNM  String? @db.NVarChar(50)
+    CALLINGID   String? @db.VarChar(50)
+
+    @@ignore
+}
+
+model Emocional {
+    EmocionalID Int     @id(map: "PK_Emocional") @default(autoincrement())
+    EmocionalDS String? @db.NVarChar(20)
+    RegAtivo    String? @db.NVarChar(1)
+}
+
+model EquipePadrao {
+    EquipeID       Int
+    ProfissionalID Int
+    RegAtivo       String? @db.NVarChar(1)
+
+    @@id([EquipeID, ProfissionalID], map: "PK_EquipePadrao")
+}
+
+model Equipes {
+    EquipeID     Int       @id(map: "PK_Equipes") @default(autoincrement())
+    EquipeDS     String?   @db.NVarChar(50)
+    RegAtivo     String?   @db.NVarChar(1)
+    AtivacaoDT   DateTime? @db.SmallDateTime
+    InativacaoDT DateTime? @db.SmallDateTime
+    RegSistema   Int?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Estatistica {
+    estatisticaID  Int?
+    valor          Int?
+    processoDT     DateTime  @db.DateTime
+    processoexecDT DateTime? @db.DateTime
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Estatistica_Controle {
+    estatisticaID Int?
+    Dia           Int?
+    Mes           Int?
+    Ano           Int?
+    Hora          Int?
+    Data          DateTime? @db.DateTime
+    atualizacaodt DateTime? @db.DateTime
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model EventosServico {
+    Evento   String?   @db.VarChar(10)
+    DTHR     DateTime? @db.DateTime
+    EventoDS String?   @db.VarChar(50)
+
+    @@ignore
+}
+
+model FichaOcorrenciaVitima {
+    OcorrenciaID    BigInt
+    VitimaID        Int
+    FichaDistancia  Int?
+    FichaLocal      Int?
+    FichaTransporte Int?
+    FichaConclusao  Int?
+
+    @@id([OcorrenciaID, VitimaID], map: "PK_FichaOcorrenciaVitima")
+}
+
+model FORMEQUIPE_OcorrenciaVeiculoProfissional {
+    OcorrenciaID   BigInt
+    VeiculoID      Int
+    ProfissionalID Int
+    VeiculoSEQ     Int
+    RegistroDT     DateTime? @db.DateTime
+    OperadorID     Int?
+    Status         String?   @db.NVarChar(1)
+
+    @@id([OcorrenciaID, VeiculoID, ProfissionalID, VeiculoSEQ], map: "PK_FORMEQUIPE_OcorrenciaVeiculoProfissional")
+}
+
+model FORMEQUIPE_SolicitacaoVeiculo {
+    SolicitacaoID    Int              @id(map: "PK_FORMEQUIPE_SolicitacaoVeiculo") @default(autoincrement())
+    OcorrenciaID     BigInt
+    VeiculoTP        String?          @db.NVarChar(10)
+    VeiculoSEQ       Int?
+    MensagemDS       String?          @db.NVarChar(255)
+    RegistroDT       DateTime?        @db.DateTime
+    OperadorID       Int?
+    StatusEnvio      String?          @db.NVarChar(1)
+    CancelTP         Int?
+    OPERADORID_ENVIO Int?
+    Ocorrencia       Ocorrencia?      @relation(fields: [OcorrenciaID], references: [OcorrenciaID])
+    Operador         OperadoresDados? @relation(fields: [OperadorID], references: [OperadorID], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model FORMEQUIPE_TMP_OcorrenciaVeiculoProfissional {
+    OcorrenciaID   BigInt?
+    VeiculoID      Int?
+    ProfissionalID Int?
+    ProfissionalTP String?   @db.NVarChar(10)
+    VeiculoSEQ     Int?
+    RegistroDT     DateTime? @db.SmallDateTime
+    OperadorID     Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model FORMEQUIPE_VeiculoProfissional {
+    VeiculoID      Int
+    ProfissionalID Int
+    RegistroDT     DateTime? @db.SmallDateTime
+    OperadorID     Int?
+    Status         String?   @db.NVarChar(1)
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HISTORICO_CONDUTA {
+    CONDUTAID      Int       @default(autoincrement())
+    OCORRENCIAID   BigInt?
+    VITIMAID       Int?
+    VEICULOID      Int?
+    DTHR_CONDUTA   DateTime? @db.DateTime
+    OBS_ENFERMAGEM String?   @db.VarChar(500)
+    OBS_MEDICO     String?   @db.VarChar(500)
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HISTORICO_DECISAO_GESTORA {
+    DECISAOID                    Int       @default(autoincrement())
+    OCORRENCIAID                 BigInt?
+    VITIMAID                     Int?
+    DECISAO_GESTORAID            Int?
+    OPERADORID_DECISAO_GESTORAID Int?
+    DTHR_DECISAO_GESTORAID       DateTime? @db.DateTime
+    DESTINOID                    Int?
+    OPERADORID_DESTINOID         Int?
+    DTHR_DESTINOID               DateTime? @db.DateTime
+    INTERCORRENCIAID             Int?
+    OPERADORID_INTERCORRENCIAID  Int?
+    DTHR_INTERCORRENCIAID        DateTime? @db.DateTime
+    OBSERVACAO                   String?   @db.VarChar(300)
+    STATUS                       String?   @db.Char(1)
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Historico_Situacao_Veiculo {
+    veiculoID    Int?
+    StatusDO     String?   @db.NVarChar(3)
+    StatusD1     String?   @db.NVarChar(3)
+    operadorID   Int?
+    RegistroDTHR DateTime? @db.DateTime
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HistoricoChamadas {
+    AparelhoCOD String    @db.NVarChar(1)
+    PortaCOD    Int?      @db.SmallInt
+    TelefoneDDD String?   @db.NVarChar(2)
+    TelefoneNM  String?   @db.NVarChar(8)
+    TPLigacao   String?   @db.NVarChar(1)
+    DTHR        DateTime? @db.SmallDateTime
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model HistoricoObsVeiculos {
+    VeiculoID     Int?
+    OperadorID    Int?
+    StatusVeiculo String?   @db.Char(1)
+    DTHR          DateTime? @db.DateTime
+    observacao    String?   @db.VarChar(255)
+
+    @@ignore
+}
+
+model IdadeTP {
+    IdadeTP                          Int       @id(map: "PK_IdadeTP") @default(autoincrement())
+    IdadeTPDS                        String?   @db.NVarChar(20)
+    RegAtivo                         String?   @db.NVarChar(1)
+    AtivacaoDT                       DateTime? @db.SmallDateTime
+    InativacaoDT                     DateTime? @db.SmallDateTime
+    Vitimas_Vitimas_IdadeTPToIdadeTP Vitimas[] @relation("Vitimas_IdadeTPToIdadeTP")
+}
+
+model INT_FB {
+    ocorrenciaID BigInt
+    fbID         Int
+    DTHR         DateTime? @db.DateTime
+
+    @@id([ocorrenciaID, fbID], map: "PK_INT_FB")
+}
+
+model INT_GRAVADOR {
+    OcorrenciaID        BigInt
+    DTHR                DateTime @db.DateTime
+    NomeArquivoGravacao String?  @db.NVarChar(50)
+    OperadorGravadoID   Int?
+    IPGravado           String?  @db.NVarChar(50)
+    SBV                 String?  @db.NVarChar(50)
+    SBV_Gerado          Int?
+    MP3                 String?  @db.NVarChar(50)
+
+    @@id([OcorrenciaID, DTHR], map: "PK_INT_GRAVADOR")
+}
+
+model INT_GRAVADOR_HISTORICO_ATIVIDADE_PA {
+    mac_address       String   @db.NVarChar(12)
+    hostname          String?  @db.NVarChar(30)
+    operadorID_CRSAMU Int?
+    IP_Local          String   @db.NVarChar(50)
+    cabo              Int?
+    windows           Int?
+    tempo_Upload      Int?
+    operadorID_Logado Int?
+    usuario_esus      Int?
+    tela              Int?
+    erro              String?  @db.VarChar(4000)
+    dthr_registro     DateTime @db.DateTime
+
+    @@id([mac_address, dthr_registro], map: "PK_INT_GRAVADOR_HISTORICO_ATIVIDADE")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model INT_GRAVADOR_HISTORICO_ATIVIDADE_SRV {
+    discototal      String?   @db.NVarChar(15)
+    discoocupado    String?   @db.NVarChar(15)
+    versao_gravador String?   @db.NVarChar(10)
+    dthr_registro   DateTime? @db.DateTime
+
+    @@ignore
+}
+
+model Intercorrencias {
+    IntercorrenciaID Int       @id(map: "PK_Intercorrencias") @default(autoincrement())
+    IntercorrenciaDS String?   @db.NVarChar(100)
+    RegAtivo         String?   @db.NVarChar(1)
+    AtivacaoDT       DateTime? @db.SmallDateTime
+    InativacaoDT     DateTime? @db.SmallDateTime
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model IP {
+    IP          String  @db.NVarChar(15)
+    PortaCOD    Int?    @db.SmallInt
+    AparelhoCOD Int
+    RAMAL       String? @db.NVarChar(4)
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model IP_AUTORIZADO {
+    COD_SEQ Int
+    IP      String @db.VarChar(15)
+
+    @@ignore
+}
+
+model LigacaoTP {
+    LigacaoTPID  Int          @id(map: "PK_LigacaoTP") @default(autoincrement())
+    LigacaoTPDS  String?      @db.NVarChar(20)
+    RegAtivo     String?      @db.NVarChar(1)
+    RegSistema   String?      @db.VarChar(1)
+    AtivacaoDT   DateTime?    @db.SmallDateTime
+    InativacaoDT DateTime?    @db.SmallDateTime
+    Ocorrencia   Ocorrencia[]
+}
+
+model LOGIN {
+    USUARIO String  @id(map: "PK_LOGIN") @db.VarChar(50)
+    SENHA   String? @db.VarChar(10)
+}
+
+model LOGRADOUROS {
+    COD_LOGRADOURO     Int     @id(map: "PK_LOGRADOUROS")
+    COD_MUNICIPIO_IBGE String? @db.VarChar(6)
+    SIGLA_UF           String? @db.VarChar(2)
+    NM_CIDADE          String? @db.VarChar(50)
+    NM_BAIRRO          String? @db.VarChar(75)
+    DS_COMPLEMENTO     String? @db.VarChar(75)
+    COD_TP_LOGRADOURO  String? @db.VarChar(25)
+    DS_ENDERECO        String? @db.VarChar(250)
+    NUM_CEP            String? @db.VarChar(8)
+    ST_REGISTRO_ATIVO  String? @db.VarChar(1)
+}
+
+model Motivo {
+    TipoID         Int
+    MotivoID       Int          @default(autoincrement())
+    MotivoDS       String?      @db.NVarChar(100)
+    QUESTIONARIOID Int?
+    RegAtivo       String?      @db.NVarChar(1)
+    OperadorID     Int?
+    RegistroDT     Int?
+    AtivacaoDT     DateTime?    @db.SmallDateTime
+    InativacaoDT   DateTime?    @db.SmallDateTime
+    Ocorrencia     Ocorrencia[]
+
+    @@id([TipoID, MotivoID], map: "PK_Motivo")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model NOTICIA {
+    NOTICIACOD   Int       @default(autoincrement())
+    NOTICIATP    Int?
+    TITULODS     String    @db.VarChar(255)
+    NOTICIADS    String?   @db.VarChar(4000)
+    FONTEDS      String?   @db.VarChar(50)
+    DTHR         DateTime? @db.DateTime
+    REGATIVO     String?   @db.VarChar(1)
+    AtivacaoDT   DateTime? @db.SmallDateTime
+    InativacaoDT DateTime? @db.SmallDateTime
+    RegSistema   Int?
+
+    @@ignore
+}
+
+model Obito {
+    ObitoID  Int     @id(map: "PK_Obito") @default(autoincrement())
+    ObitoDS  String? @db.NVarChar(50)
+    RegAtivo String? @db.NVarChar(1)
+}
+
+model Ocorrencia {
+    OcorrenciaID                      BigInt                              @id(map: "PK_Ocorrencia")
+    FichaCenario                      Int?                                @default(0, map: "DF_Ocorrencia_FichaCenario")
+    DtHr                              DateTime?                           @db.DateTime
+    Motivo                            Motivo?                             @relation(fields: [TipoID, MotivoID], references: [TipoID, MotivoID])
+    MotivoID                          Int?
+    TipoID                            Int?
+    VitimasNM                         Int?
+    QueixaDS                          String?                             @db.NText
+    RISCOCOD                          Int?
+    TelefoneDDD                       String?                             @db.NVarChar(2)
+    TelefoneNM                        String?                             @db.NVarChar(9)
+    LogradouroTP                      String?                             @db.NVarChar(50)
+    Logradouro                        String?                             @db.VarChar(510)
+    Numero                            String?                             @db.NVarChar(10)
+    Bairro                            String?                             @db.NVarChar(50)
+    Cod_Bairro                        Int?
+    CEP                               String?                             @db.NVarChar(9)
+    ReferenciaDS                      String?                             @db.NVarChar(255)
+    MunicipioID                       String?                             @db.NVarChar(50)
+    EstadoID                          String?                             @db.NVarChar(50)
+    LigacaoTPID                       Int?
+    Ligacao                           LigacaoTP?                          @relation(fields: [LigacaoTPID], references: [LigacaoTPID])
+    OrigemTP                          Int?
+    OcorrenciaApelido                 String?                             @db.NVarChar(50)
+    OrigemOcoCOD                      Int?
+    OcorrenciaFinalDT                 DateTime?                           @db.DateTime
+    NaturezaID                        Int?
+    CausaID                           Int?
+    Operador                          OperadoresDados?                    @relation(fields: [OperadorID], references: [OperadorID])
+    OperadorID                        Int?
+    RegistroDT                        DateTime?                           @db.DateTime
+    RegAtivo                          String?                             @db.NVarChar(1)
+    Registro_Exportado_Relatorio      DateTime?                           @db.DateTime
+    Complemento                       String?                             @db.NChar(30)
+    Risco_Comprovado                  Int?
+    Regulado                          Int?
+    EXPIRADO                          Int?
+    CLASSIFICACAO_RISCO               CLASSIFICACAO_RISCO?                @relation(fields: [RISCOCOD], references: [RISCOCOD], onDelete: NoAction, onUpdate: NoAction, map: "FK_Ocorrencia_CLASSIFICACAO_RISCO")
+    OCORRENCIA_APOIO_SOLICITADO       OCORRENCIA_APOIO_SOLICITADO[]
+    OCORRENCIA_AVALIACAO_PACIENTE_CID OCORRENCIA_AVALIACAO_PACIENTE_CID[]
+    OCORRENCIA_IDGRAVACAO             OCORRENCIA_IDGRAVACAO?
+    OCORRENCIA_QUEIXA                 OCORRENCIA_QUEIXA[]
+    VEICULO_ITEMRETIDO                VEICULO_ITEMRETIDO[]
+    OcorrenciaMovimentacao            OcorrenciaMovimentacao[]
+    Vitimas                           Vitimas[]
+    OCORRENCIA_AVALIACAO_INICIAL      OCORRENCIA_AVALIACAO_INICIAL[]
+    FORMEQUIPE_SolicitacaoVeiculo     FORMEQUIPE_SolicitacaoVeiculo[]
+}
+
+model OCORRENCIA_APOIO_SOLICITADO {
+    OCORRENCIAID        BigInt
+    APOIOCD             Int
+    APOIODTHR           DateTime            @db.DateTime
+    OPERADORID          Int?
+    REGISTROST          String?             @db.VarChar(1)
+    Ocorrencia          Ocorrencia          @relation(fields: [OCORRENCIAID], references: [OcorrenciaID], onUpdate: NoAction, map: "FK_OCORRENCIA_APOIO_SOLICITADO_Ocorrencia")
+    TB_APOIO_SOLICITADO TB_APOIO_SOLICITADO @relation(fields: [APOIOCD], references: [APOIOCD], onUpdate: NoAction, map: "FK_OCORRENCIA_APOIO_SOLICITADO_TB_APOIO_SOLICITADO")
+
+    @@id([OCORRENCIAID, APOIOCD, APOIODTHR], map: "PK_OCORRENCIA_APOIO_SOLICITADO_1")
+}
+
+model OCORRENCIA_AVALIACAO_INICIAL {
+    OCORRENCIAID BigInt
+    VITIMAID     Int
+    AVALICAO     String?          @db.VarChar(4000)
+    DTHR         DateTime         @db.DateTime
+    OPERADORID   Int?
+    Ocorrencia   Ocorrencia       @relation(fields: [OCORRENCIAID], references: [OcorrenciaID], onUpdate: NoAction, onDelete: NoAction)
+    Operador     OperadoresDados? @relation(fields: [OPERADORID], references: [OperadorID], onUpdate: NoAction)
+    Vitima       Vitimas          @relation(fields: [VITIMAID], references: [VitimaId], onUpdate: NoAction)
+
+    @@id([OCORRENCIAID, VITIMAID, DTHR], map: "PK_OCORRENCIA_AVALIACAO_INICIAL")
+}
+
+model OCORRENCIA_AVALIACAO_PACIENTE_CID {
+    OCORRENCIAID BigInt
+    VITIMAID     Int
+    CID_TP       String     @db.VarChar(1)
+    CID          String     @db.NVarChar(5)
+    DTHR         DateTime   @db.DateTime
+    OPERADORID   Int?
+    CIDX         CIDX       @relation(fields: [CID], references: [CIDXCOD], onUpdate: NoAction, map: "FK_OCORRENCIA_AVALIACAO_PACIENTE_CID_CIDX")
+    Ocorrencia   Ocorrencia @relation(fields: [OCORRENCIAID], references: [OcorrenciaID], onUpdate: NoAction, map: "FK_OCORRENCIA_AVALIACAO_PACIENTE_CID_Ocorrencia")
+    Vitimas      Vitimas    @relation(fields: [OCORRENCIAID, VITIMAID], references: [OcorrenciaID, VitimaId], onUpdate: NoAction, map: "FK_OCORRENCIA_AVALIACAO_PACIENTE_CID_Vitimas")
+
+    @@id([OCORRENCIAID, VITIMAID, CID_TP, CID, DTHR], map: "PK_OCORRENCIA_AVALIACAO_PACIENTE_CID")
+}
+
+model OCORRENCIA_IDGRAVACAO {
+    OCORRENCIAID BigInt     @id(map: "PK_OCORRENCIA_IDGRAVACAO")
+    CALLINGID    String?    @db.VarChar(50)
+    Ocorrencia   Ocorrencia @relation(fields: [OCORRENCIAID], references: [OcorrenciaID], onUpdate: NoAction, map: "FK_OCORRENCIA_IDGRAVACAO_Ocorrencia")
+}
+
+model OCORRENCIA_QUEIXA {
+    OCORRENCIAID BigInt
+    QUEIXADS     String?    @db.VarChar(4000)
+    DTHR         DateTime   @db.DateTime
+    OPERADORID   Int?
+    Ocorrencia   Ocorrencia @relation(fields: [OCORRENCIAID], references: [OcorrenciaID], onUpdate: NoAction, map: "FK_OCORRENCIA_QUEIXA_Ocorrencia")
+
+    @@id([OCORRENCIAID, DTHR], map: "PK_OCORRENCIA_QUEIXA")
+}
+
+model OcorrenciaMovimentacao {
+    Ocorrencia       Ocorrencia @relation(fields: [OcorrenciaID], references: [OcorrenciaID])
+    OcorrenciaID     BigInt
+    Veiculo          Veiculos?  @relation(fields: [VeiculoID], references: [VeiculoID])
+    VeiculoID        Int
+    VeiculoSEQ       Int
+    EnvioEquipeDT    DateTime?  @db.DateTime
+    SaidaBaseDT      DateTime?  @db.DateTime
+    ChegadaLocalDT   DateTime?  @db.DateTime
+    SaidaLocalDT     DateTime?  @db.DateTime
+    ChegadaDestinoDT DateTime?  @db.DateTime
+    RetornoDestinoDT DateTime?  @db.DateTime
+    ChegadaBaseDT    DateTime?  @db.DateTime
+
+    @@id([OcorrenciaID, VeiculoID, VeiculoSEQ], map: "PK_OcorrenciaMovimentacao")
+}
+
+model OperadoresDados {
+    OperadorID                    Int                             @id @default(autoincrement())
+    OperadorNM                    String?                         @db.NVarChar(50)
+    OperadorApelido               String?                         @unique @db.NVarChar(20)
+    Sexo                          String?                         @db.NVarChar(1)
+    LogradouroTP                  String?                         @db.NVarChar(50)
+    Logradouro                    String?                         @db.NVarChar(50)
+    Numero                        String?                         @db.NVarChar(10)
+    Bairro                        String?                         @db.NVarChar(50)
+    CEP                           String?                         @db.NVarChar(9)
+    ReferenciaDS                  String?                         @db.NVarChar(255)
+    MunicipioID                   String?                         @db.NVarChar(50)
+    EstadoID                      String?                         @db.NVarChar(50)
+    TelefoneDDD                   String?                         @db.NVarChar(2)
+    TelefoneNM                    String?                         @db.NVarChar(8)
+    ProfisionalTP                 String?                         @db.NVarChar(50)
+    Senha                         String?                         @db.VarChar(50)
+    AcessoTP                      Int?
+    Logado                        Int?
+    OperadoID                     String?                         @db.NVarChar(50)
+    RegistroDT                    String?                         @db.NVarChar(50)
+    RegAtivo                      String?                         @db.NVarChar(1)
+    PerfilCod                     Int?
+    Perfil                        CA_Perfil?                      @relation(fields: [PerfilCod], references: [PerfilCOD])
+    Operador_Ramal                String?                         @db.VarChar(3)
+    Ocorrencia                    Ocorrencia[]
+    OCORRENCIA_AVALIACAO_INICIAL  OCORRENCIA_AVALIACAO_INICIAL[]
+    UsuarioDashboard              UsuarioDashboard                @relation(fields: [OperadorID], references: [operadorID])
+    FORMEQUIPE_SolicitacaoVeiculo FORMEQUIPE_SolicitacaoVeiculo[]
+}
+
+model UsuarioDashboard {
+    id         Int              @id(map: "PK__UsuarioD__3213E83F76377CA0") @default(autoincrement())
+    operadorID Int              @unique
+    operador   OperadoresDados? @relation()
+    senha      String           @db.VarChar(60)
+    role       String           @db.NVarChar(10)
+    createdAt  DateTime         @default(now(), map: "DF__UsuarioDa__creat__28112A8D") @db.DateTime
+    updatedAt  DateTime         @default(now(), map: "DF__UsuarioDa__updat__29054EC6") @db.DateTime
+}
+
+model OperadoresLogados {
+    OperadorID Int       @id(map: "PK_OperadoresLogados")
+    LogDT      DateTime? @db.DateTime
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model OperadoresLogs {
+    OperadorID       Int
+    LogIniDT         DateTime? @db.DateTime
+    LogSaiDT         DateTime? @db.DateTime
+    IP               String?   @db.NVarChar(15)
+    MovimentacaoDTHR DateTime? @db.DateTime
+
+    @@ignore
+}
+
+model OrigemOco {
+    OrigemOcoCOD    Int       @id(map: "PK_OrigemOco") @default(autoincrement())
+    OrigemOcoNumero String?   @db.VarChar(10)
+    OrigemOcoDS     String?   @db.NVarChar(50)
+    RegAtivo        String?   @db.NVarChar(1)
+    AtivacaoDT      DateTime? @db.SmallDateTime
+    InativacaoDT    DateTime? @db.SmallDateTime
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model ParametrosGerais {
+    OcorrenciaID     BigInt?
+    OperadorID       Int?
+    StatusCripto     String? @db.VarChar(1)
+    VersaoSistema    String? @db.VarChar(10)
+    LigacaoTP_Padrao Int?
+    UNICD_ID         Int?
+
+    @@ignore
+}
+
+model ParametrosSistema {
+    Chave String  @id(map: "PK_Parametros") @db.VarChar(100)
+    Valor String? @db.VarChar(100)
+}
+
+model PerfilOperador {
+    OperadorID       Int
+    MenuID           Int
+    SubMenuID        Int
+    NivelAtualizacao String? @db.NVarChar(1)
+
+    @@id([OperadorID, MenuID, SubMenuID], map: "PK_PerfilOperador")
+}
+
+model PosicaoOcorrencias {
+    OcorrenciaID     BigInt
+    VitimaID         Int
+    OrigemDTHR       DateTime? @db.DateTime
+    OperadorOrigem   Int?
+    OperadorDestino  Int
+    OperadorID       Int?
+    EncaminhamentoTP Int?
+    txtOrigem        String?   @db.NVarChar(255)
+    txtDestino       String?   @db.NVarChar(255)
+    DestinoDTHR      DateTime? @db.DateTime
+    LeituraDTHR      DateTime? @db.DateTime
+    Regulado         String?   @default("0", map: "DF_PosicaoOcorrencias_Regulado") @db.VarChar(1)
+    RegistroDT       DateTime  @db.DateTime
+
+    @@id([OcorrenciaID, VitimaID, OperadorDestino, RegistroDT], map: "PK_PosicaoOcorrencias")
+}
+
+model Profissionais {
+    ProfissionalID          Int     @id(map: "PK_Profissionais") @default(autoincrement())
+    ProfissionalTP          String? @db.NVarChar(10)
+    ProfissionalNM          String? @db.NVarChar(50)
+    ProfissionalCPF         String? @db.NVarChar(50)
+    ProfissionalAP          String? @db.NVarChar(50)
+    Status                  String? @db.NVarChar(50)
+    RegAtivo                String? @db.NVarChar(1)
+    ProfissionalTelefoneNM  String? @db.NVarChar(9)
+    profissionalTelefoneDDD String? @db.NVarChar(2)
+}
+
+model ProfissionalTP {
+    ProfissionalTP    String    @id(map: "PK_ProfissionalTP") @db.NVarChar(10)
+    ProfissionalDS    String?   @db.NVarChar(50)
+    RegAtivo          String?   @db.NVarChar(1)
+    ProfissionalExibe String?   @db.VarChar(1)
+    AtivacaoDT        DateTime? @db.SmallDateTime
+    InativacaoDT      DateTime? @db.SmallDateTime
+    RegSistema        Int?
+}
+
+model QUEST_ALTERNATIVA {
+    QUESTIONARIOID Int
+    GRPPERGUNTAID  Int
+    PERGUNTAID     Int
+    ALTERNATIVAID  Int
+    ALTERNATIVASQ  Int?
+    ALTERNATIVATB  Int?
+    ALTERNATIVAPD  Int?
+    ALTERNATIVADS  String?   @db.NVarChar(50)
+    ALTERNATIVAFT  Boolean
+    ALTERNATIVAST  Boolean
+    ALTERNATIVADT  DateTime? @db.SmallDateTime
+    ALTERNATIVAUS  Int?
+
+    @@id([QUESTIONARIOID, GRPPERGUNTAID, PERGUNTAID, ALTERNATIVAID], map: "PK_QUEST_ALTERNATIVA")
+}
+
+model QUEST_GRPPERGUNTA {
+    QUESTIONARIOID Int
+    GRPPERGUNTAID  Int
+    GRPPERGUNTASQ  Int?
+    GRPPERGUNTADS  String?   @db.NVarChar(50)
+    GRPPERGUNTAST  String    @db.VarChar(1)
+    GRPPERGUNTADT  DateTime? @db.SmallDateTime
+    GRPPERGUNTAUS  Int?
+
+    @@id([QUESTIONARIOID, GRPPERGUNTAID], map: "PK_QUEST_GRPPERGUNTA")
+}
+
+model QUEST_PERGUNTA {
+    QUESTIONARIOID       Int
+    GRPPERGUNTAID        Int
+    PERGUNTAID           Int
+    PERGUNTASQ           Int?
+    PERGUNTADS           String?   @db.NVarChar(100)
+    PERGUNTATP           Int?
+    PERGUNTAOBGT         Boolean
+    PERGUNTAST           Boolean
+    PERGUNTADT           DateTime? @db.SmallDateTime
+    PERGUNTAUS           Int?
+    PERGUNTATX           Boolean
+    PERGUNTADISTANCIA    Boolean
+    PERGUNTALOCAL        Boolean
+    PERGUNTAEMTRANSPORTE Boolean
+
+    @@id([QUESTIONARIOID, GRPPERGUNTAID, PERGUNTAID], map: "PK_QUEST_PERGUNTA")
+}
+
+model QUEST_QUESTIONARIO {
+    QUESTIONARIOID Int       @id(map: "PK_QUEST_QUESTIONARIO")
+    QUESTIONARIODS String?   @db.NVarChar(50)
+    QUESTIONARIOOB String?   @db.NVarChar(50)
+    QUESTIONARIOST String    @db.VarChar(1)
+    QUESTIONARIODT DateTime? @db.DateTime
+    QUESTIONARIOUS Int?
+    QUESTIONARIOSQ Int?
+}
+
+model QUEST_TABELA {
+    QUESTTABELAID Int       @id(map: "PK_QUEST_TABELA")
+    QUESTTABELADS String?   @db.NVarChar(50)
+    QUESTTABELAST Boolean
+    QUESTTABELADT DateTime? @db.SmallDateTime
+    QUESTTABELAUS Int?
+}
+
+model QUEST_TABELAITENS {
+    QUESTTABELAID Int
+    ITENSTABELAID Int
+    ITENSTABELACD Int?
+    ITENSTABELADS String?   @db.NChar(50)
+    ITENSTABELAST Boolean
+    ITENSTABELADT DateTime? @db.SmallDateTime
+    ITENSTABELAUS Int?
+
+    @@id([QUESTTABELAID, ITENSTABELAID], map: "PK_QUEST_TABELAITENS")
+}
+
+model QUEST_TPAMBIENTE {
+    TPAMBIENTEID Int       @id(map: "PK_QUEST_TPAMBIENTE")
+    TPAMBIENTEDS String?   @db.NVarChar(50)
+    TPAMBIENTEST Boolean
+    TPAMBIENTEDT DateTime? @db.SmallDateTime
+    TPAMBIENTEUS Int?
+}
+
+model QUEST_TPPERGUNTA {
+    TPPERGUNTAID Int       @id(map: "PK_QUEST_TPPERGUNTA")
+    TPPERGUNTADS String?   @db.NVarChar(50)
+    TPPERGUNTAST Boolean
+    TPPERGUNTADT DateTime? @db.SmallDateTime
+    TPPERGUNTAUS Int?
+}
+
+model QuestionarioRespostas {
+    OcorrenciaID    BigInt
+    VitimaID        Int
+    FichaNM         Int
+    QUESTIONARIOID  Int
+    TPAMBIENTEID    Int
+    GRPPERGUNTAID   Int
+    PERGUNTAID      Int
+    ALTERNATIVAID   Int
+    PERGUNTATX      String?   @db.NVarChar(255)
+    QUESTTABELAID   Int?
+    ITENSTABELAID   Int?
+    IgualAnterior   Boolean
+    QUESTFINALIZADT DateTime? @db.SmallDateTime
+    OperadorID      Int?
+    RegistroDT      DateTime  @db.SmallDateTime
+
+    @@id([OcorrenciaID, VitimaID, FichaNM, QUESTIONARIOID, TPAMBIENTEID, GRPPERGUNTAID, PERGUNTAID, ALTERNATIVAID, RegistroDT], map: "PK_QuestionarioRespostas")
+}
+
+model RelacionaOcorrencias {
+    OcorrenciaP Int
+    OcorrenciaS Int
+    OperadorID  Int?
+    RegistroDT  DateTime? @db.SmallDateTime
+
+    @@id([OcorrenciaP, OcorrenciaS], map: "PK_RelacionaOcorrencias")
+}
+
+model RelVisitanteVitima {
+    RelVisitanteVitimaID Int     @id(map: "PK_RelVisitanteVitima") @default(autoincrement())
+    RelVisitanteVitimaDS String? @db.NVarChar(50)
+    OperadorID           String? @db.NVarChar(50)
+    RegistroDT           String? @db.NVarChar(50)
+    RegAtivo             String? @db.NVarChar(1)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model SERVICO_MENSAGENS_INSTANTANEAS {
+    DE_OPERADORID     Int?
+    PARA_OPERADORID   Int?
+    COD_CANAL         String? @db.VarChar(50)
+    REQUISICAO_STATUS String? @db.VarChar(200)
+
+    @@ignore
+}
+
+model Solicitante {
+    OcorrenciaID           BigInt    @id(map: "PK_Solicitante")
+    SolicitanteNM          String?   @db.NVarChar(100)
+    TelefoneDDD            String?   @db.NVarChar(2)
+    TelefoneNM             String?   @db.NVarChar(9)
+    LogradouroTP           String?   @db.NVarChar(50)
+    Logradouro             String?   @db.VarChar(510)
+    Numero                 String?   @db.NVarChar(10)
+    Bairro                 String?   @db.NVarChar(50)
+    Cod_Bairro             Int?
+    CEP                    String?   @db.NVarChar(9)
+    ReferenciaDS           String?   @db.NVarChar(255)
+    MunicipioID            Int?
+    EstadoID               String?   @db.NVarChar(50)
+    RelSolicitanteVitimaID Int?
+    EmocionalID            Int?
+    OperadorID             Int?
+    RegistroDT             DateTime? @db.SmallDateTime
+    Complemento            String?   @db.NChar(30)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_13a25 {
+    tot13a25 String? @db.NVarChar(50)
+    totalpma Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_26a55 {
+    tot26a55 String? @db.NVarChar(50)
+    totalpma Int?
+
+    @@ignore
+}
+
+model TB_APOIO_SOLICITADO {
+    APOIOCD                     Int                           @id(map: "PK_OCORRENCIA_APOIO_SOLICITADO") @default(autoincrement())
+    APOIODS                     String?                       @db.VarChar(50)
+    REGISTROST                  String?                       @db.VarChar(1)
+    REGISTRODTHR                DateTime?                     @db.DateTime
+    AtivacaoDT                  DateTime?                     @db.SmallDateTime
+    InativacaoDT                DateTime?                     @db.SmallDateTime
+    RegSistema                  Int?
+    RegAtivo                    Int?
+    OCORRENCIA_APOIO_SOLICITADO OCORRENCIA_APOIO_SOLICITADO[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_ARENA {
+    totrecursosusb String? @db.NVarChar(50)
+    totalarena     Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_ARENA13a25 {
+    tot13a25   String? @db.NVarChar(50)
+    totalarena Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_ARENA26a55 {
+    tot26a55   String? @db.NVarChar(50)
+    totalarena Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_ARENACAUSACLINICO {
+    totclinico String? @db.NVarChar(50)
+    totalarena Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_ARENACAUSAEXTERNA {
+    totcausaexterna String? @db.NVarChar(50)
+    totalarena      Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_ARENAUSA {
+    totrecursosusa String? @db.NVarChar(50)
+    totalarena     Int?
+
+    @@ignore
+}
+
+model TB_BAIRRO {
+    Cod_Bairro          Int                 @id(map: "PK_TB_BAIRRO") @default(autoincrement())
+    Cod_Municipio       String              @db.VarChar(8)
+    DistritoCOD         Int?
+    BairroDS            String?             @db.VarChar(255)
+    DTHR                DateTime?           @db.DateTime
+    REGATIVO            String?             @db.VarChar(1)
+    AtivacaoDT          DateTime?           @db.SmallDateTime
+    InativacaoDT        DateTime?           @db.SmallDateTime
+    TBS_Municipios_IBGE TBS_Municipios_IBGE @relation(fields: [Cod_Municipio], references: [Cod_Municipio], onUpdate: NoAction, map: "FK_TB_BAIRRO_TBS_Municipios_IBGE")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_causaexterna {
+    totcausaexterna       String?   @db.NVarChar(50)
+    causaexterna          String?   @db.NVarChar(50)
+    dt_fechamento         DateTime? @db.DateTime
+    OcorrenciaID          BigInt?
+    totmotivocausaexterna Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_clinico {
+    totclinico       String?   @db.NVarChar(50)
+    clinico          String?   @db.NVarChar(50)
+    dt_fechamento    DateTime? @db.DateTime
+    OcorrenciaID     BigInt?
+    totmotivoclinico Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_DISTRITO {
+    DistritoCOD   Int       @default(autoincrement())
+    Cod_Municipio String?   @db.VarChar(8)
+    DistritoDS    String?   @db.VarChar(50)
+    DTHR          DateTime? @db.DateTime
+    REGATIVO      String?   @db.VarChar(1)
+    AtivacaoDT    DateTime? @db.SmallDateTime
+    InativacaoDT  DateTime? @db.SmallDateTime
+    RegSistema    Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_FAIXA_ETARIA {
+    cod             Int     @default(autoincrement())
+    FAIXA_ETARIA    String? @db.NVarChar(30)
+    COPA_ARENA      Int?
+    COPA_MANIFESTAC Int?
+    COPA_FANFEST    Int?
+    COPA_PMA        Int?
+    TOTALGERALGERAL Int?
+    ordenador       String? @db.NVarChar(200)
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_FANFEST {
+    totrecursosusb String? @db.NVarChar(50)
+    totalfanfest   Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_FANFEST13a25 {
+    tot13a25     String? @db.NVarChar(50)
+    totalfanfest Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_FANFEST26a55 {
+    tot26a55     String? @db.NVarChar(50)
+    totalfanfest Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_FANFEST6a12 {
+    tot6a12      String? @db.NVarChar(50)
+    totalfanfest Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_FANFESTacimade56 {
+    totacimade56 String? @db.NVarChar(50)
+    totalfanfest Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_FANFESTBRASILEIRO {
+    totperfil    String? @db.NVarChar(50)
+    totalfanfest Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_FANFESTCAUSACLINICO {
+    totclinico   String? @db.NVarChar(50)
+    totalfanfest Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_FANFESTCAUSAEXTERNA {
+    totcausaexterna String? @db.NVarChar(50)
+    totalfanfest    Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_FANFESTFEMININO {
+    totfeminino  String? @db.NVarChar(50)
+    totalfanfest Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_FANFESTMASCULINO {
+    totmasculino String? @db.NVarChar(50)
+    totalfanfest Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_FANFESTUSA {
+    totrecursosusa String? @db.NVarChar(50)
+    totalfanfest   Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_idade0a5 {
+    tot0a5        String?   @db.NVarChar(50)
+    idade         Int?
+    dt_fechamento DateTime? @db.DateTime
+    OcorrenciaID  BigInt?
+    total_de0a5   Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_idade13a25 {
+    tot13a25      String?   @db.NVarChar(50)
+    idade         Int?
+    dt_fechamento DateTime? @db.DateTime
+    OcorrenciaID  BigInt?
+    total_de13a25 Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_idade26a55 {
+    tot26a55      String?   @db.NVarChar(50)
+    idade         Int?
+    dt_fechamento DateTime? @db.DateTime
+    OcorrenciaID  BigInt?
+    total_de26a55 Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_idade6a12 {
+    tot6a12       String?   @db.NVarChar(50)
+    idade         Int?
+    dt_fechamento DateTime? @db.DateTime
+    OcorrenciaID  BigInt?
+    total_de6a12  Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_idadeacimade56 {
+    totacimade56      String?   @db.NVarChar(50)
+    idade             Int?
+    dt_fechamento     DateTime? @db.DateTime
+    OcorrenciaID      BigInt?
+    total_deacimade56 Int?
+
+    @@ignore
+}
+
+model TB_ITEM_VEICULO {
+    ITEMVEICULOCOD     Int                  @id(map: "PK_TB_ITEM_VEICULO") @default(autoincrement())
+    ITEMVEICULODS      String?              @db.VarChar(30)
+    REGISTROST         String?              @db.VarChar(1)
+    REGISTRODTHR       DateTime?            @db.DateTime
+    AtivacaoDT         DateTime?            @db.SmallDateTime
+    InativacaoDT       DateTime?            @db.SmallDateTime
+    RegSistema         Int?
+    RegAtivo           Int?
+    VEICULO_ITEMRETIDO VEICULO_ITEMRETIDO[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_MOTIVO {
+    cod             Int     @default(autoincrement())
+    MOTIVO          String? @db.NVarChar(30)
+    COPA_ARENA      Int?
+    COPA_MANIFESTAC Int?
+    COPA_FANFEST    Int?
+    COPA_PMA        Int?
+    TOTALGERALGERAL Int?
+    ordenador       String? @db.NVarChar(200)
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_PERFIL {
+    cod             Int     @default(autoincrement())
+    PERFIL          String? @db.NVarChar(30)
+    COPA_ARENA      Int?
+    COPA_MANIFESTAC Int?
+    COPA_FANFEST    Int?
+    COPA_PMA        Int?
+    TOTALGERALGERAL Int?
+    ordenador       String? @db.NVarChar(200)
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_perfilbrasileiro {
+    totperfil           String?   @db.NVarChar(50)
+    perfil              String?   @db.NVarChar(50)
+    dt_fechamento       DateTime? @db.DateTime
+    OcorrenciaID        BigInt?
+    totperfilbrasileiro Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_perfilestrangeiro {
+    totperfil            String?   @db.NVarChar(50)
+    perfil               String?   @db.NVarChar(50)
+    dt_fechamento        DateTime? @db.DateTime
+    OcorrenciaID         BigInt?
+    totperfilestrangeiro Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_PMA {
+    totrecursosusb String? @db.NVarChar(50)
+    totalpma       Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_PMABRASILEIRO {
+    totperfil String? @db.NVarChar(50)
+    totalpma  Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_PMACAUSACLINICO {
+    totclinico String? @db.NVarChar(50)
+    totalpma   Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_PMACAUSAEXTERNA {
+    totcausaexterna String? @db.NVarChar(50)
+    totalpma        Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_PMACAUSAPSIQUIATRICO {
+    totpsiquiatrico String? @db.NVarChar(50)
+    totalpma        Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_PMAFEMININO {
+    totfeminino String? @db.NVarChar(50)
+    totalpma    Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_PMAMASCULINO {
+    totmasculino String? @db.NVarChar(50)
+    totalpma     Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_PMAUSA {
+    totrecursosusa String? @db.NVarChar(50)
+    totalpma       Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_psiquiatrico {
+    totpsiquiatrico       String?   @db.NVarChar(50)
+    psiquiatrico          String?   @db.NVarChar(50)
+    dt_fechamento         DateTime? @db.DateTime
+    OcorrenciaID          BigInt?
+    totmotivopsiquiatrico Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_RECURSO {
+    cod             Int     @default(autoincrement())
+    RECURSO         String? @db.NVarChar(30)
+    COPA_ARENA      Int?
+    COPA_MANIFESTAC Int?
+    COPA_FANFEST    Int?
+    COPA_PMA        Int?
+    TOTALGERALGERAL Int?
+    ordenador       String? @db.NVarChar(200)
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_recursoaeromedico {
+    totrecursosaeromedico String?   @db.NVarChar(50)
+    veiculo               String?   @db.NVarChar(50)
+    dt_fechamento         DateTime? @db.DateTime
+    OcorrenciaID          BigInt?
+    totveiculoaeromedico  Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_recursoambulancha {
+    totrecursosambulancha String?   @db.NVarChar(50)
+    veiculo               String?   @db.NVarChar(50)
+    dt_fechamento         DateTime? @db.DateTime
+    OcorrenciaID          BigInt?
+    totveiculoambulancha  Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_recursomotolancia {
+    totrecursosmotolancia String?   @db.NVarChar(50)
+    veiculo               String?   @db.NVarChar(50)
+    dt_fechamento         DateTime? @db.DateTime
+    OcorrenciaID          BigInt?
+    totveiculomotolancia  Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_recursousa {
+    totrecursosusa String?   @db.NVarChar(50)
+    veiculo        String?   @db.NVarChar(50)
+    dt_fechamento  DateTime? @db.DateTime
+    OcorrenciaID   BigInt?
+    totveiculousa  Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_recursousb {
+    totrecursosusb String?   @db.NVarChar(50)
+    veiculo        String?   @db.NVarChar(50)
+    dt_fechamento  DateTime? @db.DateTime
+    OcorrenciaID   BigInt?
+    totveiculo     Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_SEXO {
+    cod             Int     @default(autoincrement())
+    SEXO            String? @db.NVarChar(30)
+    COPA_ARENA      Int?
+    COPA_MANIFESTAC Int?
+    COPA_FANFEST    Int?
+    COPA_PMA        Int?
+    TOTALGERALGERAL Int?
+    ordenador       String? @db.NVarChar(200)
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_sexofeminino {
+    totfeminino     String?   @db.NVarChar(50)
+    sexofeminino    String?   @db.VarChar(20)
+    dt_fechamento   DateTime? @db.DateTime
+    OcorrenciaID    BigInt?
+    totsexofeminino Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tb_sexomasculino {
+    totmasculino     String?   @db.NVarChar(50)
+    sexomasculino    String?   @db.VarChar(20)
+    dt_fechamento    DateTime? @db.DateTime
+    OcorrenciaID     BigInt?
+    totsexomasculino Int?
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_TRANSACAO {
+    COD_SEQ       Int?
+    COD_ORIGEM    String?   @db.VarChar(15)
+    COD_DESTINO   String?   @db.VarChar(15)
+    COD_TRANSACAO String?   @db.VarChar(15)
+    NOM_TRANSACAO String?   @db.VarChar(24)
+    DT_REGISTRO   DateTime? @db.DateTime
+    DT_LEITURA    DateTime? @db.DateTime
+    TP_TRANSACAO  String?   @db.VarChar(1)
+    XML           Bytes?    @db.Image
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_UF {
+    co_uf_ibge Float?
+    sg_uf      String? @db.NVarChar(255)
+    no_uf      String? @db.NVarChar(255)
+
+    @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_VEICULO_PROPRIEDADE {
+    PROPRIEDADECOD Int       @default(autoincrement())
+    PROPRIEDADEDS  String?   @db.VarChar(50)
+    DTHR           DateTime? @db.DateTime
+    REGATIVO       String?   @db.VarChar(1)
+    AtivacaoDT     DateTime? @db.SmallDateTime
+    InativacaoDT   DateTime? @db.SmallDateTime
+    RegSistema     Int?
+
+    @@ignore
+}
+
+model TBS_Municipios_IBGE {
+    Cod_Municipio String      @id(map: "PK_TBS_Municipios_IBGE") @db.VarChar(8)
+    Municipio     String?     @db.NVarChar(255)
+    UF            Float?
+    DV_Municipio  Float?
+    RegAtivo      String?     @db.NVarChar(1)
+    AtivacaoDT    DateTime?   @db.SmallDateTime
+    InativacaoDT  DateTime?   @db.SmallDateTime
+    TB_BAIRRO     TB_BAIRRO[]
+
+    @@index([Municipio], map: "idx_TBS_Municipios")
+}
+
+model TBS_Orgao_Emissor_Doc_Identidade {
+    Cod           Int       @id(map: "PK_TBS_Orgao_Emissor_Doc_Identidade")
+    Sigla         String?   @db.NVarChar(255)
+    Orgao_Emissor String?   @db.NVarChar(255)
+    RegAtivo      String?   @db.NVarChar(1)
+    AtivacaoDT    DateTime? @db.SmallDateTime
+    InativacaoDT  DateTime? @db.SmallDateTime
+}
+
+model TBS_Sexo {
+    SexoCOD    Int       @id(map: "PK_TBS_Sexo") @default(autoincrement())
+    SexoDS     String?   @db.VarChar(20)
+    RegAtivo   String?   @db.NVarChar(1)
+    OperadorID Int?
+    RegistroDT DateTime? @db.SmallDateTime
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TBS_Situacao_Condicao {
+    SituacaoAtualCOD    String? @db.NVarChar(3)
+    SituacaoPossivelCOD String? @db.NVarChar(3)
+
+    @@ignore
+}
+
+model TBS_Situacao_Veiculo {
+    SituacaoCOD  String    @id(map: "PK_TBS_Situacao_Veiculo") @db.NVarChar(3)
+    SituacaoDS   String?   @db.NVarChar(40)
+    RegistroST   String?   @db.NVarChar(1)
+    RegistroDTHR DateTime? @db.DateTime
+}
+
+model TBS_TP_Logradouro {
+    Cod          String    @id(map: "PK_TBS_TP_Logradouro") @db.NVarChar(20)
+    Abreviatura  String?   @db.NVarChar(255)
+    Logradouro   String?   @db.NVarChar(255)
+    RegAtivo     String?   @db.NVarChar(1)
+    AtivacaoDT   DateTime? @db.SmallDateTime
+    InativacaoDT DateTime? @db.SmallDateTime
+}
+
+model TEL_PRESTADORA_TELEFONIA_END {
+    TelefoneDDD  String    @db.NVarChar(2)
+    TelefoneNM   String    @db.NVarChar(9)
+    LogradouroTP String?   @db.NVarChar(50)
+    Logradouro   String?   @db.NVarChar(50)
+    Numero       String?   @db.NVarChar(10)
+    Cod_Bairro   Int?
+    Bairro       String?   @db.NVarChar(50)
+    CEP          String?   @db.NVarChar(9)
+    ReferenciaDS String?   @db.NVarChar(255)
+    MunicipioID  Int?
+    EstadoID     String?   @db.NVarChar(50)
+    OperadorID   Int?
+    RegistroDT   DateTime? @db.SmallDateTime
+    tel1         String?   @db.VarChar(1)
+    tel2         String?   @db.VarChar(20)
+
+    @@id([TelefoneDDD, TelefoneNM], map: "PK_TEL_PRESTADORA_TELEFONIA_END")
+}
+
+model TEL_SAMU_TELEFONIA_END {
+    TelefoneDDD  String    @db.NVarChar(2)
+    TelefoneNM   String    @db.NVarChar(9)
+    LogradouroTP String?   @db.NVarChar(50)
+    Logradouro   String?   @db.VarChar(510)
+    Numero       String?   @db.NVarChar(10)
+    Bairro       String?   @db.NVarChar(50)
+    Cod_Bairro   Int?
+    CEP          String?   @db.NVarChar(9)
+    ReferenciaDS String?   @db.NVarChar(255)
+    MunicipioID  Int?
+    EstadoID     String?   @db.NVarChar(50)
+    OperadorID   Int?
+    RegistroDT   DateTime? @db.SmallDateTime
+
+    @@id([TelefoneDDD, TelefoneNM], map: "PK_TEL_SAMU_TELEFONIA_END")
+}
+
+model TelSolicitante {
+    TelefoneDDD String    @db.NVarChar(2)
+    TelefoneNM  String    @db.NVarChar(9)
+    Status      Int
+    QtdVezes    Int?
+    OperadorID  Int?
+    RegistroDT  DateTime? @db.SmallDateTime
+    TELEFONE    String?   @db.NVarChar(8)
+
+    @@id([TelefoneDDD, TelefoneNM, Status], map: "PK_TelSolicitante")
+}
+
+model TEMP_QuestionarioRespostas {
+    OcorrenciaID    BigInt
+    VitimaID        Int
+    FichaNM         Int
+    QUESTIONARIOID  Int
+    TPAMBIENTEID    Int
+    GRPPERGUNTAID   Int
+    PERGUNTAID      Int
+    ALTERNATIVAID   Int
+    PERGUNTATX      String?   @db.NVarChar(255)
+    QUESTTABELAID   Int?
+    ITENSTABELAID   Int?
+    IgualAnterior   String    @db.VarChar(1)
+    QUESTFINALIZADT DateTime? @db.SmallDateTime
+    OperadorID      Int?
+    RegistroDT      DateTime? @db.SmallDateTime
+
+    @@id([OcorrenciaID, VitimaID, FichaNM, QUESTIONARIOID, TPAMBIENTEID, GRPPERGUNTAID, PERGUNTAID, ALTERNATIVAID], map: "PK_TEMP_QuestionarioRespostas")
+}
+
+model TEMPO_RESP_ITENS {
+    COD_TEMP_RESP_ITEM Int             @id(map: "PK_TEMPO_RESP_ITENS") @default(autoincrement())
+    COD_EVENTO_INICIO  Int?
+    COD_EVENTO_FIM     Int?
+    COD_USUARIO_INICIO Int?
+    COD_USUARIO_FIM    Int?
+    DT_INICIO_EVENTO   DateTime?       @db.DateTime
+    DT_FINAL_EVENTO    DateTime?       @db.DateTime
+    COD_TEMPO_RESP     Int?
+    COD_EQUIPE         Int?
+    ATIVO              Int?
+    TEMPO_RESPOSTA     TEMPO_RESPOSTA? @relation(fields: [COD_TEMPO_RESP], references: [COD_TEMPO_RESP], onDelete: NoAction, onUpdate: NoAction, map: "FK_TEMPO_RESP_ITENS_TEMPO_RESPOSTA_")
+}
+
+model TEMPO_RESPOSTA {
+    COD_TEMPO_RESP   Int                @id(map: "PK_TEMPO_RESPOSTA_") @default(autoincrement())
+    DT_INICIO        DateTime?          @db.DateTime
+    DT_FIM           DateTime?          @db.DateTime
+    FINALIZADO       Int?
+    OCORRENCIA_ID    BigInt
+    GUID             String?            @default(dbgenerated("newid()"), map: "DF_TEMPO_RESPOSTA__GUID") @db.UniqueIdentifier
+    ATIVO            Int?
+    TEMPO_RESP_ITENS TEMPO_RESP_ITENS[]
+}
+
+model Tipo {
+    TipoID       Int       @id(map: "PK_Tipo") @default(autoincrement())
+    TipoDS       String?   @db.NVarChar(50)
+    RegAtivo     String?   @db.NVarChar(1)
+    OperadorID   Int?
+    RegistroDT   DateTime? @db.SmallDateTime
+    AtivacaoDT   DateTime? @db.SmallDateTime
+    InativacaoDT DateTime? @db.SmallDateTime
+}
+
+model TransporteDS {
+    TransporteID Int       @id(map: "PK_TransporteDS") @default(autoincrement())
+    TransporteDS String?   @db.NVarChar(100)
+    RegAtivo     String?   @db.NVarChar(1)
+    AtivacaoDT   DateTime? @db.SmallDateTime
+    InativacaoDT DateTime? @db.SmallDateTime
+}
+
+model UnidadesDestino {
+    UnidadeCOD         String               @id(map: "PK_UnidadesDestino") @db.NVarChar(8)
+    CNES               String?              @db.VarChar(13)
+    UnidadeDS          String?              @db.NVarChar(50)
+    LogradouroTP       String?              @db.NVarChar(50)
+    Logradouro         String?              @db.NVarChar(50)
+    Numero             String?              @db.NVarChar(10)
+    Bairro             String?              @db.NVarChar(50)
+    Complemento        String?              @db.VarChar(20)
+    CEP                String?              @db.NVarChar(9)
+    ReferenciaDS       String?              @db.NVarChar(255)
+    MunicipioID        String?              @db.NVarChar(50)
+    EstadoID           String?              @db.NVarChar(50)
+    TelefoneDDD        String?              @db.NVarChar(2)
+    TelefoneNM         String?              @db.NVarChar(8)
+    OperadorCOD        Int?
+    RegistroDT         DateTime?            @db.SmallDateTime
+    AtividadeST        String?              @db.NVarChar(1)
+    RegAtivo           String?              @db.NVarChar(1)
+    AtivacaoDT         DateTime?            @db.SmallDateTime
+    InativacaoDT       DateTime?            @db.SmallDateTime
+    VEICULO_ITEMRETIDO VEICULO_ITEMRETIDO[]
+}
+
+model VEICULO_ITEMRETIDO {
+    OCORRENCIAID    BigInt
+    VEICULOID       Int
+    ITEMRETIDOCOD   Int
+    UNIDADE         String?          @db.NVarChar(8)
+    REGISTRODTHR    DateTime         @db.DateTime
+    DEVOLVIDO       DateTime?        @db.DateTime
+    Ocorrencia      Ocorrencia       @relation(fields: [OCORRENCIAID], references: [OcorrenciaID], onUpdate: NoAction, map: "FK_VEICULO_ITEMRETIDO_Ocorrencia")
+    TB_ITEM_VEICULO TB_ITEM_VEICULO  @relation(fields: [ITEMRETIDOCOD], references: [ITEMVEICULOCOD], onUpdate: NoAction, map: "FK_VEICULO_ITEMRETIDO_TB_ITEM_VEICULO")
+    UnidadesDestino UnidadesDestino? @relation(fields: [UNIDADE], references: [UnidadeCOD], onDelete: NoAction, onUpdate: NoAction, map: "FK_VEICULO_ITEMRETIDO_UnidadesDestino")
+    Veiculos        Veiculos         @relation(fields: [VEICULOID], references: [VeiculoID], onUpdate: NoAction, map: "FK_VEICULO_ITEMRETIDO_Veiculos")
+
+    @@id([OCORRENCIAID, VEICULOID, ITEMRETIDOCOD, REGISTRODTHR], map: "PK_VEICULO_ITEMRETIDO")
+}
+
+model Veiculos {
+    VeiculoID              Int                      @id(map: "PK_Veiculos") @default(autoincrement())
+    VeiculoTP              String?                  @db.NVarChar(10)
+    VeiculoDS              String?                  @db.NVarChar(50)
+    VeiculoEquipamentos    String?                  @db.NVarChar(50)
+    Status                 String?                  @db.NVarChar(3)
+    StatusAnt              String?                  @db.NVarChar(3)
+    DistritoCOD            Int?
+    RegAtivo               String?                  @db.NVarChar(1)
+    VeiculoEmpresa         String?                  @db.VarChar(2)
+    ItemRetido             Int?                     @default(0, map: "DF_Veiculos_ItemRetido")
+    Observacao             String?                  @db.VarChar(255)
+    OperadorId             Int?
+    PlacaLetra             String?                  @db.NChar(3)
+    PlacaNumero            String?                  @db.NChar(6)
+    ID_VeiculoTP           Int?
+    VEICULO_ITEMRETIDO     VEICULO_ITEMRETIDO[]
+    OcorrenciaMovimentacao OcorrenciaMovimentacao[]
+}
+
+model VeiculosTP {
+    VeiculoTP    String    @id(map: "PK_VeiculosTP") @db.NVarChar(10)
+    VeiculoDS    String?   @db.NVarChar(50)
+    RegAtivo     String?   @db.NVarChar(1)
+    AtivacaoDT   DateTime? @db.SmallDateTime
+    InativacaoDT DateTime? @db.SmallDateTime
+    RegSistema   Int?
+    ID_VeiculoTP Int?
+}
+
+model Vitimas {
+    OcorrenciaID                      BigInt
+    Ocorrencia                        Ocorrencia?                         @relation(fields: [OcorrenciaID], references: [OcorrenciaID])
+    VitimaId                          Int                                 @unique @default(autoincrement())
+    ClassifVitimaID                   Int?
+    VitimaNM                          String?                             @db.NVarChar(255)
+    VitimaNomeMae                     String?                             @db.NVarChar(255)
+    LogradouroTP                      String?                             @db.NVarChar(50)
+    Logradouro                        String?                             @db.NVarChar(50)
+    Numero                            String?                             @db.NVarChar(10)
+    Bairro                            String?                             @db.NVarChar(50)
+    CEP                               String?                             @db.NVarChar(9)
+    ReferenciaDS                      String?                             @db.NVarChar(255)
+    MunicipioID                       String?                             @db.NVarChar(50)
+    TelefoneDDD                       String?                             @db.NVarChar(2)
+    TelefoneNM                        String?                             @db.NVarChar(8)
+    EstadoID                          String?                             @db.NVarChar(50)
+    DocumentoTP                       Int?
+    DocumentoNM                       String?                             @db.NVarChar(20)
+    CNS                               String?                             @db.NVarChar(20)
+    Sexo                              String?                             @db.NVarChar(1)
+    NascimentoDT                      DateTime?                           @db.SmallDateTime
+    Idade                             Int?
+    IdadeTP                           Int?
+    OperadorID                        Int?
+    RegistroDT                        DateTime?                           @db.SmallDateTime
+    ImpressaoDiag                     String?                             @db.VarChar(100)
+    CPF                               String?                             @db.VarChar(11)
+    Complemento                       String?                             @db.NChar(30)
+    OCORRENCIA_AVALIACAO_PACIENTE_CID OCORRENCIA_AVALIACAO_PACIENTE_CID[]
+    IdadeTP_Vitimas_IdadeTPToIdadeTP  IdadeTP?                            @relation("Vitimas_IdadeTPToIdadeTP", fields: [IdadeTP], references: [IdadeTP], onDelete: NoAction, onUpdate: NoAction, map: "FK_Vitimas_IdadeTP")
+    OCORRENCIA_AVALIACAO_INICIAL      OCORRENCIA_AVALIACAO_INICIAL[]
+
+    @@id([OcorrenciaID, VitimaId], map: "PK_Vitimas")
 }
