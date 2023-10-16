@@ -1,11 +1,11 @@
 import { prisma } from "../server/db";
 import { Ocorrencia } from "./ocorrencias";
-import { subHours } from "date-fns";
+import { setHours, subHours } from "date-fns";
 
 export async function ocorrenciasEmAndamento() {
   //tirando 3 horas para ficar com fuso compativel
-  const date = subHours(new Date(), 3);
-
+  const tempDate = new Date().setHours(1, 0, 0, 0);
+  const date = new Date(tempDate);
   const data = await prisma.$queryRaw<[]>`
     SELECT
       DISTINCT

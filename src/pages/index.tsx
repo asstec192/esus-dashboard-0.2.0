@@ -21,12 +21,13 @@ export default function SignIn() {
   const [data, setData] = useState<SignInResponse>();
   const onSubmit = async (values: LoginCredentials) => {
     const res = await signIn("credentials", {
-      redirect: false,
+      redirect: true,
+      callbackUrl: "/monitoramento",
       ...values,
     });
-    if (res?.ok) {
-      return router.push("/monitoramento");
-    }
+    /*  if (res?.ok) {
+      return router.replace("/monitoramento");
+    } */
     setData(res);
   };
   return (

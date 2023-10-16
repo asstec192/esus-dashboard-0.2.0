@@ -23,7 +23,7 @@ const RegulacaoSecundaria: NextPageWithLayout = () => {
           when={vehicleQuery.isLoading}
           fallback={
             <div className="relative h-full flex-1 overflow-y-auto rounded-md border">
-              <SkeletonTable />
+              <SkeletonTable className="h-full" />
             </div>
           }
         >
@@ -35,7 +35,7 @@ const RegulacaoSecundaria: NextPageWithLayout = () => {
           when={destinyQuery.isLoading}
           fallback={
             <div className="relative h-full flex-1 overflow-y-auto rounded-md border">
-              <SkeletonTable />
+              <SkeletonTable className="h-full" />
             </div>
           }
         >

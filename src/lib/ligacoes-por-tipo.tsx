@@ -7,7 +7,8 @@ export interface CallTypeCount {
 }
 
 export const ligacoesPorTipo = async () => {
-  const date = subHours(new Date(), 3)
+  const tempDate = new Date().setHours(1, 0, 0, 0);
+  const date = new Date(tempDate);
   const data: CallTypeCount[] = await prisma.$queryRaw`
     SELECT 
 	    LigacaoTPDS as tipo, 

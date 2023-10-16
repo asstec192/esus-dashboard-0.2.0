@@ -12,13 +12,13 @@ import { toast } from "@/components/ui/use-toast";
 import { api } from "@/utils/api";
 import { formatProperName } from "@/utils/formatProperName";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { SkeletonTable } from "./skeletons/skeleton-table";
 
 export const UsersList = () => {
   const {
     data: users,
     isError,
     isLoading,
-    error,
   } = api.users.getAll.useQuery(undefined, {
     onError: (error) => {
       toast({
@@ -31,7 +31,7 @@ export const UsersList = () => {
   return (
     <Card>
       {isLoading || isError ? (
-        <p>...carregando</p>
+        <SkeletonTable className="h-[600px]" />
       ) : (
         <ScrollArea orientation="horizontal">
           <Table>

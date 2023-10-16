@@ -53,14 +53,12 @@ export const IncidentsInProgress = ({
               </TableHeader>
               <TableBody>
                 {data.map((ocorrencia) => (
-                  <TableRow
-                    key={ocorrencia.id}
-                    className="cursor-pointer"
-                    onClick={() => setModalIncident(ocorrencia)}
-                  >
+                  <TableRow key={ocorrencia.id}>
                     <TableCell
-                      className="font-medium"
+                      role="button"
+                      className="cursor-pointer font-medium underline"
                       style={{ color: getColorByRisk(ocorrencia.risco) }}
+                      onClick={() => setModalIncident(ocorrencia)}
                     >
                       {ocorrencia.id}
                     </TableCell>

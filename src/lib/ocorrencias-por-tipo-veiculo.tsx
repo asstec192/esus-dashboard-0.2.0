@@ -8,8 +8,8 @@ export type VehicleTypeCount = {
 }
 
 export const ocorrenciasPorTipoDeVeiculo = async (dateRange: DateRange) => {
-  const from = subHours(dateRange.from!, 3);
-  const to = subHours(dateRange.to!, 3);
+  const from = subHours(new Date(dateRange.from!.setHours(1, 0, 0, 0)), 3); 
+  const to = subHours(new Date(dateRange.to!.setHours(1, 0, 0, 0)), 3);
 
   const data = await prisma.$queryRaw<VehicleTypeCount[]>`
     SELECT

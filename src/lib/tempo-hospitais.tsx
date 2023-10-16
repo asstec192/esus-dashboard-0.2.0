@@ -20,8 +20,8 @@ export interface TempoHospitais {
 }
 
 export async function tempoHospitais(dateRange: DateRange, turn: Turn) {
-  const from = subHours(dateRange.from!, 3);
-  const to = subHours(dateRange.to!, 3);
+  const from = subHours(new Date(dateRange.from!.setHours(1, 0, 0, 0)), 3);
+  const to = subHours(new Date(dateRange.to!.setHours(1, 0, 0, 0)), 3);
   const turnRangeQuery = getTurnQuery(turn);
 
   const mediaGeral = await prisma.$queryRaw<Media[]>`

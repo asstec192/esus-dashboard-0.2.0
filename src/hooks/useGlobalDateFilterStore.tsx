@@ -35,11 +35,8 @@ export const useGlogalDateFilterStore = create<GlobalDateFilterStore>()(
     tempTurn: initialTurn,
     setDateRange: () =>
       set((state) => {
-        state.tempDateRange.from!.setHours(1, 0, 0, 0);
         if (!state.tempDateRange.to) {
           state.tempDateRange.to = addDays(state.tempDateRange.from!, 1);
-        } else {
-          state.tempDateRange.to.setHours(1, 0, 0, 0);
         }
         return { dateRange: state.tempDateRange };
       }),

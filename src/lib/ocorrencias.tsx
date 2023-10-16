@@ -40,8 +40,10 @@ export type Avaliacao = {
 };
 
 export async function ocorrencias(dateRange: DateRange) {
-  const from = subHours(dateRange.from!, 3);
-  const to = subHours(dateRange.to!, 3);
+  //seta o horario para 1h da manha e subtrai 3 horas para fica no fuso horario local
+  const from = subHours(new Date(dateRange.from!.setHours(1, 0, 0, 0)), 3); 
+  const to = subHours(new Date(dateRange.to!.setHours(1, 0, 0, 0)), 3);
+
   const data = await prisma.$queryRaw<[]>`
    SELECT 
       o.OcorrenciaID as id,

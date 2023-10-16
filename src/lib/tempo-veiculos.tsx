@@ -28,10 +28,10 @@ interface Individual {
  * @returns Um objeto contendo o tempo resposta medio geral e o tempo resposta medio de cada veiculo
  */
 export async function tempoVeiculos(dateRange: DateRange, turn: Turn) {
-  const from = subHours(dateRange.from!, 3);
-  const to = subHours(dateRange.to!, 3);
+  const from = subHours(new Date(dateRange.from!.setHours(1, 0, 0, 0)), 3);
+  const to = subHours(new Date(dateRange.to!.setHours(1, 0, 0, 0)), 3);
   const turnRangeQuery = getTurnQuery(turn);
-
+  console.log(turn);
   const mediaGeral = await prisma.$queryRaw<Media[]>`
     SELECT
         AVG(DATEDIFF(minute, OM.EnvioEquipeDT, OM.ChegadaLocalDT)) AS QTYQUS,
