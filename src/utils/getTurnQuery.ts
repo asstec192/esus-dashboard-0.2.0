@@ -8,10 +8,10 @@ export const getTurnQuery = (turn: Turn) => {
     ? Prisma.empty
     : ehTurno3
     ? Prisma.sql`
-    AND (CAST(OcorrenciaMovimentacao.EnvioEquipeDT AS TIME) >= ${turn.from}
-    OR CAST(OcorrenciaMovimentacao.EnvioEquipeDT AS TIME) < ${turn.to})`
+    AND (CAST(O.DtHr AS TIME) >= ${turn.from}
+    OR CAST(O.DtHr AS TIME) < ${turn.to})`
     : Prisma.sql`
-        AND (CAST(OcorrenciaMovimentacao.EnvioEquipeDT AS TIME) >= ${turn.from}
-        AND CAST(OcorrenciaMovimentacao.EnvioEquipeDT AS TIME) < ${turn.to})`;
+        AND (CAST(O.DtHr AS TIME) >= ${turn.from}
+        AND CAST(O.DtHr AS TIME) < ${turn.to})`;
   return turnQuery;
 };

@@ -24,7 +24,7 @@ export function TableHospital({ data }: { data: TempoHospitais }) {
             <TableRow>
               <TableHead className="text-start ">Unidade de destino</TableHead>
               <TableHead className="text-end">Tempo resposta</TableHead>
-              {/*    <TableHead className="text-end">Total ocorrencias</TableHead> */}
+              <TableHead className="text-end">Total de ocorrencias</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -40,9 +40,9 @@ export function TableHospital({ data }: { data: TempoHospitais }) {
                   </Button>
                 </TableCell>
                 <TableCell className="text-end">{hospital.tempo}</TableCell>
-                {/*   <TableCell className="text-end">
+                <TableCell className="text-end">
                   {hospital.totalOcorrencias}
-                </TableCell> */}
+                </TableCell>
               </TableRow>
             ))}
             {data.individual.length === 0 && (
@@ -59,7 +59,7 @@ export function TableHospital({ data }: { data: TempoHospitais }) {
               <TableCell className="text-end font-bold">
                 {data.media?.tempo}
               </TableCell>
-              {/*   <TableCell></TableCell> */}
+              <TableCell></TableCell>
             </TableRow>
           </TableFooter>
         </Table>

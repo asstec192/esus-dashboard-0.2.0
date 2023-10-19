@@ -65,17 +65,14 @@ export const DialogVehicleIncidents = ({
                 <TableHead>#</TableHead>
                 <TableHead>Motivo</TableHead>
                 <TableHead>Bairro</TableHead>
-                <TableHead>Envio do primeiro veículo</TableHead>
+                <TableHead>Data</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data
                 ?.filter((incident) =>
                   isWithinHourInterval(
-                    addHours(
-                      incident.OcorrenciaMovimentacao[0]?.EnvioEquipeDT!,
-                      3,
-                    ),
+                    addHours(incident.DtHr!, 3),
                     turn.numericFrom,
                     turn.numericTo,
                   ),
@@ -99,10 +96,7 @@ export const DialogVehicleIncidents = ({
                     </TableCell>
                     <TableCell>{formatProperName(incident.Bairro)}</TableCell>
                     <TableCell colSpan={2}>
-                      {addHours(
-                        incident.OcorrenciaMovimentacao[0]?.EnvioEquipeDT!,
-                        3,
-                      ).toLocaleString()}
+                      {addHours(incident.DtHr!, 3).toLocaleString()}
                     </TableCell>
                   </TableRow>
                 ))}

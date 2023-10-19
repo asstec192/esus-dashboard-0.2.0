@@ -25,24 +25,15 @@ export const vehicleRouter = createTRPCRouter({
             MotivoDS: true,
           },
         },
-        OcorrenciaMovimentacao: {
-          select: {
-            EnvioEquipeDT: true,
-          },
-          orderBy: {
-            EnvioEquipeDT: "asc",
-          },
-          take: 1,
-        },
       },
       where: {
+        DtHr: {
+          gte: subHours(from, 3),
+          lt: subHours(to, 3),
+        },
         OcorrenciaMovimentacao: {
           some: {
             VeiculoID: input.vehicleId,
-            EnvioEquipeDT: {
-              gte: subHours(from, 3),
-              lt: subHours(to, 3),
-            },
           },
         },
         LigacaoTPID: {

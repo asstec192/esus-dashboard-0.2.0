@@ -27,36 +27,52 @@ export async function tempoHospitais(dateRange: DateRange, turn: Turn) {
   const turnRangeQuery = getTurnQuery(turn);
 
   const mediaGeral = await prisma.$queryRaw<Media[]>`
-     SELECT 
-        AVG(DATEDIFF(minute, OcorrenciaMovimentacao.ChegadaDestinoDT, OcorrenciaMovimentacao.RetornoDestinoDT)) AS tempo
-      FROM HISTORICO_DECISAO_GESTORA AS HDG
-      INNER JOIN OcorrenciaMovimentacao ON OcorrenciaMovimentacao.OcorrenciaID = HDG.OCORRENCIAID
-      LEFT JOIN UnidadesDestino AS UD ON HDG.DESTINOID = UD.UnidadeCOD
-      INNER JOIN Ocorrencia O ON O.OcorrenciaID = HDG.OCORRENCIAID
-      WHERE OcorrenciaMovimentacao.EnvioEquipeDT BETWEEN ${from} AND ${to} ${turnRangeQuery}
-  `;
+    SELECT
+        AVG(media) AS tempo
+    FROM (
+        SELECT
+            UD.UnidadeCOD AS UnidadeDestinoID,
+            AVG(
+                DATEDIFF(
+                    MINUTE,
+                    OM.ChegadaDestinoDT,
+                    OM.RetornoDestinoDT
+                )
+            ) AS media
+        FROM UnidadesDestino UD
+        LEFT JOIN HISTORICO_DECISAO_GESTORA HDG ON UD.UnidadeCOD = HDG.DESTINOID
+        LEFT JOIN OcorrenciaMovimentacao OM ON HDG.OCORRENCIAID = OM.OcorrenciaID
+        LEFT JOIN Ocorrencia O ON O.OcorrenciaID = HDG.OCORRENCIAID
+        WHERE
+            OM.ChegadaDestinoDT IS NOT NULL
+            AND OM.RetornoDestinoDT IS NOT NULL
+            AND O.DtHr BETWEEN ${from} AND ${to} ${turnRangeQuery}
+        GROUP BY
+            UD.UnidadeCOD
+    ) AS Subconsulta`;
 
   const mediaIndividual = await prisma.$queryRaw<Individual[]>`
       SELECT
           UD.UnidadeCOD AS id,
         UD.UnidadeDS AS nome,
-          COUNT(OcorrenciaMovimentacao.OcorrenciaID) AS totalOcorrencias,
+          COUNT(DISTINCT OM.OcorrenciaID) AS totalOcorrencias,
           AVG(
               DATEDIFF(
                   MINUTE,
-                  OcorrenciaMovimentacao.ChegadaDestinoDT,
-                  OcorrenciaMovimentacao.RetornoDestinoDT
+                  OM.ChegadaDestinoDT,
+                  OM.RetornoDestinoDT
               )
           ) AS tempo
       FROM UnidadesDestino UD
       LEFT JOIN HISTORICO_DECISAO_GESTORA HDG ON UD.UnidadeCOD = HDG.DESTINOID
-      LEFT JOIN OcorrenciaMovimentacao ON HDG.OCORRENCIAID = OcorrenciaMovimentacao.OcorrenciaID
-      WHERE OcorrenciaMovimentacao.ChegadaDestinoDT IS NOT NULL
-          AND OcorrenciaMovimentacao.RetornoDestinoDT IS NOT NULL
-          AND OcorrenciaMovimentacao.EnvioEquipeDT BETWEEN ${from} AND ${to} ${turnRangeQuery}
+      LEFT JOIN OcorrenciaMovimentacao OM ON HDG.OCORRENCIAID = OM.OcorrenciaID
+      LEFT JOIN Ocorrencia O ON O.OcorrenciaID = HDG.OCORRENCIAID
+      WHERE OM.ChegadaDestinoDT IS NOT NULL
+          AND OM.RetornoDestinoDT IS NOT NULL
+          AND O.DtHr BETWEEN ${from} AND ${to} ${turnRangeQuery}
       GROUP BY
           UD.UnidadeCOD,
-        UD.UnidadeDS
+          UD.UnidadeDS
       ORDER BY
           tempo ASC`;
 

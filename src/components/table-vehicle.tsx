@@ -53,7 +53,7 @@ export function TableVehicle({ data }: { data: TempoVeiculos }) {
                 <TableCell>{veiculo.QTYQUS}</TableCell>
                 <TableCell>{veiculo.QUSQUY}</TableCell>
                 <TableCell>{veiculo.QUYQUU}</TableCell>
-                <TableCell>{veiculo.contagemOcorrencias}</TableCell>
+                <TableCell>{veiculo.totalOcorrencias}</TableCell>
               </TableRow>
             ))}
             {data.individual.length === 0 && (

@@ -2,7 +2,7 @@ import { prisma } from "../server/db";
 import { DateRange } from "react-day-picker";
 import { getTurnQuery } from "@/utils/getTurnQuery";
 import { Turn } from "@/hooks/useGlobalDateFilterStore";
-import { subHours } from "date-fns";
+import { format } from "date-fns";
 
 export interface TempoVeiculos {
   media?: Media;
@@ -21,44 +21,35 @@ interface Individual {
   QTYQUS?: number;
   QUSQUY?: number;
   QUYQUU?: number;
-  contagemOcorrencias: number;
+  totalOcorrencias: number;
 }
 
-/**
- * Faz uma consulta ao banco de dados de forma assincrona para obter o tempo resposta dos veiculos
- * @param date A data em YYYY-MM usada para filtrar a busca
- * @returns Um objeto contendo o tempo resposta medio geral e o tempo resposta medio de cada veiculo
- */
 export async function tempoVeiculos(dateRange: DateRange, turn: Turn) {
-  const from = subHours(dateRange.from!.setHours(1, 0, 0, 0), 3);
-  const to = subHours(dateRange.to!.setHours(1, 0, 0, 0), 3);
+  const from = format(dateRange.from!, "yyyy-MM-dd 1:00:00"); //equivale a 1h da madrugada
+  const to = format(dateRange.to!, "yyyy-MM-dd 1:00:00");
+  console.log(from, to);
   const turnRangeQuery = getTurnQuery(turn);
   const mediaGeral = await prisma.$queryRaw<Media[]>`
     SELECT
-        AVG(DATEDIFF(minute, OcorrenciaMovimentacao.EnvioEquipeDT, OcorrenciaMovimentacao.ChegadaLocalDT)) AS QTYQUS,
-        AVG(DATEDIFF(minute, OcorrenciaMovimentacao.SaidaLocalDT, OcorrenciaMovimentacao.ChegadaDestinoDT)) AS QUSQUY,
-        AVG(DATEDIFF(minute, OcorrenciaMovimentacao.ChegadaDestinoDT, OcorrenciaMovimentacao.RetornoDestinoDT)) AS QUYQUU
-    FROM
-        OcorrenciaMovimentacao 
-    WHERE OcorrenciaMovimentacao.EnvioEquipeDT BETWEEN ${from} AND ${to} ${turnRangeQuery}`;
+        AVG(DATEDIFF(minute, OM.EnvioEquipeDT, OM.ChegadaLocalDT)) AS QTYQUS,
+        AVG(DATEDIFF(minute, OM.SaidaLocalDT, OM.ChegadaDestinoDT)) AS QUSQUY,
+        AVG(DATEDIFF(minute, OM.ChegadaDestinoDT, OM.RetornoDestinoDT)) AS QUYQUU
+    FROM OcorrenciaMovimentacao OM 
+    LEFT JOIN Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID
+    WHERE O.DtHr BETWEEN ${from} AND ${to} ${turnRangeQuery}`;
 
   const mediaIndividual = await prisma.$queryRaw<Individual[]>`
     SELECT
         V.VeiculoID AS id,
         V.VeiculoDS AS nome,
-        (SELECT COUNT(*) 
-          FROM OcorrenciaMovimentacao 
-          WHERE OcorrenciaMovimentacao.VeiculoID = V.VeiculoID 
-          AND OcorrenciaMovimentacao.EnvioEquipeDT BETWEEN ${from} 
-          AND ${to} ${turnRangeQuery}
-        ) AS contagemOcorrencias,
-        AVG(DATEDIFF(minute, OcorrenciaMovimentacao.EnvioEquipeDT, OcorrenciaMovimentacao.ChegadaLocalDT)) AS QTYQUS,
-        AVG(DATEDIFF(minute, OcorrenciaMovimentacao.SaidaLocalDT, OcorrenciaMovimentacao.ChegadaDestinoDT)) AS QUSQUY,
-        AVG(DATEDIFF(minute, OcorrenciaMovimentacao.ChegadaDestinoDT, OcorrenciaMovimentacao.RetornoDestinoDT)) AS QUYQUU
-    FROM
-        OcorrenciaMovimentacao 
-        JOIN Veiculos V ON OcorrenciaMovimentacao.VeiculoID = V.VeiculoID
-    WHERE OcorrenciaMovimentacao.EnvioEquipeDT BETWEEN ${from} AND ${to} ${turnRangeQuery}
+        AVG(DATEDIFF(MINUTE, OM.EnvioEquipeDT, OM.ChegadaLocalDT)) AS QTYQUS,
+        AVG(DATEDIFF(MINUTE, OM.SaidaLocalDT, OM.ChegadaDestinoDT)) AS  QUSQUY,
+        AVG(DATEDIFF(MINUTE, OM.ChegadaDestinoDT, OM.RetornoDestinoDT)) AS QUYQUU,
+      COUNT(OM.OcorrenciaID) AS totalOcorrencias
+    FROM Veiculos V 
+    LEFT JOIN OcorrenciaMovimentacao OM ON V.VeiculoID = OM.VeiculoID
+    LEFT JOIN Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID
+    WHERE O.DtHr BETWEEN ${from} AND ${to} ${turnRangeQuery}
     GROUP BY
         V.VeiculoID, V.VeiculoDS`;
 
