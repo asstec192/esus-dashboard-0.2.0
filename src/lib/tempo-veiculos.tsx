@@ -16,10 +16,12 @@ interface Media {
 }
 
 interface Individual {
+  id: number;
   nome: string;
   QTYQUS?: number;
   QUSQUY?: number;
   QUYQUU?: number;
+  contagemOcorrencias: number;
 }
 
 /**
@@ -28,31 +30,37 @@ interface Individual {
  * @returns Um objeto contendo o tempo resposta medio geral e o tempo resposta medio de cada veiculo
  */
 export async function tempoVeiculos(dateRange: DateRange, turn: Turn) {
-  const from = subHours(new Date(dateRange.from!.setHours(1, 0, 0, 0)), 3);
-  const to = subHours(new Date(dateRange.to!.setHours(1, 0, 0, 0)), 3);
+  const from = subHours(dateRange.from!.setHours(1, 0, 0, 0), 3);
+  const to = subHours(dateRange.to!.setHours(1, 0, 0, 0), 3);
   const turnRangeQuery = getTurnQuery(turn);
-  console.log(turn);
   const mediaGeral = await prisma.$queryRaw<Media[]>`
     SELECT
-        AVG(DATEDIFF(minute, OM.EnvioEquipeDT, OM.ChegadaLocalDT)) AS QTYQUS,
-        AVG(DATEDIFF(minute, OM.SaidaLocalDT, OM.ChegadaDestinoDT)) AS QUSQUY,
-        AVG(DATEDIFF(minute, OM.ChegadaDestinoDT, OM.RetornoDestinoDT)) AS QUYQUU
+        AVG(DATEDIFF(minute, OcorrenciaMovimentacao.EnvioEquipeDT, OcorrenciaMovimentacao.ChegadaLocalDT)) AS QTYQUS,
+        AVG(DATEDIFF(minute, OcorrenciaMovimentacao.SaidaLocalDT, OcorrenciaMovimentacao.ChegadaDestinoDT)) AS QUSQUY,
+        AVG(DATEDIFF(minute, OcorrenciaMovimentacao.ChegadaDestinoDT, OcorrenciaMovimentacao.RetornoDestinoDT)) AS QUYQUU
     FROM
-        OcorrenciaMovimentacao OM
-    WHERE OM.EnvioEquipeDT BETWEEN ${from} AND ${to} ${turnRangeQuery}`;
+        OcorrenciaMovimentacao 
+    WHERE OcorrenciaMovimentacao.EnvioEquipeDT BETWEEN ${from} AND ${to} ${turnRangeQuery}`;
 
   const mediaIndividual = await prisma.$queryRaw<Individual[]>`
-     SELECT
-          V.VeiculoDS AS nome,
-          AVG(DATEDIFF(minute, OM.EnvioEquipeDT, OM.ChegadaLocalDT)) AS QTYQUS,
-          AVG(DATEDIFF(minute, OM.SaidaLocalDT, OM.ChegadaDestinoDT)) AS QUSQUY,
-          AVG(DATEDIFF(minute, OM.ChegadaDestinoDT, OM.RetornoDestinoDT)) AS QUYQUU
-      FROM
-          OcorrenciaMovimentacao OM
-          JOIN Veiculos V ON OM.VeiculoID = V.VeiculoID
-      WHERE OM.EnvioEquipeDT BETWEEN ${from} AND ${to} ${turnRangeQuery}  
-      GROUP BY
-          V.VeiculoDS`;
+    SELECT
+        V.VeiculoID AS id,
+        V.VeiculoDS AS nome,
+        (SELECT COUNT(*) 
+          FROM OcorrenciaMovimentacao 
+          WHERE OcorrenciaMovimentacao.VeiculoID = V.VeiculoID 
+          AND OcorrenciaMovimentacao.EnvioEquipeDT BETWEEN ${from} 
+          AND ${to} ${turnRangeQuery}
+        ) AS contagemOcorrencias,
+        AVG(DATEDIFF(minute, OcorrenciaMovimentacao.EnvioEquipeDT, OcorrenciaMovimentacao.ChegadaLocalDT)) AS QTYQUS,
+        AVG(DATEDIFF(minute, OcorrenciaMovimentacao.SaidaLocalDT, OcorrenciaMovimentacao.ChegadaDestinoDT)) AS QUSQUY,
+        AVG(DATEDIFF(minute, OcorrenciaMovimentacao.ChegadaDestinoDT, OcorrenciaMovimentacao.RetornoDestinoDT)) AS QUYQUU
+    FROM
+        OcorrenciaMovimentacao 
+        JOIN Veiculos V ON OcorrenciaMovimentacao.VeiculoID = V.VeiculoID
+    WHERE OcorrenciaMovimentacao.EnvioEquipeDT BETWEEN ${from} AND ${to} ${turnRangeQuery}
+    GROUP BY
+        V.VeiculoID, V.VeiculoDS`;
 
   return {
     media: mediaGeral[0],

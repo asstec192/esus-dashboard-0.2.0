@@ -4,7 +4,7 @@ import { getColorByRisk } from "@/utils/getColorByRisk";
 import type { Ocorrencia, Paciente, Veiculo } from "@/lib/ocorrencias";
 import { getDay } from "date-fns";
 import { formatDate } from "@/utils/formatDate";
-import { isTimeBetween } from "@/utils/isTimeBetween";
+import { isWithinHourInterval } from "@/utils/isWithinHourInterval";
 import { PopoverVeiculo } from "../components/popover-veiculo";
 import { Button } from "@/components/ui/button";
 import { useIncidentStore } from "@/hooks/useIncidentStore";
@@ -50,7 +50,6 @@ export const incidentTableColumns: ColumnDef<Ocorrencia>[] = [
     accessorKey: "operador",
     header: "Médico regulador",
     cell: ({ row }) => {
-      console.log(row.getValue("operador"));
       const operador: string = row.getValue("operador");
       return <div>{formatProperName(operador)}</div>;
     },
@@ -165,7 +164,7 @@ export const incidentTableColumns: ColumnDef<Ocorrencia>[] = [
       return selectedHours.some((hourRange) => {
         const startHour = (JSON.parse(hourRange) as NumberRange).min;
         const endHour = (JSON.parse(hourRange) as NumberRange).max;
-        return isTimeBetween(startHour, endHour, primeiroEnvio);
+        return isWithinHourInterval(primeiroEnvio, startHour, endHour);
       });
     },
   },

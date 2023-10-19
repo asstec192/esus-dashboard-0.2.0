@@ -11,24 +11,34 @@ import { Turn } from "@/hooks/useGlobalDateFilterStore";
 
 const turnos: Turn[] = [
   {
-    from: "",
-    to: "",
+    from: "1:00:00",
+    to: "1:00:00",
+    numericFrom: 1,
+    numericTo: 1,
   },
   {
     from: "7:00:00",
     to: "13:00:00",
+    numericFrom: 7,
+    numericTo: 13,
   },
   {
     from: "13:00:00",
     to: "19:00:00",
+    numericFrom: 13,
+    numericTo: 19,
   },
   {
     from: "19:00:00",
     to: "1:00:00",
+    numericFrom: 19,
+    numericTo: 1,
   },
   {
     from: "1:00:00",
     to: "7:00:00",
+    numericFrom: 1,
+    numericTo: 7,
   },
 ];
 

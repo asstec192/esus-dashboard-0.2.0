@@ -5,6 +5,8 @@ import { create } from "zustand";
 export type Turn = {
   from: string; //hora no formato hh:mm:ss
   to: string; //hora no formato hh:mm:ss
+  numericFrom: number;
+  numericTo: number;
 };
 
 type GlobalDateFilterStore = {
@@ -23,8 +25,10 @@ const initialDateRange: DateRange = {
   to: addDays(new Date(), 1),
 };
 const initialTurn: Turn = {
-  from: "",
-  to: "",
+  from: "1:00:00",
+  to: "1:00:00",
+  numericFrom: 1,
+  numericTo: 1,
 };
 
 export const useGlogalDateFilterStore = create<GlobalDateFilterStore>()(

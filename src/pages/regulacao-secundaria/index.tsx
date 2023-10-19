@@ -8,15 +8,18 @@ import { type ReactElement } from "react";
 import AnalyticsLayout from "@/components/layouts/analytics-layout";
 import { useDestinyQuery } from "@/hooks/useDestinyQuery";
 import { useVehicleQuery } from "@/hooks/useVehicleQuery";
+import { isWithinHourInterval } from "@/utils/isWithinHourInterval";
 
 const RegulacaoSecundaria: NextPageWithLayout = () => {
   const vehicleQuery = useVehicleQuery();
   const destinyQuery = useDestinyQuery();
+  const date = new Date().setHours(1, 0, 0, 0);
+  isWithinHourInterval(new Date(date), 1, 7);
   return (
     <Tabs defaultValue="veiculos" className="h-[calc(100%-2rem)]">
       <TabsList>
         <TabsTrigger value="veiculos">Veículos</TabsTrigger>
-        <TabsTrigger value="hospitais">Hospitais</TabsTrigger>
+        <TabsTrigger value="destinos">Destinos</TabsTrigger>
       </TabsList>
       <TabsContent className="h-[calc(100%-4rem)]" value="veiculos">
         <Show
@@ -30,7 +33,7 @@ const RegulacaoSecundaria: NextPageWithLayout = () => {
           <TableVehicle data={vehicleQuery.data!} />
         </Show>
       </TabsContent>
-      <TabsContent className="h-[calc(100%-4rem)]" value="hospitais">
+      <TabsContent className="h-[calc(100%-4rem)]" value="destinos">
         <Show
           when={destinyQuery.isLoading}
           fallback={

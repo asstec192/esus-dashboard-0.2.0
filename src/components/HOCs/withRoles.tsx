@@ -1,13 +1,14 @@
 import type { UserRole } from "@/types/UserRole";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { ComponentType } from "react";
 
-export function withRoles(
-  Component: any,
+export function withRoles<T>(
+  Component: ComponentType<T>,
   permissions: UserRole[],
   shouldRedirect = false,
 ) {
-  return function WithRolesWrapper(props: any) {
+  return function WithRolesWrapper(props: T) {
     const router = useRouter();
     const session = useSession();
     const user = session.data?.user;
@@ -16,6 +17,7 @@ export function withRoles(
       return null;
     }
 
-    return <Component {...props} />;
+    //@ts-ignore
+    return <Component {...(props as T)} />;
   };
 }

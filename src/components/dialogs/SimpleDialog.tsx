@@ -26,7 +26,7 @@ export const SimpleDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger && <DialogTrigger>{trigger}</DialogTrigger>}
-      <DialogContent {...props}>
+      <DialogContent {...props} className="max-w-7xl">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>

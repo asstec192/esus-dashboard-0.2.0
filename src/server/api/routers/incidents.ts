@@ -1,6 +1,10 @@
 import * as z from "zod";
 
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { ocorrenciasPorRisco } from "@/lib/ocorrencias-por-risco";
 import { ocorrenciasEmAndamento } from "@/lib/ocorrencias-tempo-real";
 import { ligacoesPorTipo } from "@/lib/ligacoes-por-tipo";
@@ -8,13 +12,95 @@ import { ocorrencias } from "@/lib/ocorrencias";
 import { dateRange } from "./patients";
 import { ocorrenciasPorHorarioDeDeslocamento } from "@/lib/ocorrencias-por-horario-deslocamento";
 import { ocorrenciasPorTipoDeVeiculo } from "@/lib/ocorrencias-por-tipo-veiculo";
+import { prisma } from "@/server/db";
 
 export const incidentsRouter = createTRPCRouter({
+  getOne: protectedProcedure
+    .input(z.object({ incidentId: z.number() }))
+    .query(({ input }) =>
+      prisma.ocorrencia.findUnique({
+        select: {
+          OcorrenciaID: true,
+          Bairro: true,
+          DtHr: true,
+          RISCOCOD: true,
+          Motivo: {
+            select: {
+              MotivoDS: true,
+            },
+          },
+          FORMEQUIPE_SolicitacaoVeiculo: {
+            select: {
+              Operador: {
+                select: {
+                  OperadorNM: true,
+                },
+              },
+            },
+            where: {
+              VeiculoSEQ: 1,
+            },
+            take: 1,
+          },
+          OcorrenciaMovimentacao: {
+            include: {
+              Veiculo: {
+                select: {
+                  VeiculoDS: true,
+                },
+              },
+            },
+          },
+          Vitimas: {
+            select: {
+              VitimaNM: true,
+              VitimaId: true,
+              Sexo: true,
+              Idade: true,
+              IdadeTP_Vitimas_IdadeTPToIdadeTP: {
+                select: {
+                  IdadeTPDS: true,
+                },
+              },
+              OCORRENCIA_AVALIACAO_INICIAL: {
+                select: {
+                  DTHR: true,
+                  AVALICAO: true,
+                  Operador: {
+                    select: {
+                      OperadorNM: true,
+                    },
+                  },
+                },
+              },
+              HistoricoDecisaoGestora: {
+                take: 1,
+                select: {
+                  Destino: {
+                    select: {
+                      UnidadeDS: true,
+                    },
+                  },
+                },
+                orderBy: {
+                  DTHR_DECISAO_GESTORAID: "desc",
+                },
+              },
+            },
+          },
+        },
+        where: {
+          OcorrenciaID: input.incidentId,
+        },
+      }),
+    ),
+
   getAll: publicProcedure
     .input(z.object({ from: z.date(), to: z.date() }))
     .query(async ({ input }) => {
       return await ocorrencias(input);
     }),
+
   getTotalIncidentsByRisk: publicProcedure.query(() => ocorrenciasPorRisco()),
   getIncidentsInProgress: publicProcedure.query(() => ocorrenciasEmAndamento()),
   getTotalIncidentsByCallType: publicProcedure.query(() => ligacoesPorTipo()),

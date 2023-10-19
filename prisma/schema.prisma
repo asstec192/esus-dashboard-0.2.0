@@ -271,24 +271,24 @@ model HISTORICO_CONDUTA {
     @@ignore
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model HISTORICO_DECISAO_GESTORA {
-    DECISAOID                    Int       @default(autoincrement())
+    DECISAOID                    Int              @id @default(autoincrement())
     OCORRENCIAID                 BigInt?
     VITIMAID                     Int?
     DECISAO_GESTORAID            Int?
     OPERADORID_DECISAO_GESTORAID Int?
-    DTHR_DECISAO_GESTORAID       DateTime? @db.DateTime
+    DTHR_DECISAO_GESTORAID       DateTime?        @db.DateTime
     DESTINOID                    Int?
     OPERADORID_DESTINOID         Int?
-    DTHR_DESTINOID               DateTime? @db.DateTime
+    DTHR_DESTINOID               DateTime?        @db.DateTime
     INTERCORRENCIAID             Int?
     OPERADORID_INTERCORRENCIAID  Int?
-    DTHR_INTERCORRENCIAID        DateTime? @db.DateTime
-    OBSERVACAO                   String?   @db.VarChar(300)
-    STATUS                       String?   @db.Char(1)
-
-    @@ignore
+    DTHR_INTERCORRENCIAID        DateTime?        @db.DateTime
+    OBSERVACAO                   String?          @db.VarChar(300)
+    STATUS                       String?          @db.Char(1)
+    Vitima                       Vitimas?         @relation(fields: [VITIMAID], references: [VitimaId])
+    Destino                      UnidadesDestino? @relation(fields: [DESTINOID], references: [UnidadeCOD])
+    Ocorrencia                   Ocorrencia?      @relation(fields: [OCORRENCIAID], references: [OcorrenciaID], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -521,6 +521,7 @@ model Ocorrencia {
     Vitimas                           Vitimas[]
     OCORRENCIA_AVALIACAO_INICIAL      OCORRENCIA_AVALIACAO_INICIAL[]
     FORMEQUIPE_SolicitacaoVeiculo     FORMEQUIPE_SolicitacaoVeiculo[]
+    HISTORICO_DECISAO_GESTORA         HISTORICO_DECISAO_GESTORA[]
 }
 
 model OCORRENCIA_APOIO_SOLICITADO {
@@ -1617,34 +1618,35 @@ model TransporteDS {
 }
 
 model UnidadesDestino {
-    UnidadeCOD         String               @id(map: "PK_UnidadesDestino") @db.NVarChar(8)
-    CNES               String?              @db.VarChar(13)
-    UnidadeDS          String?              @db.NVarChar(50)
-    LogradouroTP       String?              @db.NVarChar(50)
-    Logradouro         String?              @db.NVarChar(50)
-    Numero             String?              @db.NVarChar(10)
-    Bairro             String?              @db.NVarChar(50)
-    Complemento        String?              @db.VarChar(20)
-    CEP                String?              @db.NVarChar(9)
-    ReferenciaDS       String?              @db.NVarChar(255)
-    MunicipioID        String?              @db.NVarChar(50)
-    EstadoID           String?              @db.NVarChar(50)
-    TelefoneDDD        String?              @db.NVarChar(2)
-    TelefoneNM         String?              @db.NVarChar(8)
-    OperadorCOD        Int?
-    RegistroDT         DateTime?            @db.SmallDateTime
-    AtividadeST        String?              @db.NVarChar(1)
-    RegAtivo           String?              @db.NVarChar(1)
-    AtivacaoDT         DateTime?            @db.SmallDateTime
-    InativacaoDT       DateTime?            @db.SmallDateTime
-    VEICULO_ITEMRETIDO VEICULO_ITEMRETIDO[]
+    UnidadeCOD                Int                         @id(map: "PK_UnidadesDestino")
+    CNES                      String?                     @db.VarChar(13)
+    UnidadeDS                 String?                     @db.NVarChar(50)
+    LogradouroTP              String?                     @db.NVarChar(50)
+    Logradouro                String?                     @db.NVarChar(50)
+    Numero                    String?                     @db.NVarChar(10)
+    Bairro                    String?                     @db.NVarChar(50)
+    Complemento               String?                     @db.VarChar(20)
+    CEP                       String?                     @db.NVarChar(9)
+    ReferenciaDS              String?                     @db.NVarChar(255)
+    MunicipioID               String?                     @db.NVarChar(50)
+    EstadoID                  String?                     @db.NVarChar(50)
+    TelefoneDDD               String?                     @db.NVarChar(2)
+    TelefoneNM                String?                     @db.NVarChar(8)
+    OperadorCOD               Int?
+    RegistroDT                DateTime?                   @db.SmallDateTime
+    AtividadeST               String?                     @db.NVarChar(1)
+    RegAtivo                  String?                     @db.NVarChar(1)
+    AtivacaoDT                DateTime?                   @db.SmallDateTime
+    InativacaoDT              DateTime?                   @db.SmallDateTime
+    VEICULO_ITEMRETIDO        VEICULO_ITEMRETIDO[]
+    HISTORICO_DECISAO_GESTORA HISTORICO_DECISAO_GESTORA[]
 }
 
 model VEICULO_ITEMRETIDO {
     OCORRENCIAID    BigInt
     VEICULOID       Int
     ITEMRETIDOCOD   Int
-    UNIDADE         String?          @db.NVarChar(8)
+    UNIDADE         Int?
     REGISTRODTHR    DateTime         @db.DateTime
     DEVOLVIDO       DateTime?        @db.DateTime
     Ocorrencia      Ocorrencia       @relation(fields: [OCORRENCIAID], references: [OcorrenciaID], onUpdate: NoAction, map: "FK_VEICULO_ITEMRETIDO_Ocorrencia")
@@ -1717,6 +1719,7 @@ model Vitimas {
     OCORRENCIA_AVALIACAO_PACIENTE_CID OCORRENCIA_AVALIACAO_PACIENTE_CID[]
     IdadeTP_Vitimas_IdadeTPToIdadeTP  IdadeTP?                            @relation("Vitimas_IdadeTPToIdadeTP", fields: [IdadeTP], references: [IdadeTP], onDelete: NoAction, onUpdate: NoAction, map: "FK_Vitimas_IdadeTP")
     OCORRENCIA_AVALIACAO_INICIAL      OCORRENCIA_AVALIACAO_INICIAL[]
+    HistoricoDecisaoGestora           HISTORICO_DECISAO_GESTORA[]
 
     @@id([OcorrenciaID, VitimaId], map: "PK_Vitimas")
 }

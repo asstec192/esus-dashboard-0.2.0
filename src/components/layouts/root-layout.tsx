@@ -49,10 +49,8 @@ const inter = localFont({
 export default function RootLayout({ children }: { children: ReactNode }) {
   const { data, status } = useSession();
   useEffect(() => {
-    console.log(data?.expires);
     const isSessionExpired =
       data?.expires && new Date(data.expires) < new Date();
-    console.log(isSessionExpired);
     if (isSessionExpired && status === "authenticated") {
       signOut();
     }

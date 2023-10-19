@@ -2,7 +2,7 @@ import { UserRole } from "@/types/UserRole";
 import { CreateUserModal } from "../../components/dialog-create-user";
 import { withRoles } from "@/components/HOCs/withRoles";
 import { UsersList } from "../../components/table-users";
-import { SimpleDialog } from "@/components/dialogs/simple-dialog";
+import { SimpleDialog } from "@/components/dialogs/SimpleDialog";
 import { FormChangeUserPassword } from "../../components/form-change-user-password";
 import { formatProperName } from "@/utils/formatProperName";
 import { useManageUsersStore } from "@/hooks/useManageUsersStore";

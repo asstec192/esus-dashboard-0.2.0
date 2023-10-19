@@ -4,6 +4,8 @@ import { patientsRouter } from "./routers/patients";
 import { incidentsRouter } from "./routers/incidents";
 import { responseTimeRouter } from "./routers/reponse-times";
 import { usersRouter } from "./routers/users";
+import { vehicleRouter } from "./routers/vehicle";
+import { destinyRouter } from "./routers/destiny";
 
 /**
  * This is the primary router for your server.
@@ -16,6 +18,8 @@ export const appRouter = createTRPCRouter({
   incidents: incidentsRouter,
   responseTimes: responseTimeRouter,
   users: usersRouter,
+  vehicle: vehicleRouter,
+  destiny: destinyRouter,
 });
 
 // export type definition of API

@@ -11,6 +11,8 @@ const input = z.object({
   turn: z.object({
     from: z.string(),
     to: z.string(),
+    numericFrom: z.number(),
+    numericTo: z.number(),
   }),
 });
 
