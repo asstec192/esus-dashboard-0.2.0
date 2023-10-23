@@ -286,6 +286,7 @@ model HISTORICO_DECISAO_GESTORA {
     DTHR_INTERCORRENCIAID        DateTime?        @db.DateTime
     OBSERVACAO                   String?          @db.VarChar(300)
     STATUS                       String?          @db.Char(1)
+    Intercorrencia               Intercorrencias? @relation(fields: [INTERCORRENCIAID], references: [IntercorrenciaID])
     Vitima                       Vitimas?         @relation(fields: [VITIMAID], references: [VitimaId])
     Destino                      UnidadesDestino? @relation(fields: [DESTINOID], references: [UnidadeCOD])
     Ocorrencia                   Ocorrencia?      @relation(fields: [OCORRENCIAID], references: [OcorrenciaID], onDelete: NoAction, onUpdate: NoAction)
@@ -383,11 +384,12 @@ model INT_GRAVADOR_HISTORICO_ATIVIDADE_SRV {
 }
 
 model Intercorrencias {
-    IntercorrenciaID Int       @id(map: "PK_Intercorrencias") @default(autoincrement())
-    IntercorrenciaDS String?   @db.NVarChar(100)
-    RegAtivo         String?   @db.NVarChar(1)
-    AtivacaoDT       DateTime? @db.SmallDateTime
-    InativacaoDT     DateTime? @db.SmallDateTime
+    IntercorrenciaID          Int                         @id(map: "PK_Intercorrencias") @default(autoincrement())
+    IntercorrenciaDS          String?                     @db.NVarChar(100)
+    RegAtivo                  String?                     @db.NVarChar(1)
+    AtivacaoDT                DateTime?                   @db.SmallDateTime
+    InativacaoDT              DateTime?                   @db.SmallDateTime
+    HISTORICO_DECISAO_GESTORA HISTORICO_DECISAO_GESTORA[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.

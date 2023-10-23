@@ -1,12 +1,17 @@
 import { toast } from "@/components/ui/use-toast";
-import { useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
+import {
+  DateRange,
+  useGlogalDateFilterStore,
+} from "@/hooks/useGlobalDateFilterStore";
 import { api } from "@/utils/api";
 
-export const useDestinyQuery = () => {
-  const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
+export const useVehicleResponseTimeQuery = () => {
+  const dateRange = useGlogalDateFilterStore(
+    (state) => state.dateRange,
+  ) as DateRange;
   const turn = useGlogalDateFilterStore((state) => state.turn);
-  const query = api.responseTimes.getResponseTimeByDesiny.useQuery(
-    { from: dateRange.from!, to: dateRange.to!, turn },
+  const query = api.vehicles.getResponseTimes.useQuery(
+    { dateRange, turn },
     {
       onError: () => {
         toast({

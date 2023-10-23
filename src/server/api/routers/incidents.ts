@@ -1,5 +1,4 @@
 import * as z from "zod";
-
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -9,10 +8,11 @@ import { ocorrenciasPorRisco } from "@/lib/ocorrencias-por-risco";
 import { ocorrenciasEmAndamento } from "@/lib/ocorrencias-tempo-real";
 import { ligacoesPorTipo } from "@/lib/ligacoes-por-tipo";
 import { ocorrencias } from "@/lib/ocorrencias";
-import { dateRange } from "./patients";
 import { ocorrenciasPorHorarioDeDeslocamento } from "@/lib/ocorrencias-por-horario-deslocamento";
 import { ocorrenciasPorTipoDeVeiculo } from "@/lib/ocorrencias-por-tipo-veiculo";
 import { prisma } from "@/server/db";
+import { dateRangeInput } from "@/hooks/useGlobalDateFilterStore";
+import { estatisticasDiarias } from "@/lib/estatisticas-diarias";
 
 export const incidentsRouter = createTRPCRouter({
   getOne: protectedProcedure
@@ -95,19 +95,17 @@ export const incidentsRouter = createTRPCRouter({
       }),
     ),
 
-  getAll: publicProcedure
-    .input(z.object({ from: z.date(), to: z.date() }))
-    .query(async ({ input }) => {
-      return await ocorrencias(input);
-    }),
-
+  getAll: publicProcedure.input(dateRangeInput).query(async ({ input }) => {
+    return await ocorrencias(input);
+  }),
   getTotalIncidentsByRisk: publicProcedure.query(() => ocorrenciasPorRisco()),
   getIncidentsInProgress: publicProcedure.query(() => ocorrenciasEmAndamento()),
   getTotalIncidentsByCallType: publicProcedure.query(() => ligacoesPorTipo()),
   getTotalIncidentsByHour: publicProcedure
-    .input(dateRange)
+    .input(dateRangeInput)
     .query(({ input }) => ocorrenciasPorHorarioDeDeslocamento(input)),
   getTotalIncidentsByVehicleType: publicProcedure
-    .input(dateRange)
+    .input(dateRangeInput)
     .query(({ input }) => ocorrenciasPorTipoDeVeiculo(input)),
+  getDailyInfo: protectedProcedure.query(() => estatisticasDiarias()),
 });

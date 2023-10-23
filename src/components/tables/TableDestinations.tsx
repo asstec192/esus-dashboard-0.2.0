@@ -8,14 +8,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { type TempoHospitais } from "@/lib/tempo-hospitais";
-import { Button } from "./ui/button";
-import { DialogDestinyIncidents } from "./dialogs/DialogDestinyIncidents";
+import { Button } from "../ui/button";
+import { DialogDestinationIncidents } from "../dialogs/DialogDestinationIncidents";
 import { useState } from "react";
 
-export function TableHospital({ data }: { data: TempoHospitais }) {
+export function TableDestinations({ data }: { data: TempoRespostaDestino[] }) {
   const [selectedDestiny, setSelectedDestiny] =
-    useState<TempoHospitais["individual"][0]>();
+    useState<TempoRespostaDestino>();
   return (
     <>
       <ScrollArea className="relative h-full rounded-lg border bg-card shadow-sm">
@@ -24,28 +23,28 @@ export function TableHospital({ data }: { data: TempoHospitais }) {
             <TableRow>
               <TableHead className="text-start ">Unidade de destino</TableHead>
               <TableHead className="text-end">Tempo resposta</TableHead>
-              <TableHead className="text-end">Total de ocorrencias</TableHead>
+              <TableHead className="text-end">N° de Ocorrências</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.individual.map((hospital) => (
-              <TableRow key={hospital.nome}>
+            {data.map((destination) => (
+              <TableRow key={destination.nome}>
                 <TableCell>
                   <Button
                     variant="link"
                     className="h-min w-max p-0 font-bold underline"
-                    onClick={() => setSelectedDestiny(hospital)}
+                    onClick={() => setSelectedDestiny(destination)}
                   >
-                    {hospital.nome}
+                    {destination.nome}
                   </Button>
                 </TableCell>
-                <TableCell className="text-end">{hospital.tempo}</TableCell>
+                <TableCell className="text-end">{destination.tempo}</TableCell>
                 <TableCell className="text-end">
-                  {hospital.totalOcorrencias}
+                  {destination.totalOcorrencias}
                 </TableCell>
               </TableRow>
             ))}
-            {data.individual.length === 0 && (
+            {data.length === 0 && (
               <TableRow>
                 <TableCell colSpan={3} className="h-24 text-center">
                   Nenhum resultado.
@@ -57,7 +56,13 @@ export function TableHospital({ data }: { data: TempoHospitais }) {
             <TableRow className="hover:bg-inherit">
               <TableCell className="font-bold">Média</TableCell>
               <TableCell className="text-end font-bold">
-                {data.media?.tempo}
+                {/* calcula a media dos tempos */}
+                {Math.ceil(
+                  data.reduce(
+                    (acc, destination) => acc + destination.tempo,
+                    0,
+                  ) / data.length,
+                )}
               </TableCell>
               <TableCell></TableCell>
             </TableRow>
@@ -65,7 +70,7 @@ export function TableHospital({ data }: { data: TempoHospitais }) {
         </Table>
       </ScrollArea>
       {selectedDestiny && (
-        <DialogDestinyIncidents
+        <DialogDestinationIncidents
           destiny={selectedDestiny}
           open={selectedDestiny !== undefined}
           onClose={() => setSelectedDestiny(undefined)}

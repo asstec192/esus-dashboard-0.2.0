@@ -8,14 +8,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { type TempoVeiculos } from "@/lib/tempo-veiculos";
 import { useState } from "react";
-import { DialogVehicleIncidents } from "./dialogs/DialogVehicleIncidents";
-import { Button } from "./ui/button";
+import { DialogVehicleIncidents } from "../dialogs/DialogVehicleIncidents";
+import { Button } from "../ui/button";
 
-export function TableVehicle({ data }: { data: TempoVeiculos }) {
+export function TableVehicles({ data }: { data: TempoRespostaVeiculos[] }) {
   const [selectedVehicle, setSelectedVehicle] =
-    useState<TempoVeiculos["individual"][0]>();
+    useState<TempoRespostaVeiculos>();
   return (
     <>
       <ScrollArea className="relative h-full rounded-lg border bg-card shadow-sm">
@@ -32,31 +31,29 @@ export function TableVehicle({ data }: { data: TempoVeiculos }) {
               <TableHead className="text-end">
                 Chegada ao destino - QUY QUU (min)
               </TableHead>
-              <TableHead className="text-end">
-                Total de ocorrências atendidas
-              </TableHead>
+              <TableHead className="text-end">N° de Ocorrências</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.individual.map((veiculo) => (
-              <TableRow className="text-end" key={veiculo.id}>
+            {data.map((vehicle) => (
+              <TableRow className="text-end" key={vehicle.id}>
                 <TableCell className="text-start font-bold">
                   <Button
                     variant="link"
                     size="icon"
                     className="h-min w-max font-bold underline"
-                    onClick={() => setSelectedVehicle(veiculo)}
+                    onClick={() => setSelectedVehicle(vehicle)}
                   >
-                    {veiculo.nome}
+                    {vehicle.nome}
                   </Button>
                 </TableCell>
-                <TableCell>{veiculo.QTYQUS}</TableCell>
-                <TableCell>{veiculo.QUSQUY}</TableCell>
-                <TableCell>{veiculo.QUYQUU}</TableCell>
-                <TableCell>{veiculo.totalOcorrencias}</TableCell>
+                <TableCell>{vehicle.QTYQUS}</TableCell>
+                <TableCell>{vehicle.QUSQUY}</TableCell>
+                <TableCell>{vehicle.QUYQUU}</TableCell>
+                <TableCell>{vehicle.totalOcorrencias}</TableCell>
               </TableRow>
             ))}
-            {data.individual.length === 0 && (
+            {data.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center">
                   Nenhum resultado.
@@ -67,9 +64,30 @@ export function TableVehicle({ data }: { data: TempoVeiculos }) {
           <TableFooter className="sticky bottom-0">
             <TableRow className="text-end font-bold hover:bg-inherit">
               <TableCell className="text-start">Média</TableCell>
-              <TableCell>{data.media?.QTYQUS}</TableCell>
-              <TableCell>{data.media?.QUSQUY}</TableCell>
-              <TableCell>{data.media?.QUYQUU}</TableCell>
+              <TableCell>
+                {Math.ceil(
+                  data.reduce(
+                    (acc, vehicle) => acc + (vehicle.QTYQUS || 0),
+                    0,
+                  ) / data.length,
+                )}
+              </TableCell>
+              <TableCell>
+                {Math.ceil(
+                  data.reduce(
+                    (acc, vehicle) => acc + (vehicle.QUSQUY || 0),
+                    0,
+                  ) / data.length,
+                )}
+              </TableCell>
+              <TableCell>
+                {Math.ceil(
+                  data.reduce(
+                    (acc, vehicle) => acc + (vehicle.QUYQUU || 0),
+                    0,
+                  ) / data.length,
+                )}
+              </TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableFooter>

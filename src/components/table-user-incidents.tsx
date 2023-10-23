@@ -1,5 +1,5 @@
-import { DataTable } from "@/components/table/table";
-import { TablePagination } from "@/components/table/table-pagination";
+import { DataTable } from "@/components/tables/Table";
+import { TablePagination } from "@/components/tables/TablePagination";
 import { useTable } from "@/hooks/useTable";
 import { TypographyH4 } from "@/components/typography/TypographyH4";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";

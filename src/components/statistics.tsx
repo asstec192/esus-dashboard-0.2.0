@@ -5,13 +5,13 @@ import { Card } from "@/components/ui/card";
 import { TypographySmall } from "@/components/typography/TypographySmall";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDailyTimesQuery } from "@/hooks/useDailyTimesQuery";
+import { useDailyInfoQuery } from "@/hooks/useDailyInfoQuery";
 
 export const DailyStatistics = ({
   className,
   ...props
 }: HtmlHTMLAttributes<HTMLDivElement>) => {
-  const { data, isLoading, isError } = useDailyTimesQuery();
+  const { data, isLoading, isError } = useDailyInfoQuery();
   return (
     <div
       className={cn(

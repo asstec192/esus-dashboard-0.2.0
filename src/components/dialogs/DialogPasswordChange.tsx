@@ -14,9 +14,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useChangePasswordForm } from "../hooks/useChangePasswordForm";
+import { useChangePasswordForm } from "../../hooks/useChangePasswordForm";
 
-export const DialogChangePassword = () => {
+export const DialogPasswordChange = () => {
   const {
     form,
     mutation: { isError, error, isSuccess, data },

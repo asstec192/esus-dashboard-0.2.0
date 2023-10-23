@@ -1,5 +1,5 @@
 import { UserIncidents } from "@/components/table-user-incidents";
-import { DialogChangePassword } from "../../components/dialog-change-password";
+import { DialogPasswordChange } from "../../components/dialogs/DialogPasswordChange";
 import { api } from "@/utils/api";
 import IncidentTableLoading from "@/components/skeletons/skeleton-table-incident";
 
@@ -14,7 +14,7 @@ export default function UserProfile() {
           <UserIncidents data={data} />
         )}
       </div>
-      <DialogChangePassword />
+      <DialogPasswordChange />
     </div>
   );
 }

@@ -19,23 +19,23 @@ import { Button } from "../ui/button";
 import { getColorByRisk } from "@/utils/getColorByRisk";
 import { Loader2 } from "lucide-react";
 import { DialogIncident } from "./DialogIncident";
-import { TempoHospitais } from "@/lib/tempo-hospitais";
+import { IntercorrenciaCount } from "@/server/api/routers/intercorrencias";
 
-export const DialogDestinyIncidents = ({
-  destiny,
+export const DialogIntercorrenciaIncidents = ({
+  intercorrencia,
   open,
   onClose,
 }: {
-  destiny: TempoHospitais["individual"][0];
+  intercorrencia: IntercorrenciaCount;
   open: boolean;
   onClose: () => void;
 }) => {
   const [selectedIncidentId, setSelectedIncidentId] = useState<number>();
   const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
   const turn = useGlogalDateFilterStore((state) => state.turn);
-  const { data, isLoading } = api.destiny.getIncidents.useQuery(
+  const { data, isLoading } = api.intercorrencia.getIncidents.useQuery(
     {
-      destinyId: parseInt(destiny.id),
+      intercorrenciaId: intercorrencia.id,
       from: dateRange.from!,
       to: dateRange.to!,
     },
@@ -54,7 +54,7 @@ export const DialogDestinyIncidents = ({
       <SimpleDialog
         open={open}
         onOpenChange={onClose}
-        title={`Ocorrências atendidas por ${destiny.nome}`}
+        title={`Ocorrências atendidas por ${intercorrencia.description}`}
         className="max-w-7xl"
       >
         <ScrollArea className="relative max-h-[70vh] rounded-lg border bg-card shadow-sm">

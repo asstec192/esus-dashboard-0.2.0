@@ -1,6 +1,6 @@
 import { type Table } from "@tanstack/react-table";
-import { TableSearch } from "./table/table-search";
-import { TableFilter } from "./table/table-filter";
+import { TableSearch } from "./tables/TableSearch";
+import { TableFilter } from "./tables/TableFilter";
 
 interface TableIncidentsToolBarProps<TData> {
   table: Table<TData>;

@@ -2,10 +2,10 @@ import { exampleRouter } from "@/server/api/routers/example";
 import { createTRPCRouter } from "@/server/api/trpc";
 import { patientsRouter } from "./routers/patients";
 import { incidentsRouter } from "./routers/incidents";
-import { responseTimeRouter } from "./routers/reponse-times";
 import { usersRouter } from "./routers/users";
-import { vehicleRouter } from "./routers/vehicle";
-import { destinyRouter } from "./routers/destiny";
+import { vehicleRouter } from "./routers/vehicles";
+import { intercorrenciaRouter } from "./routers/intercorrencias";
+import { destinationRouter } from "./routers/destinations";
 
 /**
  * This is the primary router for your server.
@@ -16,10 +16,10 @@ export const appRouter = createTRPCRouter({
   example: exampleRouter,
   patients: patientsRouter,
   incidents: incidentsRouter,
-  responseTimes: responseTimeRouter,
   users: usersRouter,
-  vehicle: vehicleRouter,
-  destiny: destinyRouter,
+  vehicles: vehicleRouter,
+  destinations: destinationRouter,
+  intercorrencia: intercorrenciaRouter,
 });
 
 // export type definition of API

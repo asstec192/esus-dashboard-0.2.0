@@ -28,7 +28,7 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.mjs",
-    "src/server/api/routers/vehicle.ts"
+    "src/server/api/routers/vehicles.ts"
   ],
   "exclude": ["node_modules"]
 }

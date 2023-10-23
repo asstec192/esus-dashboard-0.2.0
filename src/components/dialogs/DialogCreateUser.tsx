@@ -5,9 +5,9 @@ import {
   DialogTrigger,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { SignUpForm } from "./form-signup";
+import { SignUpForm } from "../form-signup";
 
-export const CreateUserModal = () => {
+export const DialogCreateUser = () => {
   return (
     <Dialog>
       <DialogTrigger>

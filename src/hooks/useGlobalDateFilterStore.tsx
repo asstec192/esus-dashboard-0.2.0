@@ -1,26 +1,30 @@
-import { addDays } from "date-fns";
-import { DateRange } from "react-day-picker";
+import { addDays, isSameDay } from "date-fns";
 import { create } from "zustand";
+import * as z from "zod";
+import { DateRange as ReactDateRange } from "react-day-picker";
 
-export type Turn = {
-  from: string; //hora no formato hh:mm:ss
-  to: string; //hora no formato hh:mm:ss
-  numericFrom: number;
-  numericTo: number;
-};
+export const turnInput = z.object({
+  from: z.string(),
+  to: z.string(),
+  numericFrom: z.number(),
+  numericTo: z.number(),
+});
+export const dateRangeInput = z.object({ from: z.date(), to: z.date() });
+export type Turn = z.infer<typeof turnInput>;
+export type DateRange = z.infer<typeof dateRangeInput>;
 
 type GlobalDateFilterStore = {
-  dateRange: DateRange;
-  tempDateRange: DateRange;
+  dateRange: ReactDateRange;
+  tempDateRange: ReactDateRange;
   turn: Turn;
   tempTurn: Turn;
   setDateRange: () => void;
-  setTempDateRange: (dateRange?: DateRange) => void;
+  setTempDateRange: (dateRange?: ReactDateRange) => void;
   setTurn: (turn: Turn) => void;
   setTempTurn: (turn: Turn) => void;
 };
 
-const initialDateRange: DateRange = {
+const initialDateRange: ReactDateRange = {
   from: new Date(),
   to: addDays(new Date(), 1),
 };
@@ -39,7 +43,13 @@ export const useGlogalDateFilterStore = create<GlobalDateFilterStore>()(
     tempTurn: initialTurn,
     setDateRange: () =>
       set((state) => {
-        if (!state.tempDateRange.to) {
+        //Importante para garantir que nenhuma das datas no date range senha undefined, para evitar erro no backend
+        if (
+          !state.tempDateRange.to ||
+          (state.tempDateRange.from &&
+            state.tempDateRange.to &&
+            isSameDay(state.tempDateRange.from, state.tempDateRange.to))
+        ) {
           state.tempDateRange.to = addDays(state.tempDateRange.from!, 1);
         }
         return { dateRange: state.tempDateRange };

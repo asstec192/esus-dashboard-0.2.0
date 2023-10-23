@@ -1,5 +1,5 @@
 import { UserRole } from "@/types/UserRole";
-import { CreateUserModal } from "../../components/dialog-create-user";
+import { DialogCreateUser } from "../../components/dialogs/DialogCreateUser";
 import { withRoles } from "@/components/HOCs/withRoles";
 import { UsersList } from "../../components/table-users";
 import { SimpleDialog } from "@/components/dialogs/SimpleDialog";
@@ -13,7 +13,7 @@ function AdminPage() {
   return (
     <>
       <div className="mb-4 flex justify-end">
-        <CreateUserModal />
+        <DialogCreateUser />
       </div>
       <UsersList />
       <SimpleDialog

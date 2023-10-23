@@ -1,19 +1,10 @@
 import { api } from "@/utils/api";
 import { SimpleDialog } from "./SimpleDialog";
-import {
-  DateRange,
-  useGlogalDateFilterStore,
-} from "@/hooks/useGlobalDateFilterStore";
+import { DateRange, useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
 import { toast } from "../ui/use-toast";
 import { useState } from "react";
 import { addHours } from "date-fns";
 import { isWithinHourInterval } from "@/utils/isWithinHourInterval";
-import { formatProperName } from "@/utils/formatProperName";
-import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import { Button } from "../ui/button";
-import { getColorByRisk } from "@/utils/getColorByRisk";
-import { Loader2 } from "lucide-react";
-import { DialogIncident } from "./DialogIncident";
 import {
   Table,
   TableBody,
@@ -22,25 +13,29 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { formatProperName } from "@/utils/formatProperName";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { Button } from "../ui/button";
+import { getColorByRisk } from "@/utils/getColorByRisk";
+import { Loader2 } from "lucide-react";
+import { DialogIncident } from "./DialogIncident";
 
-export const DialogVehicleIncidents = ({
-  vehicle,
+export const DialogDestinationIncidents = ({
+  destiny,
   open,
   onClose,
 }: {
-  vehicle: TempoRespostaVeiculos;
+  destiny: TempoRespostaDestino;
   open: boolean;
   onClose: () => void;
 }) => {
   const [selectedIncidentId, setSelectedIncidentId] = useState<number>();
-  const dateRange = useGlogalDateFilterStore(
-    (state) => state.dateRange,
-  ) as DateRange;
+  const dateRange = useGlogalDateFilterStore((state) => state.dateRange) as DateRange;
   const turn = useGlogalDateFilterStore((state) => state.turn);
-  const { data, isLoading } = api.vehicles.getIncidents.useQuery(
+  const { data, isLoading } = api.destinations.getIncidents.useQuery(
     {
-      vehicleId: vehicle.id,
-      dateRange,
+      destinationId: parseInt(destiny.id),
+      dateRange ,
     },
     {
       onError: (error) => {
@@ -57,7 +52,7 @@ export const DialogVehicleIncidents = ({
       <SimpleDialog
         open={open}
         onOpenChange={onClose}
-        title={`Ocorrências atendidas por ${vehicle.nome}`}
+        title={`Ocorrências atendidas por ${destiny.nome}`}
         className="max-w-7xl"
       >
         <ScrollArea className="relative max-h-[70vh] rounded-lg border bg-card shadow-sm">
@@ -118,7 +113,9 @@ export const DialogVehicleIncidents = ({
         <DialogIncident
           incidentId={selectedIncidentId}
           open={selectedIncidentId !== undefined}
-          onClose={() => setSelectedIncidentId(undefined)}
+          onClose={() => {
+            setSelectedIncidentId(undefined);
+          }}
         />
       )}
     </>

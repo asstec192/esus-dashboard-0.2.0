@@ -1,11 +1,11 @@
 import { Ocorrencia } from "@/lib/ocorrencias";
-import { DataTable } from "./table/table";
 import { useTable } from "@/hooks/useTable";
 import { incidentTableColumns } from "@/utils/incidentTableColumns";
 import { ProtectedDialogIncident } from "./dialog-incident";
 import { TableIncidentsToolBar } from "./table-incidents-toolbar";
-import { TablePagination } from "./table/table-pagination";
+import { TablePagination } from "./tables/TablePagination";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
+import { DataTable } from "./tables/Table";
 
 export const IncidentTable = ({ data }: { data: Ocorrencia[] }) => {
   const table = useTable({ columns: incidentTableColumns, data });
