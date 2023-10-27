@@ -13,7 +13,7 @@ import Link from "next/link";
 import { extractFirstAndLastNames } from "@/utils/extractFirstAndLastNames";
 import { formatProperName } from "@/utils/formatProperName";
 
-export const UserDropdownMenu = () => {
+export const DropdownUserMenu = () => {
   const { data: sessionData } = useSession();
 
   return (

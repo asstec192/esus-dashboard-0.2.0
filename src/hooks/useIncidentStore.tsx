@@ -1,12 +1,12 @@
-import { type Ocorrencia } from "@/lib/ocorrencias";
 import { create } from "zustand";
 
 type IncidentStore = {
-  modalIncident?: Ocorrencia;
-  setModalIncident: (incident?: Ocorrencia) => void;
+  selectedIncidentId: number;
+  setSelectedIncidentId: (incidentId: number) => void;
 };
 
 export const useIncidentStore = create<IncidentStore>()((set) => ({
-  modalIncident: undefined,
-  setModalIncident: (incident) => set(() => ({ modalIncident: incident })),
+  selectedIncidentId: 0,
+  setSelectedIncidentId: (incidentId) =>
+    set(() => ({ selectedIncidentId: incidentId })),
 }));

@@ -18,31 +18,37 @@ import { addHours } from "date-fns";
 import { api } from "@/utils/api";
 import { toast } from "../ui/use-toast";
 import { PopoverVehicle } from "../pop-overs/PopoverVehicle";
+import { useIncidentStore } from "@/hooks/useIncidentStore";
+import { Loader2 } from "lucide-react";
 
-type DialogIncident = {
-  incidentId: number;
-  onClose: () => void;
-  open: boolean;
-};
-
-export const DialogIncident = withRoles<DialogIncident>(
-  ({ incidentId, open, onClose }: DialogIncident) => {
-    const { data: incident } = api.incidents.getOne.useQuery(
-      { incidentId },
-      {
-        onError: (error) => {
-          toast({
-            title: "",
-            description: error.message,
-            variant: "destructive",
-          });
-        },
+export const DialogIncident = withRoles(() => {
+  const { setSelectedIncidentId, selectedIncidentId } = useIncidentStore();
+  const {
+    data: incident,
+    isError,
+    isLoading,
+  } = api.incidents.getOne.useQuery(
+    { incidentId: selectedIncidentId },
+    {
+      onError: (error) => {
+        toast({
+          title: "",
+          description: error.message,
+          variant: "destructive",
+        });
       },
-    );
-    return (
-      <Dialog open={open} onOpenChange={onClose}>
-        {incident && (
-          <DialogContent className="px-2 sm:max-w-[800px] sm:px-6">
+    },
+  );
+  return (
+    <Dialog
+      open={selectedIncidentId !== 0}
+      onOpenChange={() => setSelectedIncidentId(0)}
+    >
+      <DialogContent className="px-2 sm:max-w-[800px] sm:px-6">
+        {isLoading || isError || !incident ? (
+          <Loader2 className="mx-auto my-0 animate-spin text-slate-400" />
+        ) : (
+          <>
             <DialogHeader className="space-y-2">
               <DialogTitle style={{ color: getColorByRisk(incident.RISCOCOD) }}>
                 #{incident.OcorrenciaID.toString()}
@@ -141,13 +147,12 @@ export const DialogIncident = withRoles<DialogIncident>(
                 ))}
               </Tabs>
             )}
-          </DialogContent>
+          </>
         )}
-      </Dialog>
-    );
-  },
-  [UserRole.admin, UserRole.medico],
-);
+      </DialogContent>
+    </Dialog>
+  );
+}, [UserRole.admin, UserRole.medico]);
 
 const genders: Record<string | number, string> = {
   1: "Masculino",

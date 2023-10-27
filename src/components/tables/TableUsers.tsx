@@ -1,4 +1,4 @@
-import { AdminUserActionDropdownMenu } from "@/components/dropdown-admin-actions";
+import { DropdownAdminActions } from "@/components/dropdowns/DropdownAdminActions";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -12,9 +12,9 @@ import { toast } from "@/components/ui/use-toast";
 import { api } from "@/utils/api";
 import { formatProperName } from "@/utils/formatProperName";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { SkeletonTable } from "./skeletons/skeleton-table";
+import { SkeletonTable } from "../skeletons/skeleton-table";
 
-export const UsersList = () => {
+export const TableUsers = () => {
   const {
     data: users,
     isError,
@@ -64,7 +64,7 @@ export const UsersList = () => {
                     {user.updatedAt.toLocaleString()}
                   </TableCell>
                   <TableCell>
-                    <AdminUserActionDropdownMenu user={user} />
+                    <DropdownAdminActions user={user} />
                   </TableCell>
                 </TableRow>
               ))}

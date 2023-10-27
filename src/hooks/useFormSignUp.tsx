@@ -20,7 +20,7 @@ const formSchema = z
 
 export type SignUpCredentials = z.infer<typeof formSchema>;
 
-export const useSignUpForm = () => {
+export const useFormSignUp = () => {
   const form = useForm<SignUpCredentials>({
     resolver: zodResolver(formSchema),
     defaultValues: {

@@ -8,7 +8,7 @@ import { toast } from "@/components/ui/use-toast";
 import { TypographySmall } from "@/components/typography/TypographySmall";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-export const WeekDayChart = (props: HTMLAttributes<HTMLDivElement>) => {
+export const ChartWeekDay = (props: HTMLAttributes<HTMLDivElement>) => {
   const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
   const { data, isLoading, isError } =
     api.patients.getTotalPatientsByWeekDay.useQuery(

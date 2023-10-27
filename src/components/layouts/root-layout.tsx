@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ReactNode, useEffect } from "react";
 import { Navbar } from "../navbar/navbar";
 import { signOut, useSession } from "next-auth/react";
+import { DialogIncident } from "../dialogs/DialogIncident";
 
 const inter = localFont({
   src: [
@@ -60,6 +61,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <Navbar />
       <div className="px-2 sm:px-4">{children}</div>
       <Toaster />
+      <DialogIncident />
     </div>
   );
 }

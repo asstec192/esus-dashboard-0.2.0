@@ -1,13 +1,13 @@
 import dynamic from "next/dynamic";
 import { Card } from "@/components/ui/card";
 import { TypographyH4 } from "@/components/typography/TypographyH4";
-import { useCallsQuery } from "../hooks/useCallsQuery";
+import { useCallsQuery } from "../../hooks/useCallsQuery";
 import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
 import { type HtmlHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-export const CallsChart = ({
+export const ChartCalls = ({
   className,
   ...props
 }: HtmlHTMLAttributes<HTMLDivElement>) => {

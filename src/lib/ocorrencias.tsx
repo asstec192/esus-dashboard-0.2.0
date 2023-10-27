@@ -30,6 +30,7 @@ export type Paciente = {
   avaliacoes?: Avaliacao[];
   sexo?: string;
   idade?: number;
+  idadeTipo?: string;
   ultima_decisao: string;
 };
 
@@ -41,7 +42,7 @@ export type Avaliacao = {
 
 export async function ocorrencias(dateRange: DateRange) {
   //seta o horario para 1h da manha e subtrai 3 horas para fica no fuso horario local
-  const from = subHours(new Date(dateRange.from!.setHours(1, 0, 0, 0)), 3); 
+  const from = subHours(new Date(dateRange.from!.setHours(1, 0, 0, 0)), 3);
   const to = subHours(new Date(dateRange.to!.setHours(1, 0, 0, 0)), 3);
 
   const data = await prisma.$queryRaw<[]>`
@@ -58,7 +59,7 @@ export async function ocorrencias(dateRange: DateRange) {
         WHERE sv.OcorrenciaID = o.OcorrenciaID AND sv.VeiculoSEQ = 1
       ) AS operador,
       (
-        SELECT v.VitimaNM as nome, v.VitimaId as id, v.Sexo as sexo, v.Idade as idade,
+        SELECT v.VitimaNM as nome, v.VitimaId as id, v.Sexo as sexo, v.Idade as idade, i.IdadeTPDS as idadeTipo,
           (
             SELECT oa.DTHR as data, oa.AVALICAO as descricao,
                   od.OperadorNM as operador
@@ -76,6 +77,7 @@ export async function ocorrencias(dateRange: DateRange) {
             ORDER BY HDG.DTHR_DECISAO_GESTORAID DESC
           ) AS ultima_decisao
         FROM Vitimas v
+        JOIN IdadeTP i ON i.IdadeTP = v.IdadeTP
         WHERE o.OcorrenciaID = v.OcorrenciaID
         FOR JSON PATH
       ) AS vitimas,

@@ -14,7 +14,7 @@ const riskColors: Record<string, string> = {
   "AZUL(INDEFINIVEL)": "#1eb1e7",
 };
 
-export const RiskChart = ({
+export const ChartRisk = ({
   className,
   ...props
 }: HtmlHTMLAttributes<HTMLDivElement>) => {

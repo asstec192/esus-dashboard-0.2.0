@@ -19,11 +19,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UserRole } from "@/types/UserRole";
-import { SignUpCredentials, useSignUpForm } from "@/hooks/useSignUpForm";
+import { SignUpCredentials, useFormSignUp } from "@/hooks/useFormSignUp";
 import { useSignUpMutation } from "@/hooks/useSignUpMutation";
 
-export function SignUpForm() {
-  const form = useSignUpForm();
+export function FormSignUp() {
+  const form = useFormSignUp();
   const { mutate, isError, error, isSuccess } = useSignUpMutation();
 
   function onSubmit(values: SignUpCredentials) {

@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { SignUpCredentials } from "./useSignUpForm";
+import { SignUpCredentials } from "./useFormSignUp";
 
 const fetchSignUp = async (values: SignUpCredentials) => {
   const response = await fetch("/api/auth/signup", {
@@ -22,6 +22,6 @@ const fetchSignUp = async (values: SignUpCredentials) => {
 export const useSignUpMutation = () => {
   const mutation = useMutation({
     mutationFn: (values: SignUpCredentials) => fetchSignUp(values),
-  })
+  });
   return mutation;
 };

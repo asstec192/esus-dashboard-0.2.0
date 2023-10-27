@@ -3,7 +3,7 @@ import { api } from "@/utils/api";
 
 export const useRealTimeIncidentQuery = () => {
   const { toast } = useToast();
-  const query = api.incidents.getIncidentsInProgress.useQuery(undefined, {
+  const query = api.incidents.getAllInProgress.useQuery(undefined, {
     refetchInterval: 5000,
     onError: (error) => {
       toast({

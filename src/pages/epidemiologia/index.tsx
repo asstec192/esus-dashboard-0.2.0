@@ -1,20 +1,20 @@
-import { GenderChart } from "../../components/chart-gender";
+import { ChartGender } from "../../components/charts/ChartGender";
 import { type NextPageWithLayout } from "../_app";
 import { type ReactElement } from "react";
 import AnalyticsLayout from "@/components/layouts/analytics-layout";
-import { AgeChart } from "../../components/chart-age";
-import { WeekDayChart } from "../../components/chart-week-day";
-import { VehicleTypeChart } from "../../components/chart-vehicle";
-import { TravelTimeChart } from "../../components/chart-hour";
+import { ChartAge } from "../../components/charts/ChartAge";
+import { ChartWeekDay } from "../../components/charts/ChartWeekDay";
+import { ChartVehicles } from "../../components/charts/ChartVehicles";
+import { ChartHour } from "../../components/charts/ChartHour";
 
 const AnalyticsPage: NextPageWithLayout = () => {
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-      <GenderChart className="aspect-video" />
-      <AgeChart className="aspect-video" />
-      <WeekDayChart className="aspect-video" />
-      <VehicleTypeChart className="aspect-video" />
-      <TravelTimeChart className="aspect-video" />
+      <ChartGender className="aspect-video" />
+      <ChartAge className="aspect-video" />
+      <ChartWeekDay className="aspect-video" />
+      <ChartVehicles className="aspect-video" />
+      <ChartHour className="aspect-video" />
     </div>
   );
 };

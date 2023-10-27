@@ -1,13 +1,11 @@
-import { Ocorrencia } from "@/lib/ocorrencias";
 import { useTable } from "@/hooks/useTable";
 import { incidentTableColumns } from "@/utils/incidentTableColumns";
-import { ProtectedDialogIncident } from "./dialog-incident";
-import { TableIncidentsToolBar } from "./table-incidents-toolbar";
-import { TablePagination } from "./tables/TablePagination";
-import { ScrollArea, ScrollBar } from "./ui/scroll-area";
-import { DataTable } from "./tables/Table";
+import { TableIncidentsToolBar } from "./TableIncidentsToolBar";
+import { TablePagination } from "./TablePagination";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { DataTable } from "./Table";
 
-export const IncidentTable = ({ data }: { data: Ocorrencia[] }) => {
+export const TableIncidents = ({ data }: { data: Ocorrencia[] }) => {
   const table = useTable({ columns: incidentTableColumns, data });
   return (
     <div className="flex flex-grow flex-col space-y-3 ">
@@ -17,7 +15,6 @@ export const IncidentTable = ({ data }: { data: Ocorrencia[] }) => {
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
       <TablePagination table={table} />
-      <ProtectedDialogIncident />
     </div>
   );
 };

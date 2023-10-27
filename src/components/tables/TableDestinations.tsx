@@ -62,7 +62,7 @@ export function TableDestinations({ data }: { data: TempoRespostaDestino[] }) {
                     (acc, destination) => acc + destination.tempo,
                     0,
                   ) / data.length,
-                )}
+                ) || ""}
               </TableCell>
               <TableCell></TableCell>
             </TableRow>

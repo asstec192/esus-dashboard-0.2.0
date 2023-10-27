@@ -6,15 +6,15 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   useReactTable,
-} from "@tanstack/react-table"
-import { useState } from "react"
+} from "@tanstack/react-table";
+import { useState } from "react";
 
-export function useIncidentTable<TData, TValue>(
+export function useTableIncidents<TData, TValue>(
   columns: ColumnDef<TData, TValue>[],
-  data: TData[]
+  data: TData[],
 ) {
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [searchValue, setSearchValue] = useState("")
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [searchValue, setSearchValue] = useState("");
 
   const table = useReactTable({
     data, //propriedade obrigatoria
@@ -29,7 +29,7 @@ export function useIncidentTable<TData, TValue>(
     getFilteredRowModel: getFilteredRowModel(), //habilita filtragem
     getPaginationRowModel: getPaginationRowModel(), //habilita paginacao
     getFacetedUniqueValues: getFacetedUniqueValues(), // exibe a quantidade total de cada opçao do filtro
-  })
+  });
 
-  return { table, searchValue, setSearchValue }
+  return { table, searchValue, setSearchValue };
 }

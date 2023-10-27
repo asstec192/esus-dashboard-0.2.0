@@ -2,7 +2,6 @@ import { api } from "@/utils/api";
 import { SimpleDialog } from "./SimpleDialog";
 import { DateRange, useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
 import { toast } from "../ui/use-toast";
-import { useState } from "react";
 import { addHours } from "date-fns";
 import { isWithinHourInterval } from "@/utils/isWithinHourInterval";
 import {
@@ -18,7 +17,7 @@ import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { Button } from "../ui/button";
 import { getColorByRisk } from "@/utils/getColorByRisk";
 import { Loader2 } from "lucide-react";
-import { DialogIncident } from "./DialogIncident";
+import { useIncidentStore } from "@/hooks/useIncidentStore";
 
 export const DialogDestinationIncidents = ({
   destiny,
@@ -29,7 +28,7 @@ export const DialogDestinationIncidents = ({
   open: boolean;
   onClose: () => void;
 }) => {
-  const [selectedIncidentId, setSelectedIncidentId] = useState<number>();
+  const setSelectedIncidentId = useIncidentStore(state=> state.setSelectedIncidentId)
   const dateRange = useGlogalDateFilterStore((state) => state.dateRange) as DateRange;
   const turn = useGlogalDateFilterStore((state) => state.turn);
   const { data, isLoading } = api.destinations.getIncidents.useQuery(
@@ -109,15 +108,6 @@ export const DialogDestinationIncidents = ({
           </Table>
         </ScrollArea>
       </SimpleDialog>
-      {selectedIncidentId && (
-        <DialogIncident
-          incidentId={selectedIncidentId}
-          open={selectedIncidentId !== undefined}
-          onClose={() => {
-            setSelectedIncidentId(undefined);
-          }}
-        />
-      )}
     </>
   );
 };

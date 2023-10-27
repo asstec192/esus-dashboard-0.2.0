@@ -1,7 +1,7 @@
-import { UserIncidents } from "@/components/table-user-incidents";
-import { DialogPasswordChange } from "../../components/dialogs/DialogPasswordChange";
 import { api } from "@/utils/api";
-import IncidentTableLoading from "@/components/skeletons/skeleton-table-incident";
+import TableIncidentsLoading from "@/components/skeletons/skeleton-table-incident";
+import { TableUserIncidents } from "@/components/tables/TableUserIncidents";
+import { DialogPasswordChange } from "@/components/dialogs/DialogPasswordChange";
 
 export default function UserProfile() {
   const { data, isLoading, isError } = api.users.getIncidents.useQuery();
@@ -9,9 +9,9 @@ export default function UserProfile() {
     <div className="flex items-start">
       <div className="flex-1">
         {isLoading || isError ? (
-          <IncidentTableLoading />
+          <TableIncidentsLoading />
         ) : (
-          <UserIncidents data={data} />
+          <TableUserIncidents data={data} />
         )}
       </div>
       <DialogPasswordChange />

@@ -1,11 +1,10 @@
 import { prisma } from "../server/db";
 import { Ocorrencia } from "./ocorrencias";
-import { setHours, subHours } from "date-fns";
+import { subHours } from "date-fns";
 
 export async function ocorrenciasEmAndamento() {
   //tirando 3 horas para ficar com fuso compativel
-  const tempDate = new Date().setHours(1, 0, 0, 0);
-  const date = new Date(tempDate);
+  const date = subHours(new Date().setHours(1, 0, 0, 0), 3);
   const data = await prisma.$queryRaw<[]>`
     SELECT
       DISTINCT
@@ -23,7 +22,7 @@ export async function ocorrenciasEmAndamento() {
       ) AS operador,
       --Seleciona as vitimas de cada ocorrencia
       (
-        SELECT v.VitimaNM as nome, v.VitimaId as id, v.Sexo as sexo, v.Idade as idade,
+        SELECT v.VitimaNM as nome, v.VitimaId as id, v.Sexo as sexo, v.Idade as idade, i.IdadeTPDS as idadeTipo,
           --Seleciona as avaliacoes de cada vitima
           (
             SELECT oa.DTHR as data, oa.AVALICAO as descricao,
@@ -35,6 +34,7 @@ export async function ocorrenciasEmAndamento() {
             FOR JSON PATH
           ) AS avaliacoes
         FROM Vitimas v
+        JOIN IdadeTP i ON i.IdadeTP = v.IdadeTP
         WHERE o.OcorrenciaID = v.OcorrenciaID
         FOR JSON PATH
       ) AS vitimas,

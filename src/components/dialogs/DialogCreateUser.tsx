@@ -5,7 +5,7 @@ import {
   DialogTrigger,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { SignUpForm } from "../form-signup";
+import { FormSignUp } from "../forms/FormSignUp";
 
 export const DialogCreateUser = () => {
   return (
@@ -15,7 +15,7 @@ export const DialogCreateUser = () => {
       </DialogTrigger>
       <DialogContent>
         <DialogTitle>Cadastro de usuário</DialogTitle>
-        <SignUpForm />
+        <FormSignUp />
       </DialogContent>
     </Dialog>
   );

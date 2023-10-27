@@ -1,5 +1,4 @@
 import { prisma } from "../server/db";
-import { Ocorrencia } from "./ocorrencias";
 
 export async function ocorrenciasPorUsuario(esusUserId: number) {
   const data = await prisma.$queryRaw<[]>`
@@ -16,24 +15,9 @@ export async function ocorrenciasPorUsuario(esusUserId: number) {
         WHERE sv.OcorrenciaID = o.OcorrenciaID AND sv.VeiculoSEQ = 1
       ) AS operador,
       (
-        SELECT v.VitimaNM as nome, v.VitimaId as id, v.Sexo as sexo, v.Idade as idade,
-          (
-            SELECT oa.DTHR as data, oa.AVALICAO as descricao,
-                  od.OperadorNM as operador
-            FROM OCORRENCIA_AVALIACAO_INICIAL oa
-            JOIN OperadoresDados od ON oa.OperadorID = od.OperadorID
-            WHERE v.VitimaId = oa.VitimaId
-            ORDER BY oa.DTHR DESC
-            FOR JSON PATH
-          ) AS avaliacoes,
-          (
-            SELECT TOP 1 ud.UnidadeDS
-            FROM HISTORICO_DECISAO_GESTORA HDG
-			      LEFT JOIN UnidadesDestino ud ON ud.UnidadeCOD = HDG.DESTINOID
-            WHERE HDG.OCORRENCIAID = o.OcorrenciaID
-            ORDER BY HDG.DTHR_DECISAO_GESTORAID DESC
-          ) AS ultima_decisao
+        SELECT v.VitimaNM as nome, v.Sexo as sexo, v.Idade as idade, i.IdadeTPDS as idadeTipo
         FROM Vitimas v
+        JOIN IdadeTP i ON i.IdadeTP = v.IdadeTP
         WHERE o.OcorrenciaID = v.OcorrenciaID
         FOR JSON PATH
       ) AS vitimas,

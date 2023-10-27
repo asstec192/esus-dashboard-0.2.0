@@ -70,7 +70,7 @@ export function TableVehicles({ data }: { data: TempoRespostaVeiculos[] }) {
                     (acc, vehicle) => acc + (vehicle.QTYQUS || 0),
                     0,
                   ) / data.length,
-                )}
+                ) || ""}
               </TableCell>
               <TableCell>
                 {Math.ceil(
@@ -78,7 +78,7 @@ export function TableVehicles({ data }: { data: TempoRespostaVeiculos[] }) {
                     (acc, vehicle) => acc + (vehicle.QUSQUY || 0),
                     0,
                   ) / data.length,
-                )}
+                ) || ""}
               </TableCell>
               <TableCell>
                 {Math.ceil(
@@ -86,7 +86,7 @@ export function TableVehicles({ data }: { data: TempoRespostaVeiculos[] }) {
                     (acc, vehicle) => acc + (vehicle.QUYQUU || 0),
                     0,
                   ) / data.length,
-                )}
+                ) || ""}
               </TableCell>
               <TableCell></TableCell>
             </TableRow>

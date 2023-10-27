@@ -1,13 +1,13 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import { formatProperName } from "@/utils/formatProperName";
 import { getColorByRisk } from "@/utils/getColorByRisk";
-import type { Ocorrencia, Paciente, Veiculo } from "@/lib/ocorrencias";
 import { getDay } from "date-fns";
 import { formatDate } from "@/utils/formatDate";
 import { isWithinHourInterval } from "@/utils/isWithinHourInterval";
-import { PopoverVeiculo } from "../components/popover-veiculo";
+import { PopoverVehicleForRawQuery } from "../components/pop-overs/PopoverVehicleForRawQuery";
 import { Button } from "@/components/ui/button";
 import { useIncidentStore } from "@/hooks/useIncidentStore";
+import { isBelowOneYear } from "./isBelowOneYear";
 
 type NumberRange = {
   min: number;
@@ -22,8 +22,8 @@ export const incidentTableColumns: ColumnDef<Ocorrencia>[] = [
       const id: string = row.getValue("id");
       const risco: number = row.getValue("risco");
       const riskColor = getColorByRisk(risco);
-      const setModalIncident = useIncidentStore(
-        (state) => state.setModalIncident,
+      const setSelectedIncidentId = useIncidentStore(
+        (state) => state.setSelectedIncidentId,
       );
       return (
         <Button
@@ -31,7 +31,7 @@ export const incidentTableColumns: ColumnDef<Ocorrencia>[] = [
           className="font-semibold underline"
           size="sm"
           style={{ color: riskColor }}
-          onClick={() => setModalIncident(row.original)}
+          onClick={() => setSelectedIncidentId(parseInt(row.original.id))}
         >
           {id}
         </Button>
@@ -70,7 +70,7 @@ export const incidentTableColumns: ColumnDef<Ocorrencia>[] = [
       return (
         <div className="flex flex-wrap gap-2">
           {veiculos.map((veiculo) => (
-            <PopoverVeiculo veiculo={veiculo} />
+            <PopoverVehicleForRawQuery veiculo={veiculo} />
           ))}
         </div>
       );
@@ -130,9 +130,10 @@ export const incidentTableColumns: ColumnDef<Ocorrencia>[] = [
         if (!paciente.idade) {
           return false;
         }
-        return ranges.some(
-          ({ min, max }) => paciente.idade! >= min && paciente.idade! <= max,
-        );
+        return ranges.some(({ min, max }) => {
+          if (max === 12 && isBelowOneYear(paciente)) return true; //retorna os pacientes menores de 1 um ano quando seleciona o filtro menor de 13anos
+          return paciente.idade! >= min && paciente.idade! <= max; //demais filtros
+        });
       });
     },
   },

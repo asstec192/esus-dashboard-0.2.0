@@ -47,6 +47,7 @@ export const intercorrenciaRouter = createTRPCRouter({
         },
       });
     }),
+    
   countIncidents: protectedProcedure
     .input(z.object({ dateRange: dateRangeInput, turn: turnInput }))
     .query(async ({ input }) => {

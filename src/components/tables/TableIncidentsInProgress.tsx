@@ -9,8 +9,7 @@ import {
 } from "@/components/ui/table";
 import { getColorByRisk } from "@/utils/getColorByRisk";
 import { formatProperName } from "@/utils/formatProperName";
-import { PopoverVeiculo } from "@/components/popover-veiculo";
-import { ProtectedDialogIncident } from "@/components/dialog-incident";
+import { PopoverVehicleForRawQuery } from "@/components/pop-overs/PopoverVehicleForRawQuery";
 import { SkeletonTable } from "@/components/skeletons/skeleton-table";
 import { TypographyH3 } from "@/components/typography/TypographyH3";
 import { cn } from "@/lib/utils";
@@ -19,11 +18,11 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useIncidentStore } from "@/hooks/useIncidentStore";
 import { useRealTimeIncidentQuery } from "@/hooks/useRealTimeIncidents";
 
-export const IncidentsInProgress = ({
+export const TableIncidentsInProgress = ({
   className,
   ...props
 }: HtmlHTMLAttributes<HTMLDivElement>) => {
-  const setModalIncident = useIncidentStore((state) => state.setModalIncident);
+  const setSelectedIncidentId = useIncidentStore(state=> state.setSelectedIncidentId)
   const { data, isError, isLoading } = useRealTimeIncidentQuery();
 
   return (
@@ -58,7 +57,7 @@ export const IncidentsInProgress = ({
                       role="button"
                       className="cursor-pointer font-medium underline"
                       style={{ color: getColorByRisk(ocorrencia.risco) }}
-                      onClick={() => setModalIncident(ocorrencia)}
+                      onClick={() => setSelectedIncidentId(parseInt(ocorrencia.id))}
                     >
                       {ocorrencia.id}
                     </TableCell>
@@ -71,7 +70,10 @@ export const IncidentsInProgress = ({
                     <TableCell>{formatProperName(ocorrencia.bairro)}</TableCell>
                     <TableCell className="flex flex-wrap gap-2">
                       {ocorrencia.veiculos.map((veiculo) => (
-                        <PopoverVeiculo key={veiculo.nome} veiculo={veiculo} />
+                        <PopoverVehicleForRawQuery
+                          key={veiculo.nome}
+                          veiculo={veiculo}
+                        />
                       ))}
                     </TableCell>
                   </TableRow>
@@ -89,8 +91,6 @@ export const IncidentsInProgress = ({
           </ScrollArea>
         </Card>
       )}
-
-      <ProtectedDialogIncident />
     </Card>
   );
 };

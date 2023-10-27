@@ -1,6 +1,6 @@
 import NavItem from "./nav-item";
 import { useNavItems } from "./useNavItems";
-import { UserDropdownMenu } from "../dropdowns/user-dropdown-menu";
+import { DropdownUserMenu } from "../dropdowns/DropdownUserMenu";
 import { UserRole } from "@/types/UserRole";
 import { Show } from "../flow/show";
 import { signIn, useSession } from "next-auth/react";
@@ -26,7 +26,7 @@ export const Navbar = () => {
 
       <div className="ml-auto">
         {sessionData ? (
-          <UserDropdownMenu />
+          <DropdownUserMenu />
         ) : (
           <Button onClick={() => signIn()}>Login</Button>
         )}

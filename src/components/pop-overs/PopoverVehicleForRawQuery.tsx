@@ -8,7 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-export function PopoverVeiculo({ veiculo }: { veiculo: Veiculo }) {
+export function PopoverVehicleForRawQuery({ veiculo }: { veiculo: Veiculo }) {
   return (
     <Popover>
       <PopoverTrigger>

@@ -1,9 +1,9 @@
 import { UserRole } from "@/types/UserRole";
 import { DialogCreateUser } from "../../components/dialogs/DialogCreateUser";
 import { withRoles } from "@/components/HOCs/withRoles";
-import { UsersList } from "../../components/table-users";
+import { TableUsers } from "../../components/tables/TableUsers";
 import { SimpleDialog } from "@/components/dialogs/SimpleDialog";
-import { FormChangeUserPassword } from "../../components/form-change-user-password";
+import { FormChangeUserPassword } from "../../components/forms/FormChangeUserPassword";
 import { formatProperName } from "@/utils/formatProperName";
 import { useManageUsersStore } from "@/hooks/useManageUsersStore";
 
@@ -15,7 +15,7 @@ function AdminPage() {
       <div className="mb-4 flex justify-end">
         <DialogCreateUser />
       </div>
-      <UsersList />
+      <TableUsers />
       <SimpleDialog
         open={!!selectedUser}
         onOpenChange={() => setSelectedUser(undefined)}

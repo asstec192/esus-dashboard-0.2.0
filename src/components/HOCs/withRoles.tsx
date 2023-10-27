@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ComponentType } from "react";
 
-export function withRoles<T>(
+export function withRoles<T ={}>(
   Component: ComponentType<T>,
   permissions: UserRole[],
   shouldRedirect = false,

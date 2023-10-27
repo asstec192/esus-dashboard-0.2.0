@@ -7,7 +7,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useChangeUserPasswordForm } from "../hooks/useChangeUserPasswordForm";
+import { useChangeUserPasswordForm } from "../../hooks/useChangeUserPasswordForm";
 
 export const FormChangeUserPassword = () => {
   const {

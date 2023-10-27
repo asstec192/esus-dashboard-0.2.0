@@ -10,8 +10,7 @@ export type StatusDiario = {
 };
 
 export const estatisticasDiarias = async () => {
-  const tempDate = new Date().setHours(1, 0, 0, 0);
-  const date = new Date(tempDate);
+  const date = subHours(new Date().setHours(1, 0, 0, 0), 3);
 
   const [{ totalLigacoes }]: any = await prisma.$queryRaw`
     SELECT COUNT(*) AS totalLigacoes                 

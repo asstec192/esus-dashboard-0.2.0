@@ -61,7 +61,7 @@ export function TableIntercorrencias({
               <TableCell>
                 {data.reduce((acc, intercorrencia) => {
                   return acc + intercorrencia.count;
-                }, 0)}
+                }, 0) || ""}
               </TableCell>
             </TableRow>
           </TableFooter>

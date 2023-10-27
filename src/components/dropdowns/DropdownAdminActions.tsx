@@ -6,15 +6,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { DashboardUser } from "@/types/DashboardUser";
 import { useManageUsersStore } from "@/hooks/useManageUsersStore";
 
-export const AdminUserActionDropdownMenu = ({
-  user,
-}: {
-  user: DashboardUser;
-}) => {
+export const DropdownAdminActions = ({ user }: { user: DashboardUser }) => {
   const setSelectedUser = useManageUsersStore((state) => state.setSelectedUser);
   return (
     <DropdownMenu>
