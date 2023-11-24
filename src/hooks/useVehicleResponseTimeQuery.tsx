@@ -4,12 +4,13 @@ import {
   useGlogalDateFilterStore,
 } from "@/hooks/useGlobalDateFilterStore";
 import { api } from "@/utils/api";
+import { useTurnStore } from "./useTurnStore";
 
 export const useVehicleResponseTimeQuery = () => {
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
   ) as DateRange;
-  const turn = useGlogalDateFilterStore((state) => state.turn);
+  const turn = useTurnStore((state) => state.vehicleTurn);
   const query = api.vehicles.getResponseTimes.useQuery(
     { dateRange, turn },
     {

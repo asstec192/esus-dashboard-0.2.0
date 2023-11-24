@@ -3,24 +3,34 @@ import { SkeletonTable } from "@/components/skeletons/skeleton-table";
 import { TableVehicles } from "../../components/tables/TableVehicles";
 import { TableDestinations } from "../../components/tables/TableDestinations";
 import { type NextPageWithLayout } from "../_app";
-import { type ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import AnalyticsLayout from "@/components/layouts/analytics-layout";
 import { useDestinationResponseTimeQuery } from "@/hooks/useDestinationResponseTimeQuery";
 import { useIntercorrenciaCountQuery } from "@/hooks/useIntercorrenciaCountQuery";
 import { TableIntercorrencias } from "@/components/tables/TableIntercorrencias";
 import { useVehicleResponseTimeQuery } from "@/hooks/useVehicleResponseTimeQuery";
+import { SelectVehicleTurn, TurnSelect } from "@/components/select/select-turn";
 
 const RegulacaoSecundaria: NextPageWithLayout = () => {
   const vehicleQuery = useVehicleResponseTimeQuery();
   const destinationQuery = useDestinationResponseTimeQuery();
   const intercorrenciaQuery = useIntercorrenciaCountQuery();
+  const [currentTab, setCurrentTab] = useState("veiculos");
+
   return (
-    <Tabs defaultValue="veiculos" className="h-[calc(100%-2rem)]">
-      <TabsList>
-        <TabsTrigger value="veiculos">Veículos</TabsTrigger>
-        <TabsTrigger value="destinos">Destinos</TabsTrigger>
-        <TabsTrigger value="intercorrencias">Intercorrências</TabsTrigger>
-      </TabsList>
+    <Tabs
+      defaultValue="veiculos"
+      className="h-[calc(100%-2rem)]"
+      onValueChange={setCurrentTab}
+    >
+      <div className="flex flex-wrap gap-3">
+        <TabsList>
+          <TabsTrigger value="veiculos">Veículos</TabsTrigger>
+          <TabsTrigger value="destinos">Destinos</TabsTrigger>
+          <TabsTrigger value="intercorrencias">Intercorrências</TabsTrigger>
+        </TabsList>
+        {currentTab === "veiculos" ? <SelectVehicleTurn /> : <TurnSelect />}
+      </div>
       <TabsContent className="h-[calc(100%-4rem)]" value="veiculos">
         {vehicleQuery.isLoading || vehicleQuery.isError ? (
           <div className="relative h-full flex-1 overflow-y-auto rounded-md border">

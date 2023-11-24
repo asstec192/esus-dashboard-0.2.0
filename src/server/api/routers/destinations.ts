@@ -1,11 +1,24 @@
 import { prisma } from "@/server/db";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import * as z from "zod";
-import { dateRangeInput, turnInput } from "@/hooks/useGlobalDateFilterStore";
+import { dateRangeInput } from "@/hooks/useGlobalDateFilterStore";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
-import { getTurnQuery } from "@/utils/getTurnQuery";
+import { getTurnFilterQuery } from "@/utils/getTurnQuery";
+import { turnInput } from "@/hooks/useTurnStore";
+import { addHours } from "date-fns";
 
 export const destinationRouter = createTRPCRouter({
+  /**Obtém a lista de todas as unidades de destino */
+  getAll: protectedProcedure.query(() =>
+    prisma.unidadesDestino.findMany({
+      select: {
+        UnidadeCOD: true,
+        UnidadeDS: true,
+      },
+    }),
+  ),
+
+  /** Obtém todos as ocorrências relacionadas à unidade de destino. Recebe como input um date range */
   getIncidents: protectedProcedure
     .input(z.object({ destinationId: z.number(), dateRange: dateRangeInput }))
     .query(async ({ input }) => {
@@ -24,8 +37,8 @@ export const destinationRouter = createTRPCRouter({
         },
         where: {
           DtHr: {
-            gte: from,
-            lt: to,
+            gte: addHours(from, 1), //primeiro turno inicia as 1h
+            lt: addHours(to, 1), //ultimo turno encerra as 1h
           },
           HISTORICO_DECISAO_GESTORA: {
             some: {
@@ -41,11 +54,12 @@ export const destinationRouter = createTRPCRouter({
         },
       });
     }),
+
+  /**Obtém o relatório de tempo resposta da unidade de destino. Recebe como input um date range e um turno */
   getResponseTimes: protectedProcedure
     .input(z.object({ dateRange: dateRangeInput, turn: turnInput }))
     .query(async ({ input }) => {
-      const { from, to } = formatServerDateRange(input.dateRange);
-      const turnRangeQuery = getTurnQuery(input.turn);
+      const filter = getTurnFilterQuery(input.dateRange, input.turn);
       return await prisma.$queryRaw<TempoRespostaDestino[]>`
         SELECT
             UD.UnidadeCOD AS id,
@@ -62,7 +76,7 @@ export const destinationRouter = createTRPCRouter({
         INNER JOIN HISTORICO_DECISAO_GESTORA HDG ON UD.UnidadeCOD = HDG.DESTINOID
         LEFT JOIN OcorrenciaMovimentacao OM ON HDG.OCORRENCIAID = OM.OcorrenciaID
         LEFT JOIN Ocorrencia O ON O.OcorrenciaID = HDG.OCORRENCIAID
-        WHERE O.DtHr BETWEEN ${from} AND ${to} ${turnRangeQuery}
+        WHERE ${filter}
         GROUP BY
             UD.UnidadeCOD,
             UD.UnidadeDS

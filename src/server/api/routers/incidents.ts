@@ -4,13 +4,8 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { ocorrenciasPorRisco } from "@/lib/ocorrencias-por-risco";
-import { ligacoesPorTipo } from "@/lib/ligacoes-por-tipo";
-import { ocorrenciasPorHorarioDeDeslocamento } from "@/lib/ocorrencias-por-horario-deslocamento";
-import { ocorrenciasPorTipoDeVeiculo } from "@/lib/ocorrencias-por-tipo-veiculo";
 import { prisma } from "@/server/db";
 import { dateRangeInput } from "@/hooks/useGlobalDateFilterStore";
-import { estatisticasDiarias } from "@/lib/estatisticas-diarias";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { subHours } from "date-fns";
 
@@ -23,12 +18,26 @@ export const incidentsRouter = createTRPCRouter({
           OcorrenciaID: true,
           Bairro: true,
           DtHr: true,
+          OcorrenciaFinalDT: true,
           RISCOCOD: true,
-          Motivo: {
+          QueixaDS: true,
+          Logradouro: true,
+          Logradouro_: { select: { Abreviatura: true } },
+          Numero: true,
+          ReferenciaDS: true,
+          Municipio: { select: { Municipio: true } },
+          CLASSIFICACAO_RISCO: { select: { RISCODS: true } },
+          Motivo: { select: { MotivoDS: true } },
+          Tipo: { select: { TipoDS: true } },
+          Origem: { select: { OrigemOcoDS: true } },
+          Solicitante: {
             select: {
-              MotivoDS: true,
+              SolicitanteNM: true,
+              TelefoneDDD: true,
+              TelefoneNM: true,
             },
           },
+          Ligacao: { select: { LigacaoTPDS: true } },
           FORMEQUIPE_SolicitacaoVeiculo: {
             select: {
               Operador: {
@@ -57,6 +66,7 @@ export const incidentsRouter = createTRPCRouter({
               VitimaId: true,
               Sexo: true,
               Idade: true,
+              Classificacao: { select: { ClassifVitimaDS: true } },
               IdadeTP_Vitimas_IdadeTPToIdadeTP: {
                 select: {
                   IdadeTPDS: true,
@@ -74,18 +84,30 @@ export const incidentsRouter = createTRPCRouter({
                 },
               },
               HistoricoDecisaoGestora: {
-                take: 1,
                 select: {
-                  Destino: {
-                    select: {
-                      UnidadeDS: true,
-                    },
-                  },
+                  DECISAOID: true,
+                  OperadorDecisao: { select: { OperadorNM: true } },
+                  OperadorDestino: { select: { OperadorNM: true } },
+                  OperadorIntercorrencia: { select: { OperadorNM: true } },
+                  Decisao: { select: { TransporteDS: true } },
+                  Destino: { select: { UnidadeDS: true } },
+                  Intercorrencia: { select: { IntercorrenciaDS: true } },
+                  DTHR_DECISAO_GESTORAID: true,
+                  DTHR_DESTINOID: true,
+                  DTHR_INTERCORRENCIAID: true,
+                  STATUS: true,
                 },
                 orderBy: {
                   DTHR_DECISAO_GESTORAID: "desc",
                 },
               },
+            },
+          },
+          PosicaoOcorrencias: {
+            select: {
+              OpOrigem: { select: { OperadorNM: true } },
+              OpDestino: { select: { OperadorNM: true } },
+              DestinoDTHR: true,
             },
           },
         },
@@ -94,6 +116,7 @@ export const incidentsRouter = createTRPCRouter({
         },
       }),
     ),
+
   getAll: protectedProcedure.input(dateRangeInput).query(async ({ input }) => {
     const { from, to } = formatServerDateRange(input);
     const data = await prisma.$queryRaw<[]>`
@@ -146,9 +169,10 @@ export const incidentsRouter = createTRPCRouter({
       pacientes: ocorrencia.vitimas ? JSON.parse(ocorrencia.vitimas) : [],
     })) as Ocorrencia[];
   }),
+
   getAllInProgress: protectedProcedure.query(async () => {
     //tirando 3 horas para ficar com fuso compativel
-    const date = subHours(new Date().setHours(1, 0, 0, 0), 3);
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
     const data = await prisma.$queryRaw<[]>`
     SELECT
       DISTINCT
@@ -199,13 +223,128 @@ export const incidentsRouter = createTRPCRouter({
       veiculos: ocorrencia.veiculos ? JSON.parse(ocorrencia.veiculos) : [],
     })) as OcorrenciaEmAndamento[];
   }),
-  getTotalIncidentsByRisk: publicProcedure.query(() => ocorrenciasPorRisco()),
-  getTotalIncidentsByCallType: publicProcedure.query(() => ligacoesPorTipo()),
+
+  getTotalIncidentsByRisk: publicProcedure.query(async () => {
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
+    return await prisma.$queryRaw<
+      {
+        risco: string;
+        total: number;
+      }[]
+    >`
+      SELECT 
+        RISCODS as risco, 
+        COUNT(*) AS total
+      FROM Ocorrencia O
+      JOIN CLASSIFICACAO_RISCO ON O.RISCOCOD = CLASSIFICACAO_RISCO.RISCOCOD
+      WHERE (O.RISCOCOD BETWEEN 1 AND 4)
+      AND  O.DtHr >= ${date}
+      GROUP BY RISCODS
+    `;
+  }),
+
+  getTotalIncidentsByCallType: publicProcedure.query(async () => {
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
+    return await prisma.$queryRaw<{ tipo: string; total: number }[]>`
+      SELECT 
+        LigacaoTPDS as tipo, 
+        COUNT(*) AS total
+      FROM Ocorrencia O
+      LEFT JOIN LigacaoTP ON O.LigacaoTPID = LigacaoTP.LigacaoTPID
+      WHERE O.DtHr >= ${date}
+      GROUP BY LigacaoTPDS;
+    `;
+  }),
+
   getTotalIncidentsByHour: publicProcedure
     .input(dateRangeInput)
-    .query(({ input }) => ocorrenciasPorHorarioDeDeslocamento(input)),
+    .query(async ({ input }) => {
+      const { from, to } = formatServerDateRange(input);
+      return await prisma.$queryRaw<{ intervalo: string; contagem: number }[]>`
+        SELECT 
+          intervalo,
+          COUNT(*) AS contagem
+        FROM (
+          SELECT 
+              OM.*,
+              CAST(OM.EnvioEquipeDT AS TIME) AS Horario
+          FROM OcorrenciaMovimentacao OM
+          WHERE OM.EnvioEquipeDT BETWEEN ${from} AND ${to} 
+        ) AS T
+        CROSS APPLY (
+          SELECT 
+              CASE 
+                  WHEN Horario >= '07:00:00' AND Horario < '10:00:00' THEN '07:00-10:00'
+                  WHEN Horario >= '10:00:00' AND Horario < '13:00:00' THEN '10:00-13:00'
+                  WHEN Horario >= '13:00:00' AND Horario < '16:00:00' THEN '13:00-16:00'
+                  WHEN Horario >= '16:00:00' AND Horario < '19:00:00' THEN '16:00-19:00'
+                  WHEN Horario >= '19:00:00' AND Horario < '22:00:00' THEN '19:00-22:00'
+                  WHEN Horario >= '22:00:00' OR Horario < '01:00:00' THEN '22:00-01:00'
+                  WHEN Horario >= '01:00:00' AND Horario < '04:00:00' THEN '01:00-04:00'
+                  WHEN Horario >= '04:00:00' AND Horario < '07:00:00' THEN '04:00-07:00'
+              END AS intervalo
+        ) AS SubQuery
+        GROUP BY intervalo
+        ORDER BY 
+          CASE 
+              WHEN intervalo = '07:00-10:00' THEN 1
+              WHEN intervalo = '10:00-13:00' THEN 2
+              WHEN intervalo = '13:00-16:00' THEN 3
+              WHEN intervalo = '16:00-19:00' THEN 4
+              WHEN intervalo = '19:00-22:00' THEN 5
+              WHEN intervalo = '22:00-01:00' THEN 6
+              WHEN intervalo = '01:00-04:00' THEN 7
+              WHEN intervalo = '04:00-07:00' THEN 8
+          END`;
+    }),
+
   getTotalIncidentsByVehicleType: publicProcedure
     .input(dateRangeInput)
-    .query(({ input }) => ocorrenciasPorTipoDeVeiculo(input)),
-  getDailyInfo: protectedProcedure.query(() => estatisticasDiarias()),
+    .query(async ({ input }) => {
+      const { from, to } = formatServerDateRange(input);
+      return await prisma.$queryRaw<{ tipo: string; contagem: number }[]>`
+        SELECT
+          SUBSTRING(V.VeiculoDS, 1, 3) AS tipo,
+          COUNT(*) AS contagem
+        FROM OcorrenciaMovimentacao OM
+        JOIN Veiculos V ON V.VeiculoID = OM.VeiculoID
+        WHERE OM.EnvioEquipeDT BETWEEN ${from} AND ${to} 
+        GROUP BY SUBSTRING(V.VeiculoDS, 1, 3)`;
+    }),
+
+  getDailyInfo: protectedProcedure.query(async () => {
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
+
+    const [{ totalLigacoes }]: [{ totalLigacoes: number }] =
+      await prisma.$queryRaw`
+      SELECT COUNT(*) AS totalLigacoes                 
+      FROM TEMPO_RESPOSTA
+      WHERE DT_INICIO >= ${date}
+      `;
+
+    const [{ tempoGeral }] = await prisma.$queryRaw<[{ tempoGeral: number }]>`
+      SELECT AVG(DATEDIFF(minute, DT_INICIO, DT_FIM)) AS tempoGeral
+      FROM TEMPO_RESPOSTA
+      WHERE DT_INICIO >= ${date}
+      `;
+
+    const [{ QTYQUS, QUSQUY, QUYQUU }]: [
+      { QTYQUS: number; QUSQUY: number; QUYQUU: number },
+    ] = await prisma.$queryRaw`
+      SELECT 
+        AVG(DATEDIFF(minute, EnvioEquipeDT, ChegadaLocalDT)) AS QTYQUS,
+        AVG(DATEDIFF(minute, SaidaLocalDT, ChegadaDestinoDT)) AS QUSQUY,
+        AVG(DATEDIFF(minute, ChegadaDestinoDT, RetornoDestinoDT)) AS QUYQUU
+      FROM OcorrenciaMovimentacao
+      WHERE EnvioEquipeDT >= ${date}
+      `;
+
+    return {
+      tempoGeral,
+      QTYQUS,
+      QUSQUY,
+      QUYQUU,
+      totalLigacoes,
+    };
+  }),
 });

@@ -13,11 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { TypographyH4 } from "@/components/typography/TypographyH4";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function SignIn() {
   const form = useLoginForm();
-  const router = useRouter();
+
   const [data, setData] = useState<SignInResponse>();
   const onSubmit = async (values: LoginCredentials) => {
     const res = await signIn("credentials", {
@@ -25,9 +24,6 @@ export default function SignIn() {
       callbackUrl: "/monitoramento",
       ...values,
     });
-    /*  if (res?.ok) {
-      return router.replace("/monitoramento");
-    } */
     setData(res);
   };
   return (

@@ -7,23 +7,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "../ui/button";
 import { useState } from "react";
-import { DialogIntercorrenciaIncidents } from "../dialogs/DialogIntercorrenciaIncidents";
 import { IntercorrenciaCount } from "@/server/api/routers/intercorrencias";
+import { useTurnStore } from "@/hooks/useTurnStore";
+import { useIntercorrenciaIncidentsQuery } from "@/hooks/useIntercorrenciaIncidentsQuery";
+import { Loader2 } from "lucide-react";
+import { DialogIncidentsList } from "../dialogs/DialogIncidentsList";
 
 export function TableIntercorrencias({
   data,
 }: {
   data: IntercorrenciaCount[];
 }) {
-  const [selectedIntercorrencia, setSelectedIntercorrencia] =
-    useState<IntercorrenciaCount>();
-
+  const turn = useTurnStore(state=> state.turn)
+  const [selectedIntercorrenciaId, setSelectedIntercorrenciaId] =
+    useState(0);
+  const {data: incidents, isFetching, isError} = useIntercorrenciaIncidentsQuery(selectedIntercorrenciaId)
   return (
     <>
       <ScrollArea className="relative h-full rounded-lg border bg-card shadow-sm">
+        <ScrollBar orientation="horizontal" />
         <Table>
           <TableHeader className="sticky top-0 bg-slate-100">
             <TableRow>
@@ -39,7 +44,7 @@ export function TableIntercorrencias({
                     variant="link"
                     size="icon"
                     className="h-min w-max font-bold underline"
-                    onClick={() => setSelectedIntercorrencia(intercorrencia)}
+                    onClick={() => setSelectedIntercorrenciaId(intercorrencia.id)}
                   >
                     {intercorrencia.description}
                   </Button>
@@ -67,11 +72,17 @@ export function TableIntercorrencias({
           </TableFooter>
         </Table>
       </ScrollArea>
-      {selectedIntercorrencia && (
-        <DialogIntercorrenciaIncidents
-          intercorrencia={selectedIntercorrencia}
-          open={selectedIntercorrencia !== undefined}
-          onClose={() => setSelectedIntercorrencia(undefined)}
+      {isFetching ? (
+        <Loader2
+          size={30}
+          className="fixed left-1/2 top-1/2 animate-spin text-primary"
+        />
+      ) : (
+        <DialogIncidentsList
+          data={incidents || []}
+          open={selectedIntercorrenciaId !== 0 && !isError}
+          onClose={() => setSelectedIntercorrenciaId(0)}
+          turn={turn}
         />
       )}
     </>

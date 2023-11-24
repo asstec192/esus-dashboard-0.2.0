@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { TypographyMuted } from "../typography/TypographyMuted";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

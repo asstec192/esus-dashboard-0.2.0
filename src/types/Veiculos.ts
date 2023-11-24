@@ -5,4 +5,5 @@ interface TempoRespostaVeiculos {
   QUSQUY?: number;
   QUYQUU?: number;
   totalOcorrencias: number;
+  totalPacientes: number;
 }

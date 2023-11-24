@@ -1,9 +1,7 @@
-import { api } from "@/utils/api";
+import { RouterOutputs } from "@/utils/api";
 import { SimpleDialog } from "./SimpleDialog";
-import { useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
-import { toast } from "../ui/use-toast";
 import { addHours } from "date-fns";
-import { isWithinHourInterval } from "@/utils/isWithinHourInterval";
+import { isWithinHour, isWithinTurn } from "@/utils/isWithinTurn";
 import {
   Table,
   TableBody,
@@ -16,45 +14,26 @@ import { formatProperName } from "@/utils/formatProperName";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { Button } from "../ui/button";
 import { getColorByRisk } from "@/utils/getColorByRisk";
-import { Loader2 } from "lucide-react";
-import { IntercorrenciaCount } from "@/server/api/routers/intercorrencias";
+import { Turn } from "@/hooks/useTurnStore";
 import { useIncidentStore } from "@/hooks/useIncidentStore";
 
-export const DialogIntercorrenciaIncidents = ({
-  intercorrencia,
+export const DialogIncidentsList = ({
+  data,
   open,
   onClose,
+  turn,
 }: {
-  intercorrencia: IntercorrenciaCount;
+  data: RouterOutputs["destinations"]["getIncidents"];
   open: boolean;
   onClose: () => void;
+  turn: Turn;
 }) => {
-  const setSelectedIncidentId = useIncidentStore(state=> state.setSelectedIncidentId)
-  const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
-  const turn = useGlogalDateFilterStore((state) => state.turn);
-  const { data, isLoading } = api.intercorrencia.getIncidents.useQuery(
-    {
-      intercorrenciaId: intercorrencia.id,
-      from: dateRange.from!,
-      to: dateRange.to!,
-    },
-    {
-      onError: (error) => {
-        toast({
-          title: "Erro",
-          description: error.message,
-          variant: "destructive",
-        });
-      },
-    },
+  const setSelectedIncidentId = useIncidentStore(
+    (state) => state.setSelectedIncidentId,
   );
   return (
-      <SimpleDialog
-        open={open}
-        onOpenChange={onClose}
-        title={`Ocorrências atendidas por ${intercorrencia.description}`}
-        className="max-w-7xl"
-      >
+    <>
+      <SimpleDialog open={open} onOpenChange={onClose} className="max-w-7xl">
         <ScrollArea className="relative max-h-[70vh] rounded-lg border bg-card shadow-sm">
           <ScrollBar orientation="horizontal" />
           <Table>
@@ -69,7 +48,7 @@ export const DialogIntercorrenciaIncidents = ({
             <TableBody>
               {data
                 ?.filter((incident) =>
-                  isWithinHourInterval(
+                  isWithinHour(
                     addHours(incident.DtHr!, 3),
                     turn.numericFrom,
                     turn.numericTo,
@@ -98,16 +77,10 @@ export const DialogIntercorrenciaIncidents = ({
                     </TableCell>
                   </TableRow>
                 ))}
-              {isLoading && (
-                <TableRow>
-                  <TableCell colSpan={4}>
-                    <Loader2 className="mx-auto my-0 animate-spin text-slate-400" />
-                  </TableCell>
-                </TableRow>
-              )}
             </TableBody>
           </Table>
         </ScrollArea>
       </SimpleDialog>
+    </>
   );
 };

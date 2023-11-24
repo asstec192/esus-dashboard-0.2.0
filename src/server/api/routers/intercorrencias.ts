@@ -1,9 +1,11 @@
 import { prisma } from "@/server/db";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import * as z from "zod";
-import { dateRangeInput, turnInput } from "@/hooks/useGlobalDateFilterStore";
-import { getTurnQuery } from "@/utils/getTurnQuery";
+import { dateRangeInput } from "@/hooks/useGlobalDateFilterStore";
+import { getTurnFilterQuery } from "@/utils/getTurnQuery";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
+import { turnInput } from "@/hooks/useTurnStore";
+import { addHours } from "date-fns";
 
 export type IntercorrenciaCount = {
   description: string;
@@ -16,12 +18,11 @@ export const intercorrenciaRouter = createTRPCRouter({
     .input(
       z.object({
         intercorrenciaId: z.number(),
-        from: z.date(),
-        to: z.date(),
+        dateRange: dateRangeInput,
       }),
     )
     .query(async ({ input }) => {
-      const { from, to } = formatServerDateRange(input);
+      const { from, to } = formatServerDateRange(input.dateRange);
       return await prisma.ocorrencia.findMany({
         select: {
           OcorrenciaID: true,
@@ -36,8 +37,8 @@ export const intercorrenciaRouter = createTRPCRouter({
         },
         where: {
           DtHr: {
-            gte: from,
-            lt: to,
+            gte: addHours(from, 1),
+            lt: addHours(to, 1),
           },
           HISTORICO_DECISAO_GESTORA: {
             some: {
@@ -45,14 +46,16 @@ export const intercorrenciaRouter = createTRPCRouter({
             },
           },
         },
+        orderBy: {
+          OcorrenciaID: "desc",
+        },
       });
     }),
-    
+
   countIncidents: protectedProcedure
     .input(z.object({ dateRange: dateRangeInput, turn: turnInput }))
     .query(async ({ input }) => {
-      const { from, to } = formatServerDateRange(input.dateRange);
-      const turnQuery = getTurnQuery(input.turn);
+      const filter = getTurnFilterQuery(input.dateRange, input.turn);
       return await prisma.$queryRaw<IntercorrenciaCount[]>`
         SELECT 
           I.IntercorrenciaDS as description, 
@@ -61,7 +64,7 @@ export const intercorrenciaRouter = createTRPCRouter({
         FROM Intercorrencias I
         LEFT JOIN HISTORICO_DECISAO_GESTORA HDG ON HDG.INTERCORRENCIAID = I.IntercorrenciaID
         LEFT JOIN Ocorrencia O ON O.OcorrenciaID = HDG.OcorrenciaID 
-        WHERE O.DtHr BETWEEN ${from} AND ${to} ${turnQuery}
+        WHERE ${filter}
         GROUP BY I.IntercorrenciaDS, I.IntercorrenciaID
         ORDER BY I.IntercorrenciaDS   
     `;

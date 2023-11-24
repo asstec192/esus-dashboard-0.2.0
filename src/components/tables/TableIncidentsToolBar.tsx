@@ -1,6 +1,7 @@
 import { type Table } from "@tanstack/react-table";
 import { TableSearch } from "./TableSearch";
 import { TableFilter } from "./TableFilter";
+import { TypographyMuted } from "../typography/TypographyMuted";
 
 interface TableIncidentsToolBarProps<TData> {
   table: Table<TData>;
@@ -47,7 +48,7 @@ export function TableIncidentsToolBar<TData>({
             { label: "30-39", value: JSON.stringify({ min: 30, max: 39 }) },
             { label: "40-49", value: JSON.stringify({ min: 40, max: 49 }) },
             { label: "50-59", value: JSON.stringify({ min: 50, max: 59 }) },
-            { label: ">59", value: JSON.stringify({ min: 60, max: 1000000 }) },
+            { label: ">59", value: JSON.stringify({ min: 60, max: 10000 }) },
           ]}
         />
       )}
@@ -84,6 +85,9 @@ export function TableIncidentsToolBar<TData>({
           ]}
         />
       )}
+      <TypographyMuted className="w-full">
+        A busca retornou {table.getFilteredRowModel().rows.length} resultados
+      </TypographyMuted>
     </div>
   );
 }

@@ -7,17 +7,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "../ui/button";
-import { DialogDestinationIncidents } from "../dialogs/DialogDestinationIncidents";
 import { useState } from "react";
+import { useDestinationIncidentsQuery } from "@/hooks/useDestinationIncidentsQuery";
+import { DialogIncidentsList } from "../dialogs/DialogIncidentsList";
+import { useTurnStore } from "@/hooks/useTurnStore";
+import { Loader2 } from "lucide-react";
 
 export function TableDestinations({ data }: { data: TempoRespostaDestino[] }) {
-  const [selectedDestiny, setSelectedDestiny] =
-    useState<TempoRespostaDestino>();
+  const [selectedDestinyId, setSelectedDestinyId] = useState(0);
+  const {
+    data: incidents,
+    isFetching,
+    isError,
+  } = useDestinationIncidentsQuery(selectedDestinyId);
+  const turn = useTurnStore((state) => state.turn);
   return (
     <>
       <ScrollArea className="relative h-full rounded-lg border bg-card shadow-sm">
+        <ScrollBar orientation="horizontal" />
         <Table>
           <TableHeader className="sticky top-0 bg-slate-100">
             <TableRow>
@@ -33,7 +42,7 @@ export function TableDestinations({ data }: { data: TempoRespostaDestino[] }) {
                   <Button
                     variant="link"
                     className="h-min w-max p-0 font-bold underline"
-                    onClick={() => setSelectedDestiny(destination)}
+                    onClick={() => setSelectedDestinyId(Number(destination.id))}
                   >
                     {destination.nome}
                   </Button>
@@ -69,11 +78,17 @@ export function TableDestinations({ data }: { data: TempoRespostaDestino[] }) {
           </TableFooter>
         </Table>
       </ScrollArea>
-      {selectedDestiny && (
-        <DialogDestinationIncidents
-          destiny={selectedDestiny}
-          open={selectedDestiny !== undefined}
-          onClose={() => setSelectedDestiny(undefined)}
+      {isFetching ? (
+        <Loader2
+          size={30}
+          className="fixed left-1/2 top-1/2 animate-spin text-primary"
+        />
+      ) : (
+        <DialogIncidentsList
+          data={incidents || []}
+          open={selectedDestinyId !== 0 && !isError}
+          onClose={() => setSelectedDestinyId(0)}
+          turn={turn}
         />
       )}
     </>

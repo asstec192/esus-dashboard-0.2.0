@@ -7,17 +7,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useState } from "react";
-import { DialogVehicleIncidents } from "../dialogs/DialogVehicleIncidents";
 import { Button } from "../ui/button";
+import { useVehicleIncidentsQuery } from "@/hooks/useVehicleIncidentsQuery";
+import { Loader2 } from "lucide-react";
+import { DialogIncidentsList } from "../dialogs/DialogIncidentsList";
+import { useTurnStore } from "@/hooks/useTurnStore";
 
 export function TableVehicles({ data }: { data: TempoRespostaVeiculos[] }) {
-  const [selectedVehicle, setSelectedVehicle] =
-    useState<TempoRespostaVeiculos>();
+  const turn = useTurnStore((state) => state.vehicleTurn);
+  const [selectedVehicleId, setSelectedVehicleId] = useState(0);
+  const {
+    isFetching,
+    data: incidents,
+    isError,
+  } = useVehicleIncidentsQuery(selectedVehicleId);
   return (
     <>
       <ScrollArea className="relative h-full rounded-lg border bg-card shadow-sm">
+        <ScrollBar orientation="horizontal" />
         <Table>
           <TableHeader className="sticky top-0 bg-slate-100">
             <TableRow>
@@ -32,6 +41,7 @@ export function TableVehicles({ data }: { data: TempoRespostaVeiculos[] }) {
                 Chegada ao destino - QUY QUU (min)
               </TableHead>
               <TableHead className="text-end">N° de Ocorrências</TableHead>
+              <TableHead className="text-end">N° de Pacientes</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -42,7 +52,7 @@ export function TableVehicles({ data }: { data: TempoRespostaVeiculos[] }) {
                     variant="link"
                     size="icon"
                     className="h-min w-max font-bold underline"
-                    onClick={() => setSelectedVehicle(vehicle)}
+                    onClick={() => setSelectedVehicleId(vehicle.id)}
                   >
                     {vehicle.nome}
                   </Button>
@@ -51,11 +61,12 @@ export function TableVehicles({ data }: { data: TempoRespostaVeiculos[] }) {
                 <TableCell>{vehicle.QUSQUY}</TableCell>
                 <TableCell>{vehicle.QUYQUU}</TableCell>
                 <TableCell>{vehicle.totalOcorrencias}</TableCell>
+                <TableCell>{vehicle.totalPacientes}</TableCell>
               </TableRow>
             ))}
             {data.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   Nenhum resultado.
                 </TableCell>
               </TableRow>
@@ -88,16 +99,23 @@ export function TableVehicles({ data }: { data: TempoRespostaVeiculos[] }) {
                   ) / data.length,
                 ) || ""}
               </TableCell>
-              <TableCell></TableCell>
+              <TableCell />
+              <TableCell />
             </TableRow>
           </TableFooter>
         </Table>
       </ScrollArea>
-      {selectedVehicle && (
-        <DialogVehicleIncidents
-          vehicle={selectedVehicle}
-          open={selectedVehicle !== undefined}
-          onClose={() => setSelectedVehicle(undefined)}
+      {isFetching ? (
+        <Loader2
+          size={30}
+          className="fixed left-1/2 top-1/2 animate-spin text-primary"
+        />
+      ) : (
+        <DialogIncidentsList
+          data={incidents || []}
+          open={selectedVehicleId !== 0 && !isError}
+          onClose={() => setSelectedVehicleId(0)}
+          turn={turn}
         />
       )}
     </>

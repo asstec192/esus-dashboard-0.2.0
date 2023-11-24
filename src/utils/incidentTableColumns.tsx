@@ -3,7 +3,7 @@ import { formatProperName } from "@/utils/formatProperName";
 import { getColorByRisk } from "@/utils/getColorByRisk";
 import { getDay } from "date-fns";
 import { formatDate } from "@/utils/formatDate";
-import { isWithinHourInterval } from "@/utils/isWithinHourInterval";
+import { isWithinHour } from "@/utils/isWithinTurn";
 import { PopoverVehicleForRawQuery } from "../components/pop-overs/PopoverVehicleForRawQuery";
 import { Button } from "@/components/ui/button";
 import { useIncidentStore } from "@/hooks/useIncidentStore";
@@ -160,12 +160,11 @@ export const incidentTableColumns: ColumnDef<Ocorrencia>[] = [
       if (veiculos.length === 0) {
         return false;
       }
-
       const primeiroEnvio = new Date(veiculos[0]!.EnvioEquipeDT);
       return selectedHours.some((hourRange) => {
         const startHour = (JSON.parse(hourRange) as NumberRange).min;
         const endHour = (JSON.parse(hourRange) as NumberRange).max;
-        return isWithinHourInterval(primeiroEnvio, startHour, endHour);
+        return isWithinHour(primeiroEnvio, startHour, endHour);
       });
     },
   },

@@ -4,19 +4,18 @@ import {
   useGlogalDateFilterStore,
 } from "./useGlobalDateFilterStore";
 import { toast } from "@/components/ui/use-toast";
-import { useTurnStore } from "./useTurnStore";
 
-export const useIntercorrenciaCountQuery = () => {
+export const useDestinationIncidentsQuery = (destinyID: number) => {
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
   ) as DateRange;
-  const turn = useTurnStore((state) => state.turn);
-  return api.intercorrencia.countIncidents.useQuery(
+  const query = api.destinations.getIncidents.useQuery(
     {
+      destinationId: destinyID,
       dateRange,
-      turn,
     },
     {
+      enabled: destinyID !== 0,
       onError: (error) => {
         toast({
           title: "Erro",
@@ -26,4 +25,5 @@ export const useIntercorrenciaCountQuery = () => {
       },
     },
   );
+  return query;
 };

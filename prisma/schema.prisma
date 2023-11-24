@@ -96,6 +96,7 @@ model ClassifVitima {
     RegAtivo        String?   @db.NVarChar(1)
     AtivacaoDT      DateTime? @db.SmallDateTime
     InativacaoDT    DateTime? @db.SmallDateTime
+    Vitimas         Vitimas[]
 }
 
 model Conclusao {
@@ -117,16 +118,15 @@ model Conclusao {
     @@id([OcorrenciaID, VitimaID, FichaNM], map: "PK_Conclusao")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model DECISAO_TECNICA {
-    TransporteID Float?
-    TransporteDS String? @db.NVarChar(255)
-    RegAtivo     Float?
-    F4           String? @db.NVarChar(255)
-    F5           String? @db.NVarChar(255)
+    TransporteID              Int                         @id(map: "PK_DECISAO_TECNICA")
+    TransporteDS              String?                     @db.NVarChar(255)
+    RegAtivo                  Float?
+    F4                        String?                     @db.NVarChar(255)
+    F5                        String?                     @db.NVarChar(255)
+    HISTORICO_DECISAO_GESTORA HISTORICO_DECISAO_GESTORA[]
 
     @@map("DECISAO TECNICA")
-    @@ignore
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -290,6 +290,10 @@ model HISTORICO_DECISAO_GESTORA {
     Vitima                       Vitimas?         @relation(fields: [VITIMAID], references: [VitimaId])
     Destino                      UnidadesDestino? @relation(fields: [DESTINOID], references: [UnidadeCOD])
     Ocorrencia                   Ocorrencia?      @relation(fields: [OCORRENCIAID], references: [OcorrenciaID], onDelete: NoAction, onUpdate: NoAction)
+    Decisao                      DECISAO_TECNICA? @relation(fields: [DECISAO_GESTORAID], references: [TransporteID])
+    OperadorDecisao              OperadoresDados? @relation("operador-decisao", fields: [OPERADORID_DECISAO_GESTORAID], references: [OperadorID], onDelete: NoAction, onUpdate: NoAction)
+    OperadorIntercorrencia       OperadoresDados? @relation("operador-intercorrencia", fields: [OPERADORID_INTERCORRENCIAID], references: [OperadorID], onDelete: NoAction, onUpdate: NoAction)
+    OperadorDestino              OperadoresDados? @relation("operador-destino", fields: [OPERADORID_DESTINOID], references: [OperadorID], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -524,6 +528,12 @@ model Ocorrencia {
     OCORRENCIA_AVALIACAO_INICIAL      OCORRENCIA_AVALIACAO_INICIAL[]
     FORMEQUIPE_SolicitacaoVeiculo     FORMEQUIPE_SolicitacaoVeiculo[]
     HISTORICO_DECISAO_GESTORA         HISTORICO_DECISAO_GESTORA[]
+    PosicaoOcorrencias                PosicaoOcorrencias[]
+    Tipo                              Tipo?                               @relation(fields: [TipoID], references: [TipoID])
+    Municipio                         TBS_Municipios_IBGE?                @relation(fields: [MunicipioID], references: [Cod_Municipio])
+    Logradouro_                       TBS_TP_Logradouro?                  @relation(fields: [LogradouroTP], references: [Cod])
+    Solicitante                       Solicitante?                        @relation(fields: [OcorrenciaID], references: [OcorrenciaID])
+    Origem                            OrigemOco?                          @relation(fields: [OrigemOcoCOD], references: [OrigemOcoCOD])
 }
 
 model OCORRENCIA_APOIO_SOLICITADO {
@@ -599,34 +609,39 @@ model OcorrenciaMovimentacao {
 }
 
 model OperadoresDados {
-    OperadorID                    Int                             @id @default(autoincrement())
-    OperadorNM                    String?                         @db.NVarChar(50)
-    OperadorApelido               String?                         @unique @db.NVarChar(20)
-    Sexo                          String?                         @db.NVarChar(1)
-    LogradouroTP                  String?                         @db.NVarChar(50)
-    Logradouro                    String?                         @db.NVarChar(50)
-    Numero                        String?                         @db.NVarChar(10)
-    Bairro                        String?                         @db.NVarChar(50)
-    CEP                           String?                         @db.NVarChar(9)
-    ReferenciaDS                  String?                         @db.NVarChar(255)
-    MunicipioID                   String?                         @db.NVarChar(50)
-    EstadoID                      String?                         @db.NVarChar(50)
-    TelefoneDDD                   String?                         @db.NVarChar(2)
-    TelefoneNM                    String?                         @db.NVarChar(8)
-    ProfisionalTP                 String?                         @db.NVarChar(50)
-    Senha                         String?                         @db.VarChar(50)
-    AcessoTP                      Int?
-    Logado                        Int?
-    OperadoID                     String?                         @db.NVarChar(50)
-    RegistroDT                    String?                         @db.NVarChar(50)
-    RegAtivo                      String?                         @db.NVarChar(1)
-    PerfilCod                     Int?
-    Perfil                        CA_Perfil?                      @relation(fields: [PerfilCod], references: [PerfilCOD])
-    Operador_Ramal                String?                         @db.VarChar(3)
-    Ocorrencia                    Ocorrencia[]
-    OCORRENCIA_AVALIACAO_INICIAL  OCORRENCIA_AVALIACAO_INICIAL[]
-    UsuarioDashboard              UsuarioDashboard                @relation(fields: [OperadorID], references: [operadorID])
-    FORMEQUIPE_SolicitacaoVeiculo FORMEQUIPE_SolicitacaoVeiculo[]
+    OperadorID                               Int                             @id @default(autoincrement())
+    OperadorNM                               String?                         @db.NVarChar(50)
+    OperadorApelido                          String?                         @unique @db.NVarChar(20)
+    Sexo                                     String?                         @db.NVarChar(1)
+    LogradouroTP                             String?                         @db.NVarChar(50)
+    Logradouro                               String?                         @db.NVarChar(50)
+    Numero                                   String?                         @db.NVarChar(10)
+    Bairro                                   String?                         @db.NVarChar(50)
+    CEP                                      String?                         @db.NVarChar(9)
+    ReferenciaDS                             String?                         @db.NVarChar(255)
+    MunicipioID                              String?                         @db.NVarChar(50)
+    EstadoID                                 String?                         @db.NVarChar(50)
+    TelefoneDDD                              String?                         @db.NVarChar(2)
+    TelefoneNM                               String?                         @db.NVarChar(8)
+    ProfisionalTP                            String?                         @db.NVarChar(50)
+    Senha                                    String?                         @db.VarChar(50)
+    AcessoTP                                 Int?
+    Logado                                   Int?
+    OperadoID                                String?                         @db.NVarChar(50)
+    RegistroDT                               String?                         @db.NVarChar(50)
+    RegAtivo                                 String?                         @db.NVarChar(1)
+    PerfilCod                                Int?
+    Perfil                                   CA_Perfil?                      @relation(fields: [PerfilCod], references: [PerfilCOD])
+    Operador_Ramal                           String?                         @db.VarChar(3)
+    Ocorrencia                               Ocorrencia[]
+    OCORRENCIA_AVALIACAO_INICIAL             OCORRENCIA_AVALIACAO_INICIAL[]
+    UsuarioDashboard                         UsuarioDashboard                @relation(fields: [OperadorID], references: [operadorID])
+    FORMEQUIPE_SolicitacaoVeiculo            FORMEQUIPE_SolicitacaoVeiculo[]
+    OcorrenciaOpOrigem                       PosicaoOcorrencias[]            @relation("opOrigem")
+    OcorrenciaOpDestino                      PosicaoOcorrencias[]            @relation("opDestino")
+    HISTORICO_DECISAO_GESTORA_DECISAO        HISTORICO_DECISAO_GESTORA[]     @relation("operador-decisao")
+    HISTORICO_DECISAO_GESTORA_INTERCORRENCIA HISTORICO_DECISAO_GESTORA[]     @relation("operador-intercorrencia")
+    HISTORICO_DECISAO_GESTORA_DESTINO        HISTORICO_DECISAO_GESTORA[]     @relation("operador-destino")
 }
 
 model UsuarioDashboard {
@@ -656,12 +671,13 @@ model OperadoresLogs {
 }
 
 model OrigemOco {
-    OrigemOcoCOD    Int       @id(map: "PK_OrigemOco") @default(autoincrement())
-    OrigemOcoNumero String?   @db.VarChar(10)
-    OrigemOcoDS     String?   @db.NVarChar(50)
-    RegAtivo        String?   @db.NVarChar(1)
-    AtivacaoDT      DateTime? @db.SmallDateTime
-    InativacaoDT    DateTime? @db.SmallDateTime
+    OrigemOcoCOD    Int          @id(map: "PK_OrigemOco") @default(autoincrement())
+    OrigemOcoNumero String?      @db.VarChar(10)
+    OrigemOcoDS     String?      @db.NVarChar(50)
+    RegAtivo        String?      @db.NVarChar(1)
+    AtivacaoDT      DateTime?    @db.SmallDateTime
+    InativacaoDT    DateTime?    @db.SmallDateTime
+    Ocorrencia      Ocorrencia[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -693,17 +709,20 @@ model PerfilOperador {
 model PosicaoOcorrencias {
     OcorrenciaID     BigInt
     VitimaID         Int
-    OrigemDTHR       DateTime? @db.DateTime
+    OrigemDTHR       DateTime?        @db.DateTime
     OperadorOrigem   Int?
     OperadorDestino  Int
     OperadorID       Int?
     EncaminhamentoTP Int?
-    txtOrigem        String?   @db.NVarChar(255)
-    txtDestino       String?   @db.NVarChar(255)
-    DestinoDTHR      DateTime? @db.DateTime
-    LeituraDTHR      DateTime? @db.DateTime
-    Regulado         String?   @default("0", map: "DF_PosicaoOcorrencias_Regulado") @db.VarChar(1)
-    RegistroDT       DateTime  @db.DateTime
+    txtOrigem        String?          @db.NVarChar(255)
+    txtDestino       String?          @db.NVarChar(255)
+    DestinoDTHR      DateTime?        @db.DateTime
+    LeituraDTHR      DateTime?        @db.DateTime
+    Regulado         String?          @default("0", map: "DF_PosicaoOcorrencias_Regulado") @db.VarChar(1)
+    RegistroDT       DateTime         @db.DateTime
+    Ocorrencia       Ocorrencia?      @relation(fields: [OcorrenciaID], references: [OcorrenciaID])
+    OpOrigem         OperadoresDados? @relation("opOrigem", fields: [OperadorOrigem], references: [OperadorID], onDelete: NoAction, onUpdate: NoAction)
+    OpDestino        OperadoresDados? @relation("opDestino", fields: [OperadorDestino], references: [OperadorID], onDelete: NoAction, onUpdate: NoAction)
 
     @@id([OcorrenciaID, VitimaID, OperadorDestino, RegistroDT], map: "PK_PosicaoOcorrencias")
 }
@@ -872,24 +891,25 @@ model SERVICO_MENSAGENS_INSTANTANEAS {
 }
 
 model Solicitante {
-    OcorrenciaID           BigInt    @id(map: "PK_Solicitante")
-    SolicitanteNM          String?   @db.NVarChar(100)
-    TelefoneDDD            String?   @db.NVarChar(2)
-    TelefoneNM             String?   @db.NVarChar(9)
-    LogradouroTP           String?   @db.NVarChar(50)
-    Logradouro             String?   @db.VarChar(510)
-    Numero                 String?   @db.NVarChar(10)
-    Bairro                 String?   @db.NVarChar(50)
+    OcorrenciaID           BigInt       @id(map: "PK_Solicitante")
+    SolicitanteNM          String?      @db.NVarChar(100)
+    TelefoneDDD            String?      @db.NVarChar(2)
+    TelefoneNM             String?      @db.NVarChar(9)
+    LogradouroTP           String?      @db.NVarChar(50)
+    Logradouro             String?      @db.VarChar(510)
+    Numero                 String?      @db.NVarChar(10)
+    Bairro                 String?      @db.NVarChar(50)
     Cod_Bairro             Int?
-    CEP                    String?   @db.NVarChar(9)
-    ReferenciaDS           String?   @db.NVarChar(255)
+    CEP                    String?      @db.NVarChar(9)
+    ReferenciaDS           String?      @db.NVarChar(255)
     MunicipioID            Int?
-    EstadoID               String?   @db.NVarChar(50)
+    EstadoID               String?      @db.NVarChar(50)
     RelSolicitanteVitimaID Int?
     EmocionalID            Int?
     OperadorID             Int?
-    RegistroDT             DateTime? @db.SmallDateTime
-    Complemento            String?   @db.NChar(30)
+    RegistroDT             DateTime?    @db.SmallDateTime
+    Complemento            String?      @db.NChar(30)
+    Ocorrencia             Ocorrencia[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -1453,14 +1473,15 @@ model TB_VEICULO_PROPRIEDADE {
 }
 
 model TBS_Municipios_IBGE {
-    Cod_Municipio String      @id(map: "PK_TBS_Municipios_IBGE") @db.VarChar(8)
-    Municipio     String?     @db.NVarChar(255)
+    Cod_Municipio String       @id(map: "PK_TBS_Municipios_IBGE") @db.VarChar(8)
+    Municipio     String?      @db.NVarChar(255)
     UF            Float?
     DV_Municipio  Float?
-    RegAtivo      String?     @db.NVarChar(1)
-    AtivacaoDT    DateTime?   @db.SmallDateTime
-    InativacaoDT  DateTime?   @db.SmallDateTime
+    RegAtivo      String?      @db.NVarChar(1)
+    AtivacaoDT    DateTime?    @db.SmallDateTime
+    InativacaoDT  DateTime?    @db.SmallDateTime
     TB_BAIRRO     TB_BAIRRO[]
+    Ocorrencia    Ocorrencia[]
 
     @@index([Municipio], map: "idx_TBS_Municipios")
 }
@@ -1498,12 +1519,13 @@ model TBS_Situacao_Veiculo {
 }
 
 model TBS_TP_Logradouro {
-    Cod          String    @id(map: "PK_TBS_TP_Logradouro") @db.NVarChar(20)
-    Abreviatura  String?   @db.NVarChar(255)
-    Logradouro   String?   @db.NVarChar(255)
-    RegAtivo     String?   @db.NVarChar(1)
-    AtivacaoDT   DateTime? @db.SmallDateTime
-    InativacaoDT DateTime? @db.SmallDateTime
+    Cod          String       @id(map: "PK_TBS_TP_Logradouro") @db.NVarChar(20)
+    Abreviatura  String?      @db.NVarChar(255)
+    Logradouro   String?      @db.NVarChar(255)
+    RegAtivo     String?      @db.NVarChar(1)
+    AtivacaoDT   DateTime?    @db.SmallDateTime
+    InativacaoDT DateTime?    @db.SmallDateTime
+    Ocorrencia   Ocorrencia[]
 }
 
 model TEL_PRESTADORA_TELEFONIA_END {
@@ -1602,13 +1624,14 @@ model TEMPO_RESPOSTA {
 }
 
 model Tipo {
-    TipoID       Int       @id(map: "PK_Tipo") @default(autoincrement())
-    TipoDS       String?   @db.NVarChar(50)
-    RegAtivo     String?   @db.NVarChar(1)
+    TipoID       Int          @id(map: "PK_Tipo") @default(autoincrement())
+    TipoDS       String?      @db.NVarChar(50)
+    RegAtivo     String?      @db.NVarChar(1)
     OperadorID   Int?
-    RegistroDT   DateTime? @db.SmallDateTime
-    AtivacaoDT   DateTime? @db.SmallDateTime
-    InativacaoDT DateTime? @db.SmallDateTime
+    RegistroDT   DateTime?    @db.SmallDateTime
+    AtivacaoDT   DateTime?    @db.SmallDateTime
+    InativacaoDT DateTime?    @db.SmallDateTime
+    Ocorrencia   Ocorrencia[]
 }
 
 model TransporteDS {
@@ -1722,6 +1745,7 @@ model Vitimas {
     IdadeTP_Vitimas_IdadeTPToIdadeTP  IdadeTP?                            @relation("Vitimas_IdadeTPToIdadeTP", fields: [IdadeTP], references: [IdadeTP], onDelete: NoAction, onUpdate: NoAction, map: "FK_Vitimas_IdadeTP")
     OCORRENCIA_AVALIACAO_INICIAL      OCORRENCIA_AVALIACAO_INICIAL[]
     HistoricoDecisaoGestora           HISTORICO_DECISAO_GESTORA[]
+    Classificacao                     ClassifVitima?                      @relation(fields: [ClassifVitimaID], references: [ClassifVitimaID])
 
     @@id([OcorrenciaID, VitimaId], map: "PK_Vitimas")
 }
