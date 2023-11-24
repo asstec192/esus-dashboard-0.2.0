@@ -1,6 +1,5 @@
 import { TypographySmall } from "@/components/typography/TypographySmall";
 import { Badge } from "@/components/ui/badge";
-import { type Veiculo } from "@/lib/ocorrencias";
 import { CheckCircle2, Timer } from "lucide-react";
 import {
   Popover,
