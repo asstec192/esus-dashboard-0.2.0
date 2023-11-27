@@ -6,14 +6,13 @@ export const turnInput = z.object({
   to: z.string(),
   numericFrom: z.number(),
   numericTo: z.number(),
+  label: z.string(),
 });
 
 export type Turn = z.infer<typeof turnInput>;
 type TurnStore = {
   turn: Turn;
-  vehicleTurn: Turn;
   setTurn: (turn: Turn) => void;
-  setVehicleTurn: (turn: Turn) => void;
 };
 
 const initialTurn: Turn = {
@@ -21,18 +20,10 @@ const initialTurn: Turn = {
   to: "01:00:00",
   numericFrom: 1,
   numericTo: 1,
-};
-
-const initialVehicleTurn: Turn = {
-  from: "07:00:00",
-  to: "07:00:00",
-  numericFrom: 7,
-  numericTo: 7,
+  label: "Todos",
 };
 
 export const useTurnStore = create<TurnStore>()((set) => ({
   turn: initialTurn,
-  vehicleTurn: initialVehicleTurn,
   setTurn: (turn) => set(() => ({ turn: turn })),
-  setVehicleTurn: (turn) => set(() => ({ vehicleTurn: turn })),
 }));

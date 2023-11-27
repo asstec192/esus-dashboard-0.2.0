@@ -16,7 +16,7 @@ import { DialogIncidentsList } from "../dialogs/DialogIncidentsList";
 import { useTurnStore } from "@/hooks/useTurnStore";
 
 export function TableVehicles({ data }: { data: TempoRespostaVeiculos[] }) {
-  const turn = useTurnStore((state) => state.vehicleTurn);
+  const turn = useTurnStore((state) => state.turn);
   const [selectedVehicleId, setSelectedVehicleId] = useState(0);
   const {
     isFetching,

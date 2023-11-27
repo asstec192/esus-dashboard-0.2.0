@@ -9,27 +9,22 @@ import { useDestinationResponseTimeQuery } from "@/hooks/useDestinationResponseT
 import { useIntercorrenciaCountQuery } from "@/hooks/useIntercorrenciaCountQuery";
 import { TableIntercorrencias } from "@/components/tables/TableIntercorrencias";
 import { useVehicleResponseTimeQuery } from "@/hooks/useVehicleResponseTimeQuery";
-import { SelectVehicleTurn, TurnSelect } from "@/components/select/select-turn";
+import { TurnSelect } from "@/components/select/select-turn";
 
 const RegulacaoSecundaria: NextPageWithLayout = () => {
   const vehicleQuery = useVehicleResponseTimeQuery();
   const destinationQuery = useDestinationResponseTimeQuery();
   const intercorrenciaQuery = useIntercorrenciaCountQuery();
-  const [currentTab, setCurrentTab] = useState("veiculos");
 
   return (
-    <Tabs
-      defaultValue="veiculos"
-      className="h-[calc(100%-2rem)]"
-      onValueChange={setCurrentTab}
-    >
+    <Tabs defaultValue="veiculos" className="h-[calc(100%-2rem)]">
       <div className="flex flex-wrap gap-3">
         <TabsList>
           <TabsTrigger value="veiculos">Veículos</TabsTrigger>
           <TabsTrigger value="destinos">Destinos</TabsTrigger>
           <TabsTrigger value="intercorrencias">Intercorrências</TabsTrigger>
         </TabsList>
-        {currentTab === "veiculos" ? <SelectVehicleTurn /> : <TurnSelect />}
+        <TurnSelect />
       </div>
       <TabsContent className="h-[calc(100%-4rem)]" value="veiculos">
         {vehicleQuery.isLoading || vehicleQuery.isError ? (

@@ -4,15 +4,18 @@ import {
   useGlogalDateFilterStore,
 } from "./useGlobalDateFilterStore";
 import { toast } from "@/components/ui/use-toast";
+import { useTurnStore } from "./useTurnStore";
 
 export const useIntercorrenciaIncidentsQuery = (intercorrenciaId: number) => {
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
   ) as DateRange;
+  const turn = useTurnStore(state=> state.turn)
   const query = api.intercorrencia.getIncidents.useQuery(
     {
       intercorrenciaId,
       dateRange,
+      turn
     },
     {
       enabled: intercorrenciaId !== 0,

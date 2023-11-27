@@ -6,6 +6,7 @@ import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { getTurnFilterQuery } from "@/utils/getTurnQuery";
 import { turnInput } from "@/hooks/useTurnStore";
 import { addHours } from "date-fns";
+import { turnosVeiculos } from "@/utils/turnos";
 
 export const destinationRouter = createTRPCRouter({
   /**Obtém a lista de todas as unidades de destino */
@@ -20,9 +21,18 @@ export const destinationRouter = createTRPCRouter({
 
   /** Obtém todos as ocorrências relacionadas à unidade de destino. Recebe como input um date range */
   getIncidents: protectedProcedure
-    .input(z.object({ destinationId: z.number(), dateRange: dateRangeInput }))
+    .input(
+      z.object({
+        destinationId: z.number(),
+        dateRange: dateRangeInput,
+        turn: turnInput,
+      }),
+    )
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input.dateRange);
+      const turnoDeVeiculo = turnosVeiculos.some(
+        (turno) => turno.label === input.turn.label,
+      );
       return await prisma.ocorrencia.findMany({
         select: {
           OcorrenciaID: true,
@@ -37,8 +47,8 @@ export const destinationRouter = createTRPCRouter({
         },
         where: {
           DtHr: {
-            gte: addHours(from, 1), //primeiro turno inicia as 1h
-            lt: addHours(to, 1), //ultimo turno encerra as 1h
+            gte: turnoDeVeiculo ? addHours(from, 7) : addHours(from, 1), //primeiro turno inicia as 1h. 7h caso seja se veiculos
+            lt: turnoDeVeiculo ? addHours(to, 7) : addHours(to, 1), //ultimo turno encerra as 1h. 7h caso seja se veiculos
           },
           HISTORICO_DECISAO_GESTORA: {
             some: {

@@ -10,7 +10,7 @@ export const useVehicleResponseTimeQuery = () => {
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
   ) as DateRange;
-  const turn = useTurnStore((state) => state.vehicleTurn);
+  const turn = useTurnStore((state) => state.turn);
   const query = api.vehicles.getResponseTimes.useQuery(
     { dateRange, turn },
     {

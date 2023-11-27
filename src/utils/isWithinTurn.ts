@@ -1,9 +1,5 @@
 import { DateRange } from "@/hooks/useGlobalDateFilterStore";
-import {
-  addHours,
-  isWithinInterval,
-  startOfDay,
-} from "date-fns";
+import { addHours, isWithinInterval, startOfDay } from "date-fns";
 
 /**
  * Verifica se uma data está entre um intervalo de turnos dentro de um range de datas selecionadas
@@ -19,7 +15,7 @@ export const isWithinTurn = (
   start: number,
   end: number,
 ) => {
-  const temViradaDeDia = start > end;
+  const temViradaDeDia = start >= end;
   const from = addHours(startOfDay(dateRange.from), start);
 
   const to = temViradaDeDia
@@ -43,10 +39,10 @@ export function isWithinHour(date: Date, start: number, end: number) {
     date.getSeconds() + date.getMinutes() * 60 + date.getHours() * 3600;
   const inicioSegundos = start * 3600;
   const fimSegundos = end * 3600;
-
-  if (inicioSegundos < fimSegundos) {
-    return horarioSegundos >= inicioSegundos && horarioSegundos <= fimSegundos;
+  const temViradaDeDia = inicioSegundos >= fimSegundos;
+  if (temViradaDeDia) {
+    return horarioSegundos >= inicioSegundos || horarioSegundos < fimSegundos;
   } else {
-    return horarioSegundos >= inicioSegundos || horarioSegundos <= fimSegundos;
+    return horarioSegundos >= inicioSegundos && horarioSegundos < fimSegundos;
   }
 }

@@ -6,6 +6,7 @@ import { dateRangeInput } from "@/hooks/useGlobalDateFilterStore";
 import { turnInput } from "@/hooks/useTurnStore";
 import { getTurnFilterQuery } from "@/utils/getTurnQuery";
 import { addHours } from "date-fns";
+import { turnosVeiculos } from "@/utils/turnos";
 
 export const vehicleRouter = createTRPCRouter({
   /**
@@ -16,11 +17,15 @@ export const vehicleRouter = createTRPCRouter({
       z.object({
         vehicleId: z.number(),
         dateRange: dateRangeInput,
+        turn: turnInput,
       }),
     )
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input.dateRange);
-      console.log(addHours(from, 7), addHours(to, 7));
+      const turnoDeVeiculo = turnosVeiculos.some(
+        (turno) => turno.label === input.turn.label,
+      );
+      console.log(turnoDeVeiculo);
       return await prisma.ocorrencia.findMany({
         select: {
           OcorrenciaID: true,
@@ -35,8 +40,8 @@ export const vehicleRouter = createTRPCRouter({
         },
         where: {
           DtHr: {
-            gte: addHours(from, 7),
-            lt: addHours(to, 7),
+            gte: turnoDeVeiculo ? addHours(from, 7) : addHours(from, 1), //primeiro turno inicia as 1h. 7h caso seja se veiculos
+            lt: turnoDeVeiculo ? addHours(to, 7) : addHours(to, 1), //ultimo turno encerra as 1h. 7h caso seja se veiculos
           },
           OcorrenciaMovimentacao: {
             some: {
