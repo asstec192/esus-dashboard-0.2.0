@@ -10,14 +10,20 @@ import { useIntercorrenciaCountQuery } from "@/hooks/useIntercorrenciaCountQuery
 import { TableIntercorrencias } from "@/components/tables/TableIntercorrencias";
 import { useVehicleResponseTimeQuery } from "@/hooks/useVehicleResponseTimeQuery";
 import { TurnSelect } from "@/components/select/select-turn";
+import { PDFTempoRespostaVeiculos } from "@/components/PDFTempoRespostaVeiculos";
+import { DialogPDFViwer } from "@/components/dialogs/DialogPDF";
 
 const RegulacaoSecundaria: NextPageWithLayout = () => {
   const vehicleQuery = useVehicleResponseTimeQuery();
   const destinationQuery = useDestinationResponseTimeQuery();
   const intercorrenciaQuery = useIntercorrenciaCountQuery();
-
+  const [selectedTab, setSelectedTab] = useState("veiculos");
   return (
-    <Tabs defaultValue="veiculos" className="h-[calc(100%-2rem)]">
+    <Tabs
+      defaultValue="veiculos"
+      className="h-[calc(100%-2rem)]"
+      onValueChange={setSelectedTab}
+    >
       <div className="flex flex-wrap gap-3">
         <TabsList>
           <TabsTrigger value="veiculos">Veículos</TabsTrigger>
@@ -25,6 +31,13 @@ const RegulacaoSecundaria: NextPageWithLayout = () => {
           <TabsTrigger value="intercorrencias">Intercorrências</TabsTrigger>
         </TabsList>
         <TurnSelect />
+        {selectedTab === "veiculos" && (
+          <DialogPDFViwer>
+            {vehicleQuery.data && (
+              <PDFTempoRespostaVeiculos data={vehicleQuery.data} />
+            )}
+          </DialogPDFViwer>
+        )}
       </div>
       <TabsContent className="h-[calc(100%-4rem)]" value="veiculos">
         {vehicleQuery.isLoading || vehicleQuery.isError ? (
