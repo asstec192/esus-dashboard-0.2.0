@@ -9,6 +9,13 @@ export const turnos: Turn[] = [
     label: "Todos",
   },
   {
+    from: "1:00:00",
+    to: "7:00:00",
+    numericFrom: 1,
+    numericTo: 7,
+    label: "T0 (1h-7h)",
+  },
+  {
     from: "7:00:00",
     to: "13:00:00",
     numericFrom: 7,
@@ -28,13 +35,6 @@ export const turnos: Turn[] = [
     numericFrom: 19,
     numericTo: 1,
     label: "T3 (19h-1h)",
-  },
-  {
-    from: "1:00:00",
-    to: "7:00:00",
-    numericFrom: 1,
-    numericTo: 7,
-    label: "T4 (1h-7h)",
   },
 ];
 
