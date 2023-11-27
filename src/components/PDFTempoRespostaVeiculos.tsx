@@ -1,3 +1,5 @@
+import { useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
+import { useTurnStore } from "@/hooks/useTurnStore";
 import { RouterOutputs } from "@/utils/api";
 import {
   Page,
@@ -8,6 +10,7 @@ import {
   StyleSheet,
   Font,
 } from "@react-pdf/renderer";
+import { format } from "date-fns";
 import { ReactNode } from "react";
 
 // Register font
@@ -53,14 +56,11 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     borderRadius: 4,
   },
-  subtitle: {
+  title: {
     fontWeight: 600,
     fontSize: 14,
-    backgroundColor: "#c40e2f",
-    color: "white",
-    padding: 3,
-    borderRadius: 2,
     marginBottom: 4,
+    textAlign: "center",
   },
   p: {
     fontWeight: "medium",
@@ -123,10 +123,29 @@ export const PDFTempoRespostaVeiculos = ({
 }: {
   data: RouterOutputs["vehicles"]["getResponseTimes"];
 }) => {
+  const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
+  const turn = useTurnStore((state) => state.turn);
   return (
     <PDFViewer className="h-[90vh] w-full">
       <Document>
         <Page size="A4" style={styles.page}>
+          <View>
+            <Text style={styles.title}>
+              Relatório de Atendimento de Veículos
+            </Text>
+          </View>
+          <View>
+            <Text style={styles.title}>
+              {`De ${format(dateRange.from!, "dd/MM/yyyy")} à ${format(
+                dateRange.to!,
+                "dd/MM/yyyy",
+              )}`}
+            </Text>
+            <Text style={styles.title}>{`Turno: ${turn.label}`}</Text>
+            <Text style={styles.title}>
+              Data de emissâo: {new Date().toLocaleString()}
+            </Text>
+          </View>
           <View style={styles.table}>
             <View style={styles.tableRow}>
               <PDFTableCol>Veículo</PDFTableCol>
