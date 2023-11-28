@@ -1,12 +1,8 @@
-# Create T3 App
+# SamuDashboard
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Este é um aplicativo de dashboard desenvolvido com Next.js voltado para acompanhamento em tempo real e geração de relatórios exclusivos do SAMU 192 de Fortaleza/CE
 
-## What's next? How do I make an app with this?
-
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
-
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Principais tecnologias utilizadas:
 
 - [Next.js](https://nextjs.org)
 - [NextAuth.js](https://next-auth.js.org)
@@ -14,15 +10,49 @@ If you are not familiar with the different technologies used in this project, pl
 - [Tailwind CSS](https://tailwindcss.com)
 - [tRPC](https://trpc.io)
 
-## Learn More
+## Instalação
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+Siga estas instruções para configurar o aplicativo em seu ambiente local.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+### Pré-requisitos
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+- Node.js (versão 18 ou superior) instalado em seu sistema.
+- Git instalado em seu sistema.
 
-## How do I deploy this?
+### Passo 1: Clonar o repositório
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+```
+git clone https://github.com/asstec192/esus-dashboard-0.2.0.git
+```
+
+### Passo 2: Configurar as variáveis de ambiente
+
+Na pasta raiz do projeto e crie um arquivo chamado `.env` com as seguintes variáveis de ambiente:
+
+```
+DATABASE_URL="sqlserver://HOST;database=DATA_BASE;user=USUARIO;password=SENHA;encrypt=true;TrustServerCertificate=true"
+```
+
+```
+NEXTAUTH_URL="http://HOST:PORT"
+```
+
+```
+NEXTAUTH_SECRET="sua_chave_secreta"
+```
+
+### Passo 3: Instalar as dependências
+
+Ainda na pasta raiz execute os seguintes comandos:
+
+`npm install`
+
+`npm install pm2@latest -g`
+
+### Passo 4: Executar o aplicativo
+
+Em desenvolvimento: `npm run dev`
+
+Em produção: `npm run deploy:prod`
+
+Pausando o servidor: `pm2 stop SamuDashboard`
