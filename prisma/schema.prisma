@@ -258,17 +258,17 @@ model FORMEQUIPE_VeiculoProfissional {
     @@ignore
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model HISTORICO_CONDUTA {
-    CONDUTAID      Int       @default(autoincrement())
+    CONDUTAID      Int         @id @default(autoincrement())
     OCORRENCIAID   BigInt?
     VITIMAID       Int?
     VEICULOID      Int?
-    DTHR_CONDUTA   DateTime? @db.DateTime
-    OBS_ENFERMAGEM String?   @db.VarChar(500)
-    OBS_MEDICO     String?   @db.VarChar(500)
-
-    @@ignore
+    DTHR_CONDUTA   DateTime?   @db.DateTime
+    OBS_ENFERMAGEM String?     @db.VarChar(500)
+    OBS_MEDICO     String?     @db.VarChar(500)
+    veiculo        Veiculos?   @relation(fields: [VEICULOID], references: [VeiculoID])
+    ocorrencia     Ocorrencia? @relation(fields: [OCORRENCIAID], references: [OcorrenciaID], onDelete: NoAction, onUpdate: NoAction)
+    vitima         Vitimas?    @relation(fields: [VITIMAID], references: [VitimaId])
 }
 
 model HISTORICO_DECISAO_GESTORA {
@@ -534,6 +534,7 @@ model Ocorrencia {
     Logradouro_                       TBS_TP_Logradouro?                  @relation(fields: [LogradouroTP], references: [Cod])
     Solicitante                       Solicitante?                        @relation(fields: [OcorrenciaID], references: [OcorrenciaID])
     Origem                            OrigemOco?                          @relation(fields: [OrigemOcoCOD], references: [OrigemOcoCOD])
+    HISTORICO_CONDUTA                 HISTORICO_CONDUTA[]
 }
 
 model OCORRENCIA_APOIO_SOLICITADO {
@@ -1700,6 +1701,7 @@ model Veiculos {
     ID_VeiculoTP           Int?
     VEICULO_ITEMRETIDO     VEICULO_ITEMRETIDO[]
     OcorrenciaMovimentacao OcorrenciaMovimentacao[]
+    HISTORICO_CONDUTA      HISTORICO_CONDUTA[]
 }
 
 model VeiculosTP {
@@ -1746,6 +1748,7 @@ model Vitimas {
     OCORRENCIA_AVALIACAO_INICIAL      OCORRENCIA_AVALIACAO_INICIAL[]
     HistoricoDecisaoGestora           HISTORICO_DECISAO_GESTORA[]
     Classificacao                     ClassifVitima?                      @relation(fields: [ClassifVitimaID], references: [ClassifVitimaID])
+    HISTORICO_CONDUTA                 HISTORICO_CONDUTA[]
 
     @@id([OcorrenciaID, VitimaId], map: "PK_Vitimas")
 }

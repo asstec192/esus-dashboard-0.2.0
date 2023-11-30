@@ -56,6 +56,10 @@ export const incidentsRouter = createTRPCRouter({
               Veiculo: {
                 select: {
                   VeiculoDS: true,
+                  HISTORICO_CONDUTA: {
+                    include: { vitima: { select: { VitimaNM: true } } },
+                    where: { OCORRENCIAID: input.incidentId },
+                  },
                 },
               },
             },
