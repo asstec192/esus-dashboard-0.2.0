@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import * as z from "zod";
+import { turnos } from "@/utils/turnos";
 
 export const turnInput = z.object({
   from: z.string(),
@@ -15,15 +16,7 @@ type TurnStore = {
   setTurn: (turn: Turn) => void;
 };
 
-const initialTurn: Turn = {
-  from: "01:00:00",
-  to: "01:00:00",
-  numericFrom: 1,
-  numericTo: 1,
-  label: "Todos (1h-1h)",
-};
-
 export const useTurnStore = create<TurnStore>()((set) => ({
-  turn: initialTurn,
+  turn: turnos[0]!,
   setTurn: (turn) => set(() => ({ turn: turn })),
 }));

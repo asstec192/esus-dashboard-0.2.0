@@ -74,6 +74,7 @@ export const vehicleRouter = createTRPCRouter({
             COUNT(DISTINCT OM.OcorrenciaID) AS totalOcorrencias,
             (
                 SELECT
+                    O.OcorrenciaID as ocorrenciaId,
                     P.VitimaNM AS nome
                 FROM OcorrenciaMovimentacao OM
                 LEFT JOIN Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID

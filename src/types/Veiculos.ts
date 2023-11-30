@@ -11,5 +11,6 @@ type RelatorioVeiculo = {
 
 //RETORNO APOS PARSE DOS PACIENTES
 type PacientesVeiculo = {
+  ocorrenciaId: BigInt;
   nome: string;
 };

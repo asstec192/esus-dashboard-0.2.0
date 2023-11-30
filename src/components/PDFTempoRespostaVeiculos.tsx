@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     rowGap: 2,
-    columnGap: 4,
+    columnGap: 6,
     flexWrap: "wrap",
     borderRadius: 4,
   },
@@ -91,7 +91,7 @@ const Field = ({
   children?: ReactNode;
 }) => {
   return (
-    <View style={{ ...styles.row, alignItems: "flex-end" }}>
+    <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
       <Text style={{ ...styles.text, fontWeight: "bold" }}>{label}</Text>
       <Text style={styles.text}>{children}</Text>
     </View>
@@ -105,7 +105,6 @@ export const PDFRelatorioVeiculo = ({
 }) => {
   const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
   const turn = useTurnStore((state) => state.turn);
-  const log = logo;
   return (
     <PDFViewer className="h-[90vh] w-full">
       <Document>
@@ -113,12 +112,12 @@ export const PDFRelatorioVeiculo = ({
           <View style={styles.header}>
             <Image
               src={logo.src}
-              style={{ width: "100px", marginBottom: "12px" }}
+              style={{ width: "150px", marginBottom: "10px" }}
             />
             <Text style={styles.title}>
               RELATÓRIO DE ATENDIMENTO DE VEÍCULOS
             </Text>
-            <Text style={{ ...styles.title, marginTop: "10px" }}>
+            <Text style={styles.title}>
               {`De ${format(dateRange.from!, "dd/MM/yyyy")} à ${format(
                 dateRange.to!,
                 "dd/MM/yyyy",
@@ -134,37 +133,48 @@ export const PDFRelatorioVeiculo = ({
               <View wrap={false}>
                 <Text style={styles.decoratedText}>{veiculo.nome}</Text>
                 <View style={styles.row}>
-                  <View style={{ ...styles.col, flex: 1, padding: 4 }}>
-                    <Text style={{ ...styles.text, fontWeight: "bold" }}>
-                      Pacientes atendidos:
-                    </Text>
-                    {veiculo.pacientes.map((paciente) => (
-                      <Text style={styles.text}>
-                        {formatProperName(paciente.nome)}
+                  <View style={{ ...styles.col, flex: 4, padding: 4 }}>
+                    <View style={styles.row}>
+                      <Text style={{ ...styles.text, fontWeight: "bold" }}>
+                        Ocorrência
                       </Text>
+                      <Text style={{ ...styles.text, fontWeight: "bold" }}>
+                        Paciente
+                      </Text>
+                    </View>
+
+                    {veiculo.pacientes.map((paciente) => (
+                      <View style={styles.row}>
+                        <Text style={styles.text}>
+                          #{paciente.ocorrenciaId.toString().slice(2)}
+                        </Text>
+                        <Text style={styles.text}>
+                          {formatProperName(paciente.nome)}
+                        </Text>
+                      </View>
                     ))}
                   </View>
                   <View
                     style={{
-                      flex: 1,
-                      borderLeft: "1px",
+                      flex: 3,
+                      borderLeft: 1,
                       borderLeftColor: "black",
                       padding: 4,
                     }}
                   >
-                    <Field label="Chegada ao local - QTY QUS:">
+                    <Field label="Chegada ao local - QTY QUS: ">
                       {veiculo.QTYQUS} min
                     </Field>
-                    <Field label="Atendimento no local - QUS QUY:">
-                      {veiculo.QUSQUY}
+                    <Field label="Atendimento no local - QUS QUY: ">
+                      {veiculo.QUSQUY} min
                     </Field>
-                    <Field label="Chegada ao destino - QUY QUU:">
-                      {veiculo.QUYQUU}
+                    <Field label="Chegada ao destino - QUY QUU: ">
+                      {veiculo.QUYQUU} min
                     </Field>
-                    <Field label="N° de Ocorrências:">
+                    <Field label="N° de Ocorrências: ">
                       {veiculo.totalOcorrencias}
                     </Field>
-                    <Field label="N° de Pacientes:">
+                    <Field label="N° de Pacientes: ">
                       {veiculo.pacientes.length}
                     </Field>
                   </View>
