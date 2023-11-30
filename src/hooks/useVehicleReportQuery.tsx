@@ -6,12 +6,12 @@ import {
 import { api } from "@/utils/api";
 import { useTurnStore } from "./useTurnStore";
 
-export const useVehicleResponseTimeQuery = () => {
+export const useVehicleReportQuery = () => {
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
   ) as DateRange;
   const turn = useTurnStore((state) => state.turn);
-  const query = api.vehicles.getResponseTimes.useQuery(
+  const query = api.vehicles.getReport.useQuery(
     { dateRange, turn },
     {
       onError: () => {

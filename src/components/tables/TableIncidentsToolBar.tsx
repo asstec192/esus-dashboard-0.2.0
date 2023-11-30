@@ -86,7 +86,7 @@ export function TableIncidentsToolBar<TData>({
         />
       )}
       <TypographyMuted className="w-full">
-        A busca retornou {table.getFilteredRowModel().rows.length} resultados
+        Exibindo {table.getFilteredRowModel().rows.length} resultados
       </TypographyMuted>
     </div>
   );

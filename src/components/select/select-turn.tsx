@@ -19,7 +19,7 @@ export function TurnSelect() {
       defaultValue={JSON.stringify(turn)}
       onValueChange={(value) => setTurn(JSON.parse(value))}
     >
-      <SelectTrigger className="w-full p-1 sm:w-[100px]">
+      <SelectTrigger className="w-[200px] p-1">
         <SelectValue placeholder="Selecione um turno" />
       </SelectTrigger>
       <SelectContent>

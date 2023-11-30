@@ -25,7 +25,6 @@ export const vehicleRouter = createTRPCRouter({
       const turnoDeVeiculo = turnosVeiculos.some(
         (turno) => turno.label === input.turn.label,
       );
-      console.log(turnoDeVeiculo);
       return await prisma.ocorrencia.findMany({
         select: {
           OcorrenciaID: true,
@@ -61,11 +60,11 @@ export const vehicleRouter = createTRPCRouter({
   /**
    * Obtém o relatório de tempo resposta de todos os veículos, recebe como input um date range e um turno
    */
-  getResponseTimes: protectedProcedure
+  getReport: protectedProcedure
     .input(z.object({ dateRange: dateRangeInput, turn: turnInput }))
     .query(async ({ input }) => {
       const filter = getTurnFilterQuery(input.dateRange, input.turn);
-      return await prisma.$queryRaw<TempoRespostaVeiculos[]>`
+      const veiculos = await prisma.$queryRaw<RelatorioVeiculo[]>`
         SELECT
             V.VeiculoID AS id,
             V.VeiculoDS AS nome,
@@ -73,12 +72,30 @@ export const vehicleRouter = createTRPCRouter({
             AVG(DATEDIFF(MINUTE, OM.SaidaLocalDT, OM.ChegadaDestinoDT)) AS  QUSQUY,
             AVG(DATEDIFF(MINUTE, OM.ChegadaDestinoDT, OM.RetornoDestinoDT)) AS QUYQUU,
             COUNT(DISTINCT OM.OcorrenciaID) AS totalOcorrencias,
-            COUNT(DISTINCT P.VitimaId) AS totalPacientes
-        FROM Veiculos V 
-        LEFT JOIN OcorrenciaMovimentacao OM ON V.VeiculoID = OM.VeiculoID
-        LEFT JOIN Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID
-        LEFT JOIN Vitimas P ON P.OcorrenciaID = OM.OcorrenciaID
+            (
+                SELECT
+                    P.VitimaNM AS nome
+                FROM OcorrenciaMovimentacao OM
+                LEFT JOIN Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID
+                LEFT JOIN Vitimas P ON P.OcorrenciaID = OM.OcorrenciaID
+                WHERE V.VeiculoID = OM.VeiculoID AND ${filter}
+                FOR JSON PATH
+            ) AS pacientes
+        FROM
+            Veiculos V
+        LEFT JOIN
+            OcorrenciaMovimentacao OM ON V.VeiculoID = OM.VeiculoID
+        LEFT JOIN
+            Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID
         WHERE ${filter}
-        GROUP BY V.VeiculoID, V.VeiculoDS`;
+        GROUP BY
+            V.VeiculoID, V.VeiculoDS
+        ORDER BY
+            V.VeiculoDS`;
+
+      return veiculos.map((veiculo) => ({
+        ...veiculo,
+        pacientes: JSON.parse(veiculo.pacientes) as PacientesVeiculo[],
+      }));
     }),
 });

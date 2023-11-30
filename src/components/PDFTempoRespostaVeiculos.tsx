@@ -1,6 +1,8 @@
 import { useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
 import { useTurnStore } from "@/hooks/useTurnStore";
 import { RouterOutputs } from "@/utils/api";
+import { formatProperName } from "@/utils/formatProperName";
+import logo from "public/images/logo-samu.png";
 import {
   Page,
   PDFViewer,
@@ -9,6 +11,7 @@ import {
   Document,
   StyleSheet,
   Font,
+  Image,
 } from "@react-pdf/renderer";
 import { format } from "date-fns";
 import { ReactNode } from "react";
@@ -32,27 +35,29 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
     backgroundColor: "#E4E4E4",
-    padding: 20,
-  },
-  section: {
-    margin: 10,
-    padding: 10,
+    paddingHorizontal: 40,
+    paddingVertical: 30,
   },
   header: {
     margin: 10,
     padding: 10,
     textAlign: "center",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  body: {
+    flexDirection: "column",
   },
   col: {
     flexDirection: "column",
-    gap: 4,
+    gap: 2,
     marginTop: 4,
     borderRadius: 4,
   },
   row: {
     flexDirection: "row",
-    rowGap: 4,
-    columnGap: 8,
+    rowGap: 2,
+    columnGap: 4,
     flexWrap: "wrap",
     borderRadius: 4,
   },
@@ -61,37 +66,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 4,
     textAlign: "center",
-  },
-  p: {
-    fontWeight: "medium",
-    fontSize: 12,
-  },
-  small: {
     fontFamily: "Open Sans",
-    fontWeight: "bold",
-    fontSize: 12,
   },
-  table: {
-    flexDirection: "column",
-    borderStyle: "solid",
-    borderWidth: 1,
-    borderRightWidth: 0,
-    borderBottomWidth: 0,
-  },
-  tableRow: {
-    flexDirection: "row",
-  },
-  tableCol: {
-    width: "16.66%",
-    borderStyle: "solid",
-    borderWidth: 1,
-    borderLeftWidth: 0,
-    borderTopWidth: 0,
-  },
-  tableCell: {
-    //margin: "auto",
+  text: {
     padding: 4,
     fontSize: 10,
+    fontFamily: "Open Sans",
+  },
+  decoratedText: {
+    padding: 4,
+    fontSize: 10,
+    backgroundColor: "#c40e2f",
+    color: "white",
+    fontWeight: "bold",
+    fontFamily: "Open Sans",
   },
 });
 
@@ -104,38 +92,33 @@ const Field = ({
 }) => {
   return (
     <View style={{ ...styles.row, alignItems: "flex-end" }}>
-      <Text style={styles.small}>{label}</Text>
-      <Text style={styles.p}>{children}</Text>
+      <Text style={{ ...styles.text, fontWeight: "bold" }}>{label}</Text>
+      <Text style={styles.text}>{children}</Text>
     </View>
   );
 };
 
-const PDFTableCol = ({ children }: { children: ReactNode }) => {
-  return (
-    <View style={styles.tableCol}>
-      <Text style={styles.tableCell}>{children}</Text>
-    </View>
-  );
-};
-
-export const PDFTempoRespostaVeiculos = ({
+export const PDFRelatorioVeiculo = ({
   data,
 }: {
-  data: RouterOutputs["vehicles"]["getResponseTimes"];
+  data: RouterOutputs["vehicles"]["getReport"];
 }) => {
   const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
   const turn = useTurnStore((state) => state.turn);
+  const log = logo;
   return (
     <PDFViewer className="h-[90vh] w-full">
       <Document>
         <Page size="A4" style={styles.page}>
-          <View>
+          <View style={styles.header}>
+            <Image
+              src={logo.src}
+              style={{ width: "100px", marginBottom: "12px" }}
+            />
             <Text style={styles.title}>
-              Relatório de Atendimento de Veículos
+              RELATÓRIO DE ATENDIMENTO DE VEÍCULOS
             </Text>
-          </View>
-          <View>
-            <Text style={styles.title}>
+            <Text style={{ ...styles.title, marginTop: "10px" }}>
               {`De ${format(dateRange.from!, "dd/MM/yyyy")} à ${format(
                 dateRange.to!,
                 "dd/MM/yyyy",
@@ -146,23 +129,46 @@ export const PDFTempoRespostaVeiculos = ({
               Data de emissâo: {new Date().toLocaleString()}
             </Text>
           </View>
-          <View style={styles.table}>
-            <View style={styles.tableRow}>
-              <PDFTableCol>Veículo</PDFTableCol>
-              <PDFTableCol>Chegada ao local - QTY QUS (min)</PDFTableCol>
-              <PDFTableCol>Atendimento no local - QUS QUY (min) </PDFTableCol>
-              <PDFTableCol>Chegada ao destino - QUY QUU (min)</PDFTableCol>
-              <PDFTableCol>N° de Ocorrências</PDFTableCol>
-              <PDFTableCol>N° de Pacientes</PDFTableCol>
-            </View>
+          <View style={styles.body}>
             {data.map((veiculo) => (
-              <View style={styles.tableRow}>
-                <PDFTableCol>{veiculo.nome}</PDFTableCol>
-                <PDFTableCol>{veiculo.QTYQUS}</PDFTableCol>
-                <PDFTableCol>{veiculo.QUSQUY}</PDFTableCol>
-                <PDFTableCol>{veiculo.QUYQUU}</PDFTableCol>
-                <PDFTableCol>{veiculo.totalOcorrencias}</PDFTableCol>
-                <PDFTableCol>{veiculo.totalPacientes}</PDFTableCol>
+              <View wrap={false}>
+                <Text style={styles.decoratedText}>{veiculo.nome}</Text>
+                <View style={styles.row}>
+                  <View style={{ ...styles.col, flex: 1, padding: 4 }}>
+                    <Text style={{ ...styles.text, fontWeight: "bold" }}>
+                      Pacientes atendidos:
+                    </Text>
+                    {veiculo.pacientes.map((paciente) => (
+                      <Text style={styles.text}>
+                        {formatProperName(paciente.nome)}
+                      </Text>
+                    ))}
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      borderLeft: "1px",
+                      borderLeftColor: "black",
+                      padding: 4,
+                    }}
+                  >
+                    <Field label="Chegada ao local - QTY QUS:">
+                      {veiculo.QTYQUS} min
+                    </Field>
+                    <Field label="Atendimento no local - QUS QUY:">
+                      {veiculo.QUSQUY}
+                    </Field>
+                    <Field label="Chegada ao destino - QUY QUU:">
+                      {veiculo.QUYQUU}
+                    </Field>
+                    <Field label="N° de Ocorrências:">
+                      {veiculo.totalOcorrencias}
+                    </Field>
+                    <Field label="N° de Pacientes:">
+                      {veiculo.pacientes.length}
+                    </Field>
+                  </View>
+                </View>
               </View>
             ))}
           </View>

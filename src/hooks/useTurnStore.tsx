@@ -20,7 +20,7 @@ const initialTurn: Turn = {
   to: "01:00:00",
   numericFrom: 1,
   numericTo: 1,
-  label: "Todos",
+  label: "Todos (1h-1h)",
 };
 
 export const useTurnStore = create<TurnStore>()((set) => ({

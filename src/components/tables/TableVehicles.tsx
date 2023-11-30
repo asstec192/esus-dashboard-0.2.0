@@ -14,8 +14,13 @@ import { useVehicleIncidentsQuery } from "@/hooks/useVehicleIncidentsQuery";
 import { Loader2 } from "lucide-react";
 import { DialogIncidentsList } from "../dialogs/DialogIncidentsList";
 import { useTurnStore } from "@/hooks/useTurnStore";
+import { RouterOutputs } from "@/utils/api";
 
-export function TableVehicles({ data }: { data: TempoRespostaVeiculos[] }) {
+export function TableVehicles({
+  data,
+}: {
+  data: RouterOutputs["vehicles"]["getReport"];
+}) {
   const turn = useTurnStore((state) => state.turn);
   const [selectedVehicleId, setSelectedVehicleId] = useState(0);
   const {
@@ -61,7 +66,7 @@ export function TableVehicles({ data }: { data: TempoRespostaVeiculos[] }) {
                 <TableCell>{vehicle.QUSQUY}</TableCell>
                 <TableCell>{vehicle.QUYQUU}</TableCell>
                 <TableCell>{vehicle.totalOcorrencias}</TableCell>
-                <TableCell>{vehicle.totalPacientes}</TableCell>
+                <TableCell>{vehicle.pacientes.length}</TableCell>
               </TableRow>
             ))}
             {data.length === 0 && (

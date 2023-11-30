@@ -8,13 +8,13 @@ import AnalyticsLayout from "@/components/layouts/analytics-layout";
 import { useDestinationResponseTimeQuery } from "@/hooks/useDestinationResponseTimeQuery";
 import { useIntercorrenciaCountQuery } from "@/hooks/useIntercorrenciaCountQuery";
 import { TableIntercorrencias } from "@/components/tables/TableIntercorrencias";
-import { useVehicleResponseTimeQuery } from "@/hooks/useVehicleResponseTimeQuery";
+import { useVehicleReportQuery } from "@/hooks/useVehicleReportQuery";
 import { TurnSelect } from "@/components/select/select-turn";
-import { PDFTempoRespostaVeiculos } from "@/components/PDFTempoRespostaVeiculos";
 import { DialogPDFViwer } from "@/components/dialogs/DialogPDF";
+import { PDFRelatorioVeiculo } from "@/components/PDFTempoRespostaVeiculos";
 
 const RegulacaoSecundaria: NextPageWithLayout = () => {
-  const vehicleQuery = useVehicleResponseTimeQuery();
+  const vehicleQuery = useVehicleReportQuery();
   const destinationQuery = useDestinationResponseTimeQuery();
   const intercorrenciaQuery = useIntercorrenciaCountQuery();
   const [selectedTab, setSelectedTab] = useState("veiculos");
@@ -34,7 +34,7 @@ const RegulacaoSecundaria: NextPageWithLayout = () => {
         {selectedTab === "veiculos" && (
           <DialogPDFViwer>
             {vehicleQuery.data && (
-              <PDFTempoRespostaVeiculos data={vehicleQuery.data} />
+              <PDFRelatorioVeiculo data={vehicleQuery.data} />
             )}
           </DialogPDFViwer>
         )}
