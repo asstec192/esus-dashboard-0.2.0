@@ -306,7 +306,12 @@ export const incidentsRouter = createTRPCRouter({
     .input(dateRangeInput)
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input);
-      return await prisma.$queryRaw<{ tipo: string; contagem: number }[]>`
+      return await prisma.$queryRaw<
+        {
+          tipo: "USB" | "M-0" | "M-1" | "MOT" | "BIK" | "USI" | "USA";
+          contagem: number;
+        }[]
+      >`
         SELECT
           SUBSTRING(V.VeiculoDS, 1, 3) AS tipo,
           COUNT(*) AS contagem

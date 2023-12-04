@@ -25,6 +25,27 @@ export const ChartVehicles = (props: HTMLAttributes<HTMLDivElement>) => {
       },
     );
 
+  //Gambiarra para somar as contagens dos tipos "M-0," "M-1," e "USB" e juntá-los em um único tipo, "USB"
+  const modifiedData = data?.reduce(
+    (accumulator, currentItem) => {
+      const type =
+        currentItem.tipo === "M-0" ||
+        currentItem.tipo === "M-1" ||
+        currentItem.tipo === "USB"
+          ? "USB"
+          : currentItem.tipo;
+      const existingEntry = accumulator.find((entry) => entry.x === type);
+
+      if (existingEntry) {
+        existingEntry.y += currentItem.contagem;
+      } else {
+        accumulator.push({ x: type, y: currentItem.contagem });
+      }
+      return accumulator;
+    },
+    [] as { x: string; y: number }[],
+  );
+
   return (
     <Card {...props} className="p-2">
       <TypographySmall>Ocorrências X Tipo de Veìculo</TypographySmall>
@@ -58,11 +79,9 @@ export const ChartVehicles = (props: HTMLAttributes<HTMLDivElement>) => {
             },
           }}
           series={[
+            //@ts-ignore
             {
-              data: data.map((item) => ({
-                x: item.tipo,
-                y: item.contagem,
-              })),
+              data: modifiedData,
             },
           ]}
           type="bar"

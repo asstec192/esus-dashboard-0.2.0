@@ -123,7 +123,7 @@ export const PDFRelatorioVeiculo = ({
                 "dd/MM/yyyy",
               )}`}
             </Text>
-            <Text style={styles.title}>{`Turno: ${turn.label}`}</Text>
+            <Text style={styles.title}>{`Período: ${turn.label}`}</Text>
             <Text style={styles.title}>
               Data de emissâo: {new Date().toLocaleString()}
             </Text>
