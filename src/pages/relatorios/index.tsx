@@ -1,35 +1,37 @@
-import { FichaPDF } from "@/components/ficha-pdf";
+import { PDFFichaOcorrencia } from "@/components/PDFFichaOcorrencia";
 import { TableHospitalEquipment } from "@/components/tables/TableHospitalEquipment";
 import { TableHospitalSpecialties } from "@/components/tables/TableHospitalSpecialties";
 import { TableHospitals } from "@/components/tables/TableHospitals";
-import { TypographyH4 } from "@/components/typography/TypographyH4";
-import { TypographyMuted } from "@/components/typography/TypographyMuted";
-import { TypographySmall } from "@/components/typography/TypographySmall";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/utils/api";
-import { addHours } from "date-fns";
 
 export default function Relatorios() {
+  const { data: especialidades } =
+    api.hospitalManager.getSpecialties.useQuery();
+  const { data: equipamentos } = api.hospitalManager.getEquipamentos.useQuery();
   return (
     <>
-      {/* <Tabs defaultValue="hospitais">
-        <TabsList>
+      <Tabs defaultValue="hospitais">
+        <TabsList className="">
           <TabsTrigger value="hospitais">Hospitais</TabsTrigger>
           <TabsTrigger value="equipamentos">Equipamentos</TabsTrigger>
           <TabsTrigger value="especialidades">Especialidades</TabsTrigger>
-          <TabsTrigger value="turnos">Turnos</TabsTrigger>
         </TabsList>
         <TabsContent value="hospitais">
           <TableHospitals />
         </TabsContent>
         <TabsContent value="equipamentos">
-          <TableHospitalEquipment />
+          {equipamentos && (
+            <TableHospitalEquipment equipamentos={equipamentos} />
+          )}
         </TabsContent>
         <TabsContent value="especialidades">
-          <TableHospitalSpecialties />
+          {especialidades && (
+            <TableHospitalSpecialties especialidades={especialidades} />
+          )}
         </TabsContent>
       </Tabs>
-      <FichaPDF /> */}
+      {/*   <PDFFichaOcorrencia /> */}
     </>
   );
 }
