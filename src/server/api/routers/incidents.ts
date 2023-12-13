@@ -57,8 +57,13 @@ export const incidentsRouter = createTRPCRouter({
                 select: {
                   VeiculoDS: true,
                   HISTORICO_CONDUTA: {
-                    include: { vitima: { select: { VitimaNM: true } } },
+                    select: {
+                      DTHR_CONDUTA: true,
+                      OBS_MEDICO: true,
+                      vitima: { select: { VitimaNM: true } },
+                    },
                     where: { OCORRENCIAID: input.incidentId },
+                    orderBy: { DTHR_CONDUTA: "asc" },
                   },
                 },
               },
@@ -68,8 +73,8 @@ export const incidentsRouter = createTRPCRouter({
             select: {
               VitimaNM: true,
               VitimaId: true,
-              Sexo: true,
               Idade: true,
+              Sexo_: { select: { SEXO: true } },
               Classificacao: { select: { ClassifVitimaDS: true } },
               IdadeTP_Vitimas_IdadeTPToIdadeTP: {
                 select: {
@@ -99,8 +104,9 @@ export const incidentsRouter = createTRPCRouter({
                   DTHR_DECISAO_GESTORAID: true,
                   DTHR_DESTINOID: true,
                   DTHR_INTERCORRENCIAID: true,
-                  STATUS: true,
+                  OBSERVACAO: true
                 },
+                where: { STATUS: "F" },
                 orderBy: {
                   DTHR_DECISAO_GESTORAID: "desc",
                 },
@@ -113,6 +119,7 @@ export const incidentsRouter = createTRPCRouter({
               OpDestino: { select: { OperadorNM: true } },
               DestinoDTHR: true,
             },
+            orderBy: { DestinoDTHR: "asc" },
           },
         },
         where: {
@@ -273,7 +280,8 @@ export const incidentsRouter = createTRPCRouter({
               OM.*,
               CAST(OM.EnvioEquipeDT AS TIME) AS Horario
           FROM OcorrenciaMovimentacao OM
-          WHERE OM.EnvioEquipeDT BETWEEN ${from} AND ${to} 
+          JOIN Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID
+          WHERE O.DtHr BETWEEN ${from} AND ${to} 
         ) AS T
         CROSS APPLY (
           SELECT 
@@ -317,7 +325,8 @@ export const incidentsRouter = createTRPCRouter({
           COUNT(*) AS contagem
         FROM OcorrenciaMovimentacao OM
         JOIN Veiculos V ON V.VeiculoID = OM.VeiculoID
-        WHERE OM.EnvioEquipeDT BETWEEN ${from} AND ${to} 
+        JOIN Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID
+        WHERE O.DtHr BETWEEN ${from} AND ${to} 
         GROUP BY SUBSTRING(V.VeiculoDS, 1, 3)`;
     }),
 
@@ -345,7 +354,8 @@ export const incidentsRouter = createTRPCRouter({
         AVG(DATEDIFF(minute, SaidaLocalDT, ChegadaDestinoDT)) AS QUSQUY,
         AVG(DATEDIFF(minute, ChegadaDestinoDT, RetornoDestinoDT)) AS QUYQUU
       FROM OcorrenciaMovimentacao
-      WHERE EnvioEquipeDT >= ${date}
+      JOIN Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID
+      WHERE O.DtHr >= ${date}
       `;
 
     return {

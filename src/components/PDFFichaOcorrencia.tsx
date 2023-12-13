@@ -8,8 +8,10 @@ import {
   Document,
   StyleSheet,
   Font,
+  Image,
 } from "@react-pdf/renderer";
 import { ReactNode } from "react";
+import logo from "public/images/logo-samu.png";
 
 // Register font
 Font.register({
@@ -29,29 +31,40 @@ Font.register({
 const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
-    backgroundColor: "#E4E4E4",
+    backgroundColor: "white",
+    paddingHorizontal: 40,
+    paddingVertical: 30,
   },
   section: {
-    margin: 10,
-    padding: 10,
+    marginTop: 10,
   },
   header: {
-    margin: 10,
-    padding: 10,
     textAlign: "center",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  card: {
+    flexDirection: "column",
+    gap: 4,
+    borderRadius: 2,
+    borderColor: "black",
+    border: 1,
+    padding: 4,
   },
   col: {
     flexDirection: "column",
     gap: 4,
-    marginTop: 4,
-    borderRadius: 4,
   },
   row: {
     flexDirection: "row",
     rowGap: 4,
     columnGap: 8,
     flexWrap: "wrap",
-    borderRadius: 4,
+  },
+  title: {
+    fontWeight: 600,
+    fontSize: 14,
+    fontFamily: "Open Sans",
   },
   subtitle: {
     fontWeight: 600,
@@ -90,8 +103,14 @@ const styles = StyleSheet.create({
   },
   tableCell: {
     margin: "auto",
-    marginTop: 5,
+    padding: 4,
     fontSize: 10,
+  },
+  separator: {
+    width: "100%",
+    borderBottom: 1,
+    borderColor: "black",
+    borderStyle: "dashed",
   },
 });
 
@@ -103,25 +122,29 @@ const Field = ({
   children?: ReactNode;
 }) => {
   return (
-    <View style={{ ...styles.row, alignItems: "flex-end" }}>
-      <Text style={styles.small}>{label}</Text>
-      <Text style={styles.p}>{children}</Text>
-    </View>
+    <Text style={styles.small}>
+      {label} <Text style={styles.p}>{children}</Text>
+    </Text>
   );
 };
 
-export const FichaPDF = () => {
+export const PDFFichaOcorrencia = () => {
   const { data: ocorrencia } = api.incidents.getOne.useQuery({
-    incidentId: 2211010004,
+    incidentId: 2310010651,
   });
   return (
     <PDFViewer className="h-[800px] w-full">
       <Document>
         <Page size="A4" style={styles.page}>
           <View style={styles.header}>
-            <Text style={styles.subtitle}>SAMU 192</Text>
-            <Text style={styles.subtitle}>FICHA DE RECULACAO - SAMU 192</Text>
-            <Text style={styles.subtitle}>Data de emissão:</Text>
+            <Image
+              src={logo.src}
+              style={{ width: "150px", marginBottom: "10px" }}
+            />
+            <Text style={styles.title}>FICHA DE REGULAÇÃO</Text>
+            <Text style={styles.title}>
+              Data de emissão: {new Date().toLocaleString()}
+            </Text>
           </View>
           {/* ----------------- Dados da ocorrencia ---------------------*/}
           <View style={styles.section}>
@@ -145,6 +168,7 @@ export const FichaPDF = () => {
                     addHours(ocorrencia.OcorrenciaFinalDT, 3).toLocaleString()}
                 </Field>
               </View>
+              <View style={styles.separator}></View>
               <View style={styles.col}>
                 <Field label="Total de vítimas:">
                   {ocorrencia?.Vitimas.length}
@@ -155,6 +179,7 @@ export const FichaPDF = () => {
                 <Field label="Tipo:"> {ocorrencia?.Tipo?.TipoDS}</Field>
                 <Field label="Motivo:">{ocorrencia?.Motivo?.MotivoDS}</Field>
               </View>
+              <View style={styles.separator}></View>
               <View style={styles.col}>
                 <Field label="Endereço:">
                   {ocorrencia?.Logradouro_?.Abreviatura}{" "}
@@ -171,7 +196,7 @@ export const FichaPDF = () => {
             </View>
           </View>
           {/* ---------------------------DADOS DA LIGACAO---------------------------- */}
-          <View style={styles.section}>
+          <View style={styles.section} wrap={false}>
             <Text style={styles.subtitle}>DADOS DA LIGAÇÃO</Text>
             <View style={styles.col}>
               <Field label="Solicitante:">
@@ -191,13 +216,15 @@ export const FichaPDF = () => {
             </View>
           </View>
           {/* -------------------DADOS DA VITIMA------------------------- */}
-          <View style={styles.section}>
-            <Text style={styles.subtitle}>VITIMAS</Text>
+          <View style={styles.section} wrap={false}>
+            <Text style={styles.subtitle}>VÍTIMAS</Text>
             <View>
               {ocorrencia?.Vitimas.map((vitima) => (
-                <View style={styles.col} key={vitima.VitimaId}>
-                  <Text style={styles.subtitle}>{vitima.VitimaNM}</Text>
-                  <View style={{ ...styles.row, alignItems: "flex-end" }}>
+                <View style={styles.section} key={vitima.VitimaId}>
+                  <Text style={{ ...styles.title, textAlign: "center" }}>
+                    {vitima.VitimaNM}
+                  </Text>
+                  <View style={{ ...styles.row, justifyContent: "center" }}>
                     <Field label="Classificação:">
                       {vitima.Classificacao?.ClassifVitimaDS}
                     </Field>
@@ -205,21 +232,15 @@ export const FichaPDF = () => {
                       {vitima.Idade}{" "}
                       {vitima.IdadeTP_Vitimas_IdadeTPToIdadeTP?.IdadeTPDS}
                     </Field>
-                    <Field label="Sexo:"> {vitima.Sexo}</Field>
+                    <Field label="Sexo:"> {vitima.Sexo_?.SEXO}</Field>
                   </View>
-                  <View style={styles.col}>
-                    <Text style={styles.subtitle}>
-                      AVALIAÇÃO NÃO ESTRUTURADA
+                  <View style={styles.section} wrap={false}>
+                    <Text style={{ ...styles.small, textAlign: "center" }}>
+                      Avaliação Não Estruturada
                     </Text>
-                    <View style={styles.col}>
+                    <View style={styles.col} wrap={false}>
                       {vitima.OCORRENCIA_AVALIACAO_INICIAL.map((avaliacao) => (
-                        <View
-                          style={{
-                            ...styles.col,
-                            backgroundColor: "lightgray",
-                            padding: 4,
-                          }}
-                        >
+                        <View style={styles.card} wrap={false}>
                           <Field label="Profissional:">
                             {avaliacao.Operador?.OperadorNM}
                           </Field>
@@ -231,133 +252,134 @@ export const FichaPDF = () => {
                       ))}
                     </View>
                   </View>
-
-                  {vitima.HistoricoDecisaoGestora.map((historico) => (
-                    <View style={styles.table} key={historico.DECISAOID}>
-                      <View style={styles.tableRow}>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}></Text>
+                  {/*------------- DECISÃO TÉCINICA --------------*/}
+                  <View style={styles.section}>
+                    <Text style={{ ...styles.small, textAlign: "center" }}>
+                      Decisão Técnica
+                    </Text>
+                    <View
+                      style={{
+                        ...styles.col,
+                        gap: 10,
+                        flexDirection: "column-reverse",
+                      }}
+                    >
+                      {vitima.HistoricoDecisaoGestora.map((historico) => (
+                        <View style={styles.table} key={historico.DECISAOID}>
+                          <View style={styles.tableRow}>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}></Text>
+                            </View>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>Decisão</Text>
+                            </View>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>Destino</Text>
+                            </View>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>
+                                Intercorrência
+                              </Text>
+                            </View>
+                          </View>
+                          <View style={styles.tableRow}>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>Descrição</Text>
+                            </View>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>
+                                {historico.Decisao?.TransporteDS}
+                              </Text>
+                            </View>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>
+                                {historico.Destino?.UnidadeDS}
+                              </Text>
+                            </View>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>
+                                {historico.Intercorrencia?.IntercorrenciaDS}
+                              </Text>
+                            </View>
+                          </View>
+                          <View style={styles.tableRow}>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>Profissional</Text>
+                            </View>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>
+                                {historico.OperadorDecisao?.OperadorNM}
+                              </Text>
+                            </View>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>
+                                {historico.OperadorDestino?.OperadorNM}
+                              </Text>
+                            </View>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>
+                                {historico.OperadorIntercorrencia?.OperadorNM}
+                              </Text>
+                            </View>
+                          </View>
+                          <View style={styles.tableRow}>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>Data</Text>
+                            </View>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>
+                                {historico.DTHR_DECISAO_GESTORAID &&
+                                  addHours(
+                                    historico.DTHR_DECISAO_GESTORAID,
+                                    3,
+                                  ).toLocaleString()}
+                              </Text>
+                            </View>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>
+                                {historico.DTHR_DESTINOID &&
+                                  addHours(
+                                    historico.DTHR_DESTINOID,
+                                    3,
+                                  ).toLocaleString()}
+                              </Text>
+                            </View>
+                            <View style={styles.tableCol}>
+                              <Text style={styles.tableCell}>
+                                {historico.DTHR_INTERCORRENCIAID &&
+                                  addHours(
+                                    historico.DTHR_INTERCORRENCIAID,
+                                    3,
+                                  ).toLocaleString()}
+                              </Text>
+                            </View>
+                          </View>
                         </View>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>Decisão</Text>
-                        </View>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>Destino</Text>
-                        </View>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>Intercorrência</Text>
-                        </View>
-                      </View>
-                      <View style={styles.tableRow}>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>Descrição</Text>
-                        </View>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>
-                            {historico.Decisao?.TransporteDS}
-                          </Text>
-                        </View>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>
-                            {historico.Destino?.UnidadeDS}
-                          </Text>
-                        </View>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>
-                            {historico.Intercorrencia?.IntercorrenciaDS}
-                          </Text>
-                        </View>
-                      </View>
-                      <View style={styles.tableRow}>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>Profissional</Text>
-                        </View>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>
-                            {historico.OperadorDecisao?.OperadorNM}
-                          </Text>
-                        </View>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>
-                            {historico.OperadorDestino?.OperadorNM}
-                          </Text>
-                        </View>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>
-                            {historico.OperadorIntercorrencia?.OperadorNM}
-                          </Text>
-                        </View>
-                      </View>
-                      <View style={styles.tableRow}>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>Data</Text>
-                        </View>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>
-                            {historico.DTHR_DECISAO_GESTORAID &&
-                              addHours(
-                                historico.DTHR_DECISAO_GESTORAID,
-                                3,
-                              ).toLocaleString()}
-                          </Text>
-                        </View>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>
-                            {historico.DTHR_DESTINOID &&
-                              addHours(
-                                historico.DTHR_DESTINOID,
-                                3,
-                              ).toLocaleString()}
-                          </Text>
-                        </View>
-                        <View style={styles.tableCol}>
-                          <Text style={styles.tableCell}>
-                            {historico.DTHR_INTERCORRENCIAID &&
-                              addHours(
-                                historico.DTHR_INTERCORRENCIAID,
-                                3,
-                              ).toLocaleString()}
-                          </Text>
-                        </View>
-                      </View>
+                      ))}
                     </View>
-                  ))}
+                  </View>
                 </View>
               ))}
             </View>
           </View>
           {/* -------------------DADOS DOS VEICULOS------------------------- */}
-          <View style={styles.section}>
-            <Text style={styles.subtitle}>MOVIMENTAÇÃO DE VEÍCULO</Text>
+          <View style={styles.section} wrap={false}>
+            <Text style={styles.subtitle}>VEÍCULOS</Text>
             <View style={styles.col}>
               {ocorrencia?.OcorrenciaMovimentacao.map((movimentacao) => (
                 <View
+                  wrap={false}
                   key={movimentacao.VeiculoID}
-                  style={{
-                    ...styles.row,
-                    backgroundColor: "lightgray",
-                    padding: 4,
-                  }}
+                  style={styles.card}
                 >
-                  <View
-                    style={{
-                      alignItems: "center",
-                      flexDirection: "row",
-                      backgroundColor: "#c40e2f",
-                      borderRadius: 4,
-                    }}
-                  >
-                    <Text style={styles.subtitle}>
-                      SEQ {movimentacao.VeiculoSEQ}
-                    </Text>
-                  </View>
-
+                  <Text style={styles.subtitle}>
+                    SEQ {movimentacao.VeiculoSEQ}
+                  </Text>
                   <View style={{ ...styles.col, justifyContent: "center" }}>
                     <Text
                       style={{
                         ...styles.small,
                         textAlign: "center",
-                        textDecoration: "underline",
                       }}
                     >
                       {movimentacao.Veiculo?.VeiculoDS}
@@ -418,14 +440,43 @@ export const FichaPDF = () => {
                       </View>
                     </View>
                   </View>
+
+                  <View style={styles.col}>
+                    <Text style={{ ...styles.small, textAlign: "center" }}>
+                      Histórico de Conduta
+                    </Text>
+                    {movimentacao.Veiculo?.HISTORICO_CONDUTA.map(
+                      (conduta, index) => (
+                        <>
+                          <View>
+                            <Field label="Vítima:">
+                              {conduta.vitima?.VitimaNM}
+                            </Field>
+                            <Text style={styles.p}>{conduta.OBS_MEDICO}</Text>
+                            <Text style={{ ...styles.p, textAlign: "right" }}>
+                              {conduta.DTHR_CONDUTA &&
+                                addHours(
+                                  conduta.DTHR_CONDUTA,
+                                  3,
+                                ).toLocaleString()}
+                            </Text>
+                          </View>
+                          {index + 1 !==
+                            movimentacao.Veiculo?.HISTORICO_CONDUTA.length && (
+                            <View style={styles.separator}></View>
+                          )}
+                        </>
+                      ),
+                    )}
+                  </View>
                 </View>
               ))}
             </View>
           </View>
           {/* -------------------MOVIMENTACAO DA OCORRENCIA------------------------- */}
-          <View style={styles.section}>
+          <View style={styles.section} wrap={false}>
             <Text style={styles.subtitle}>MOVIMENTAÇÃO INTERNA</Text>
-            <View style={styles.table}>
+            <View style={styles.table} wrap={false}>
               <View style={styles.tableRow}>
                 <View style={styles.tableCol}>
                   <Text style={styles.tableCell}>Origem</Text>
