@@ -1,15 +1,11 @@
 import { UserRole } from "@/types/UserRole";
 import { withRoles } from "../HOCs/withRoles";
-import { Button } from "../ui/button";
+import { Button, ButtonProps } from "../ui/button";
 import { Plus } from "lucide-react";
 
-type AddButtonProps = {
-  onClick?: () => void;
-};
-
-export const ProtectedAddButton = withRoles<AddButtonProps>(
-  ({ onClick }: AddButtonProps) => (
-    <Button size="icon" onClick={onClick}>
+export const ProtectedAddButton = withRoles<ButtonProps>(
+  (props: ButtonProps) => (
+    <Button size="icon" {...props}>
       <Plus />
     </Button>
   ),

@@ -17,7 +17,7 @@ export const ChartHour = (props: HTMLAttributes<HTMLDivElement>) => {
         onError: (error) => {
           toast({
             title:
-              "Houve ao gerar o gráfico de ocorrências por horário de deslocamento!",
+              "Erro ao gerar o gráfico de ocorrências por horário de deslocamento!",
             description: error.message,
             variant: "destructive",
           });

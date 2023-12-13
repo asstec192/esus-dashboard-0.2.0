@@ -646,13 +646,15 @@ model OperadoresDados {
 }
 
 model UsuarioDashboard {
-    id         Int              @id(map: "PK__UsuarioD__3213E83F76377CA0") @default(autoincrement())
-    operadorID Int              @unique
-    operador   OperadoresDados? @relation()
-    senha      String           @db.VarChar(60)
-    role       String           @db.NVarChar(10)
-    createdAt  DateTime         @default(now(), map: "DF__UsuarioDa__creat__28112A8D") @db.DateTime
-    updatedAt  DateTime         @default(now(), map: "DF__UsuarioDa__updat__29054EC6") @db.DateTime
+    id                           Int                @id(map: "PK__UsuarioD__3213E83F76377CA0") @default(autoincrement())
+    operadorID                   Int                @unique
+    operador                     OperadoresDados?   @relation()
+    senha                        String             @db.VarChar(60)
+    role                         String             @db.NVarChar(10)
+    createdAt                    DateTime           @default(now(), map: "DF__UsuarioDa__creat__28112A8D") @db.DateTime
+    updatedAt                    DateTime           @default(now(), map: "DF__UsuarioDa__updat__29054EC6") @db.DateTime
+    relatoriosDeUnidadeCriados   UnidadeRelatorio[] @relation("criador")
+    relatoriosDeUnidadeRevisados UnidadeRelatorio[] @relation("revisor")
 }
 
 model OperadoresLogados {
@@ -1400,18 +1402,16 @@ model tb_recursousb {
     @@ignore
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model TB_SEXO {
-    cod             Int     @default(autoincrement())
-    SEXO            String? @db.NVarChar(30)
+    cod             Int       @id @default(autoincrement())
+    SEXO            String?   @db.NVarChar(30)
     COPA_ARENA      Int?
     COPA_MANIFESTAC Int?
     COPA_FANFEST    Int?
     COPA_PMA        Int?
     TOTALGERALGERAL Int?
-    ordenador       String? @db.NVarChar(200)
-
-    @@ignore
+    ordenador       String?   @db.NVarChar(200)
+    Vitimas         Vitimas[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -1666,6 +1666,9 @@ model UnidadesDestino {
     InativacaoDT              DateTime?                   @db.SmallDateTime
     VEICULO_ITEMRETIDO        VEICULO_ITEMRETIDO[]
     HISTORICO_DECISAO_GESTORA HISTORICO_DECISAO_GESTORA[]
+    especialidades            UnidadeEspecialidades[]
+    equipamentos              UnidadeEquipamentos[]
+    UnidadeRelatorio          UnidadeRelatorio?
 }
 
 model VEICULO_ITEMRETIDO {
@@ -1734,7 +1737,7 @@ model Vitimas {
     DocumentoTP                       Int?
     DocumentoNM                       String?                             @db.NVarChar(20)
     CNS                               String?                             @db.NVarChar(20)
-    Sexo                              String?                             @db.NVarChar(1)
+    Sexo                              Int?
     NascimentoDT                      DateTime?                           @db.SmallDateTime
     Idade                             Int?
     IdadeTP                           Int?
@@ -1749,6 +1752,55 @@ model Vitimas {
     HistoricoDecisaoGestora           HISTORICO_DECISAO_GESTORA[]
     Classificacao                     ClassifVitima?                      @relation(fields: [ClassifVitimaID], references: [ClassifVitimaID])
     HISTORICO_CONDUTA                 HISTORICO_CONDUTA[]
+    Sexo_                             TB_SEXO?                            @relation(fields: [Sexo], references: [cod])
 
     @@id([OcorrenciaID, VitimaId], map: "PK_Vitimas")
+}
+
+model Equipamentos {
+    id                   Int                   @id @default(autoincrement())
+    descricao            String
+    unidadesHospitalares UnidadeEquipamentos[]
+}
+
+model Especialidades {
+    id                   Int                     @id @default(autoincrement())
+    descricao            String
+    unidadesHospitalares UnidadeEspecialidades[]
+}
+
+model UnidadeEspecialidades {
+    unidadeId       Int
+    especialidadeId Int
+    quantidade      Int
+    especialidade   Especialidades  @relation(fields: [especialidadeId], references: [id])
+    unidade         UnidadesDestino @relation(fields: [unidadeId], references: [UnidadeCOD])
+
+    @@id([unidadeId, especialidadeId])
+}
+
+model UnidadeEquipamentos {
+    unidadeId     Int
+    equipamentoId Int
+    quantidade    Int
+    equipamento   Equipamentos    @relation(fields: [equipamentoId], references: [id])
+    unidade       UnidadesDestino @relation(fields: [unidadeId], references: [UnidadeCOD])
+
+    @@id([unidadeId, equipamentoId])
+}
+
+model UnidadeRelatorio {
+    unidadeId     Int              @id //no banco original é um nvarchar(8)
+    criadoPorId   Int
+    revisadoPorId Int
+    contato       String           @db.VarChar(14)
+    nomeContato   String           @db.NVarChar(50)
+    horaContato   String           @db.VarChar(5)
+    chefeEquipe   String           @db.NVarChar(50)
+    observacao    String?          @db.NVarChar(500)
+    createdAt     DateTime         @default(now())
+    updatedAt     DateTime         @updatedAt
+    unidade       UnidadesDestino  @relation(fields: [unidadeId], references: [UnidadeCOD])
+    criadoPor     UsuarioDashboard @relation("criador", fields: [criadoPorId], references: [id], onDelete: NoAction)
+    revisadoPor   UsuarioDashboard @relation("revisor", fields: [revisadoPorId], references: [id], onUpdate: NoAction)
 }

@@ -24,10 +24,10 @@ export const useNavItems = () => {
       label: "Epidemiologia",
       pathname: "/epidemiologia",
     },
-    /* {
+    {
       label: "Relatórios",
       pathname: "/relatorios",
-    }, */
+    },
   ];
 
   return navItems;

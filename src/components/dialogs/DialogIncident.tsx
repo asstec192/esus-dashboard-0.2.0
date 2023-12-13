@@ -17,18 +17,13 @@ import { UserRole } from "@/types/UserRole";
 import { addHours } from "date-fns";
 import { api } from "@/utils/api";
 import { toast } from "../ui/use-toast";
-import { PopoverVehicle } from "../pop-overs/PopoverVehicle";
 import { useIncidentStore } from "@/hooks/useIncidentStore";
 import { Loader2 } from "lucide-react";
 import { VehicleAccordion } from "../accordions/VehicleAccordion";
 
 export const DialogIncident = withRoles(() => {
   const { setSelectedIncidentId, selectedIncidentId } = useIncidentStore();
-  const {
-    data: incident,
-    isError,
-    isLoading,
-  } = api.incidents.getOne.useQuery(
+  const { data: incident } = api.incidents.getOne.useQuery(
     { incidentId: selectedIncidentId },
     {
       onError: (error) => {
@@ -111,7 +106,7 @@ export const DialogIncident = withRoles(() => {
                           {vitima.IdadeTP_Vitimas_IdadeTPToIdadeTP?.IdadeTPDS}
                         </TypographySmall>
                         <TypographySmall>
-                          <b>Sexo: </b> {getGender(vitima.Sexo?.toString())}
+                          <b>Sexo: </b> {vitima.Sexo_?.SEXO}
                         </TypographySmall>
                         <TypographySmall>
                           <b>Desfecho: </b>
@@ -157,15 +152,3 @@ export const DialogIncident = withRoles(() => {
     </Dialog>
   );
 }, [UserRole.admin, UserRole.medico]);
-
-const genders: Record<string | number, string> = {
-  1: "Masculino",
-  2: "Feminino",
-};
-
-const getGender = (key?: string | number) => {
-  if (!key) {
-    return "Não informado";
-  }
-  return genders[key];
-};
