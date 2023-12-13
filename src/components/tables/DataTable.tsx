@@ -1,9 +1,4 @@
-import * as React from "react";
-import {
-  ColumnDef,
-  Table as TableType,
-  flexRender,
-} from "@tanstack/react-table";
+import { flexRender } from "@tanstack/react-table";
 
 import {
   Table,
@@ -12,21 +7,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
-import { TypographyMuted } from "../typography/TypographyMuted";
+} from "@/components/ui/table";
+import { useDataTable } from "./DataTableContext";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  table: TableType<TData>;
-}
-
-export function DataTable<TData, TValue>({
-  columns,
-  table,
-}: DataTableProps<TData, TValue>) {
+export function DataTable() {
+  const { table } = useDataTable();
   return (
     <Table>
-      <TableHeader className="sticky top-0 bg-slate-100">
+      <TableHeader className="sticky top-0 bg-muted">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
@@ -60,7 +48,10 @@ export function DataTable<TData, TValue>({
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={columns.length} className="h-24 text-center">
+            <TableCell
+              colSpan={table.getAllColumns().length}
+              className="h-24 text-center"
+            >
               Nenhum resultado.
             </TableCell>
           </TableRow>
