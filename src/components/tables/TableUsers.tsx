@@ -1,18 +1,14 @@
 import { DropdownAdminActions } from "@/components/dropdowns/DropdownAdminActions";
 import { Card } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
-import { api } from "@/utils/api";
-import { formatProperName } from "@/utils/formatProperName";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { RouterOutputs, api } from "@/utils/api";
 import { SkeletonTable } from "../skeletons/skeleton-table";
+import { ColumnDef } from "@tanstack/react-table";
+import { DataTableProvider } from "./DataTableContext";
+import { DataTableSearch } from "./DataTableSearch";
+import { DataTable } from "./DataTable";
+import { DataTablePagination } from "./DataTablePagination";
+import { formatProperName } from "@/utils/formatProperName";
 
 export const TableUsers = () => {
   const {
@@ -28,50 +24,49 @@ export const TableUsers = () => {
       });
     },
   });
+
+  if (isLoading || isError) return <SkeletonTable className="h-[600px]" />;
+
   return (
-    <Card>
-      {isLoading || isError ? (
-        <SkeletonTable className="h-[600px]" />
-      ) : (
-        <ScrollArea orientation="horizontal">
-          <Table>
-            <TableHeader className="bg-slate-100">
-              <TableRow>
-                <TableHead>#</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead>Apelido</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Cadastrado Em</TableHead>
-                <TableHead>Última Atualização</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow>
-                  <TableCell className="font-bold">{user.id}</TableCell>
-                  <TableCell className="font-medium">
-                    {formatProperName(user.operador?.OperadorNM!)}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {user.operador?.OperadorApelido}
-                  </TableCell>
-                  <TableCell className="font-medium">{user.role}</TableCell>
-                  <TableCell className="font-medium">
-                    {user.createdAt.toLocaleString()}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {user.updatedAt.toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownAdminActions user={user} />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </ScrollArea>
-      )}
-    </Card>
+    <DataTableProvider columns={columns} data={users}>
+      <div className="space-y-2">
+        <DataTableSearch />
+        <Card>
+          <DataTable />
+        </Card>
+        <DataTablePagination />
+      </div>
+    </DataTableProvider>
   );
 };
+
+const columns: ColumnDef<RouterOutputs["users"]["getAll"][0]>[] = [
+  {
+    accessorKey: "operador.OperadorNM",
+    header: "Nome",
+    cell: ({ row }) => formatProperName(row.original.operador?.OperadorNM),
+  },
+  {
+    accessorKey: "operador.OperadorApelido",
+    header: "Apelido",
+  },
+  {
+    accessorKey: "role",
+    header: "Função",
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Data de Cadastro",
+    cell: ({ row }) => row.original.createdAt.toLocaleString(),
+  },
+  {
+    accessorKey: "updatedAt",
+    header: "Última Atualização",
+    cell: ({ row }) => row.original.updatedAt.toLocaleString(),
+  },
+  {
+    accessorKey: "id",
+    header: "",
+    cell: ({ row }) => <DropdownAdminActions user={row.original} />,
+  },
+];

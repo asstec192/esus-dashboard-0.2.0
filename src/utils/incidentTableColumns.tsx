@@ -81,11 +81,8 @@ export const incidentTableColumns: ColumnDef<Ocorrencia>[] = [
     id: "filtro-veiculo",
     header: () => null,
     cell: () => null,
-    accessorFn: ({ veiculos }) => {
-      let output = "";
-      veiculos.forEach((veiculo) => (output = output + veiculo.nome));
-      return output;
-    },
+    accessorFn: ({ veiculos }) =>
+      veiculos.map((veiculo) => veiculo.nome).toString(),
   },
   {
     accessorKey: "risco",
@@ -100,11 +97,8 @@ export const incidentTableColumns: ColumnDef<Ocorrencia>[] = [
     id: "filtro-pacientes",
     header: () => null,
     cell: () => null,
-    accessorFn: ({ pacientes }) => {
-      let output = "";
-      pacientes.forEach((paciente) => (output = output + paciente.nome + " "));
-      return output;
-    },
+    accessorFn: ({ pacientes }) =>
+      pacientes.map((paciente) => paciente.nome).toString(),
   },
   {
     id: "filtro-sexo",

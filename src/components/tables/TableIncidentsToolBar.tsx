@@ -1,18 +1,13 @@
-import { type Table } from "@tanstack/react-table";
-import { TableSearch } from "./TableSearch";
 import { TableFilter } from "./TableFilter";
 import { TypographyMuted } from "../typography/TypographyMuted";
+import { useDataTable } from "./DataTableContext";
+import { DataTableSearch } from "./DataTableSearch";
 
-interface TableIncidentsToolBarProps<TData> {
-  table: Table<TData>;
-}
-
-export function TableIncidentsToolBar<TData>({
-  table,
-}: TableIncidentsToolBarProps<TData>) {
+export function TableIncidentsToolBar() {
+  const { table } = useDataTable();
   return (
     <div className="flex flex-wrap items-end gap-2">
-      <TableSearch table={table} placeholder="Buscar ocorrências" />
+      <DataTableSearch />
       {table.getColumn("risco") && (
         <TableFilter
           column={table.getColumn("risco")}

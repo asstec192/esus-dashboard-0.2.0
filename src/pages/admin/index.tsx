@@ -2,10 +2,15 @@ import { UserRole } from "@/types/UserRole";
 import { DialogCreateUser } from "../../components/dialogs/DialogCreateUser";
 import { withRoles } from "@/components/HOCs/withRoles";
 import { TableUsers } from "../../components/tables/TableUsers";
-import { SimpleDialog } from "@/components/dialogs/SimpleDialog";
 import { FormChangeUserPassword } from "../../components/forms/FormChangeUserPassword";
-import { formatProperName } from "@/utils/formatProperName";
 import { useManageUsersStore } from "@/hooks/useManageUsersStore";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { formatProperName } from "@/utils/formatProperName";
 
 function AdminPage() {
   const selectedUser = useManageUsersStore((state) => state.selectedUser);
@@ -16,19 +21,20 @@ function AdminPage() {
         <DialogCreateUser />
       </div>
       <TableUsers />
-      <SimpleDialog
+      <Dialog
         open={!!selectedUser}
         onOpenChange={() => setSelectedUser(undefined)}
-        title={
-          selectedUser?.operador
-            ? `Alterar senha de ${formatProperName(
-                selectedUser.operador.OperadorNM,
-              )}`
-            : ""
-        }
       >
-        <FormChangeUserPassword />
-      </SimpleDialog>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Alterar senha de{" "}
+              {formatProperName(selectedUser?.operador?.OperadorNM)}
+            </DialogTitle>
+          </DialogHeader>
+          <FormChangeUserPassword />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
