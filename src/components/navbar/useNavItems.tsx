@@ -26,7 +26,7 @@ export const useNavItems = () => {
     },
     {
       label: "Gerenciamento de Hospitais",
-      pathname: "/relatorios",
+      pathname: "/gerenciamento-hospitais",
     },
   ];
 
