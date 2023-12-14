@@ -15,18 +15,22 @@ import { useMask } from "@react-input/mask";
 import { api } from "@/utils/api";
 import { toast } from "../ui/use-toast";
 import { useHospitalManager } from "./FormGerenciamentoHospital.provider";
-import { Label } from "../ui/label";
 
 export function GerenciamentoHospital() {
   const {
     manager: { form },
+    hospitalId,
   } = useHospitalManager();
   const foneRef = useMask({
     mask: "(__) ____-____",
     replacement: { _: /\d/ },
   });
+  const utils = api.useContext();
   const { mutate } = api.hospitalManager.criarOuAtualizarRelatorio.useMutation({
-    onSuccess: () => toast({ description: "Relatório salvo com sucesso" }),
+    onSuccess: () => {
+      toast({ description: "Relatório salvo com sucesso" });
+      utils.hospitalManager.obterRelatorioHospitalar.invalidate({ hospitalId });
+    },
     onError: (error) =>
       toast({ description: error.message, variant: "destructive" }),
   });

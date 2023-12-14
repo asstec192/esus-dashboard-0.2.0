@@ -6,6 +6,7 @@ export type HospitalManager = ReturnType<typeof useHospitlManagerForm>;
 
 type ContextProps = {
   manager: HospitalManager;
+  hospitalId: number;
 };
 
 type ProviderProps = {
@@ -29,6 +30,7 @@ export const GerenciamentoHospitalProvider = ({
     <GerenciamentoHospitalContext.Provider
       value={{
         manager,
+        hospitalId
       }}
     >
       {children}
