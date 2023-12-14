@@ -5,7 +5,7 @@ import { toast } from "../ui/use-toast";
 import { ScrollArea } from "../ui/scroll-area";
 import { Pencil } from "lucide-react";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent } from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { GerenciamentoHospital } from "../forms/FormGerenciamentoHospital";
 import { useState } from "react";
 import { GerenciamentoHospitalProvider } from "../forms/FormGerenciamentoHospital.provider";
@@ -14,11 +14,14 @@ import { DataTable } from "./DataTable";
 import { DataTableSearch } from "./DataTableSearch";
 import { DataTablePagination } from "./DataTablePagination";
 import { Card } from "../ui/card";
+import { BsPencilSquare } from "react-icons/bs";
 
 type Hospital = RouterOutputs["destinations"]["getAll"][0];
 
 export const TableHospitals = () => {
-  const [selectedHospital, setSelectedHospital] = useState<number | null>(null);
+  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(
+    null,
+  );
   const { data } = api.destinations.getAll.useQuery(undefined, {
     onError: (error) => {
       toast({
@@ -31,7 +34,7 @@ export const TableHospitals = () => {
 
   const { data: ultimoRelatorio } =
     api.hospitalManager.obterRelatorioHospitalar.useQuery(
-      { hospitalId: selectedHospital! },
+      { hospitalId: selectedHospital?.UnidadeCOD! },
       {
         enabled: !!selectedHospital,
       },
@@ -55,9 +58,9 @@ export const TableHospitals = () => {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setSelectedHospital(row.original.UnidadeCOD)}
+          onClick={() => setSelectedHospital(row.original)}
         >
-          <Pencil size={14} color="gray" />
+          <BsPencilSquare size={20} className="text-primary" />
         </Button>
       ),
     },
@@ -79,16 +82,21 @@ export const TableHospitals = () => {
           open={!!selectedHospital}
           onOpenChange={() => setSelectedHospital(null)}
         >
-          <DialogContent className="max-w-7xl">
-            <ScrollArea className="h-[90vh]">
-              {ultimoRelatorio && (
-                <GerenciamentoHospitalProvider
-                  hospitalId={selectedHospital}
-                  ultimoRelatorio={ultimoRelatorio}
-                >
-                  <GerenciamentoHospital />
-                </GerenciamentoHospitalProvider>
-              )}
+          <DialogContent className="flex h-[90vh] max-w-7xl flex-col">
+            <DialogHeader className="ml-4">
+              <DialogTitle>{selectedHospital.UnidadeDS}</DialogTitle>
+            </DialogHeader>
+            <ScrollArea className="flex h-1 flex-grow flex-col">
+              <div className="px-4">
+                {ultimoRelatorio && (
+                  <GerenciamentoHospitalProvider
+                    hospitalId={selectedHospital.UnidadeCOD}
+                    ultimoRelatorio={ultimoRelatorio}
+                  >
+                    <GerenciamentoHospital />
+                  </GerenciamentoHospitalProvider>
+                )}
+              </div>
             </ScrollArea>
           </DialogContent>
         </Dialog>

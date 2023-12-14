@@ -5,6 +5,8 @@ import "@/styles/globals.css";
 import { type ReactElement, ReactNode } from "react";
 import { type NextPage } from "next";
 import RootLayout from "@/components/layouts/root-layout";
+import { QueryParamProvider } from "use-query-params";
+import NextAdapterPages from "next-query-params/pages";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -19,7 +21,9 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   return (
     <SessionProvider session={pageProps.session}>
-      <RootLayout>{getLayout(<Component {...pageProps} />)}</RootLayout>
+      <QueryParamProvider adapter={NextAdapterPages}>
+        <RootLayout>{getLayout(<Component {...pageProps} />)}</RootLayout>
+      </QueryParamProvider>
     </SessionProvider>
   );
 }

@@ -17,9 +17,9 @@ export const FormSchemaGerenciadorHospital = z.object({
   foneContato: z.string().refine((data) => telefonePattern.test(data), {
     message: "Número de telefone inválido. Use o formato (XX) XXXX-XXXX.",
   }),
-  horaContato: z.string(),
-  pessoaContactada: z.string(),
-  chefeEquipe: z.string(),
+  horaContato: z.string().min(5),
+  pessoaContactada: z.string().min(1),
+  chefeEquipe: z.string().min(1),
   obervacao: z.string().optional(),
 });
 

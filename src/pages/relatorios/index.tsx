@@ -7,7 +7,7 @@ import { api } from "@/utils/api";
 
 export default function Relatorios() {
   const { data: especialidades } =
-    api.hospitalManager.getSpecialties.useQuery();
+    api.hospitalManager.getEspecialidades.useQuery();
   const { data: equipamentos } = api.hospitalManager.getEquipamentos.useQuery();
   return (
     <>

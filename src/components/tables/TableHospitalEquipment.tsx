@@ -1,11 +1,12 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Card } from "../ui/card";
 import { TableColumnHeader } from "./TableColumnHeader";
-import { DialogAddEquipamento } from "../dialogs/DialogAddEquipamento";
 import { RouterOutputs } from "@/utils/api";
 import { DataTableProvider } from "./DataTableContext";
 import { DataTableSearch } from "./DataTableSearch";
 import { DataTable } from "./DataTable";
+import { DataTablePagination } from "./DataTablePagination";
+import { InputAddEquipamento } from "../inputs/InputAddEquipamento";
 
 export const TableHospitalEquipment = ({
   equipamentos,
@@ -17,11 +18,12 @@ export const TableHospitalEquipment = ({
       <div className="space-y-2">
         <div className="flex justify-between">
           <DataTableSearch />
-          <DialogAddEquipamento />
+          <InputAddEquipamento />
         </div>
         <Card>
           <DataTable />
         </Card>
+        <DataTablePagination />
       </div>
     </DataTableProvider>
   );

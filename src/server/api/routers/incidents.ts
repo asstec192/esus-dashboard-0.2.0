@@ -1,9 +1,5 @@
 import * as z from "zod";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { prisma } from "@/server/db";
 import { dateRangeInput } from "@/hooks/useGlobalDateFilterStore";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
@@ -104,7 +100,7 @@ export const incidentsRouter = createTRPCRouter({
                   DTHR_DECISAO_GESTORAID: true,
                   DTHR_DESTINOID: true,
                   DTHR_INTERCORRENCIAID: true,
-                  OBSERVACAO: true
+                  OBSERVACAO: true,
                 },
                 where: { STATUS: "F" },
                 orderBy: {
@@ -235,7 +231,7 @@ export const incidentsRouter = createTRPCRouter({
     })) as OcorrenciaEmAndamento[];
   }),
 
-  getTotalIncidentsByRisk: publicProcedure.query(async () => {
+  getTotalIncidentsByRisk: protectedProcedure.query(async () => {
     const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
     return await prisma.$queryRaw<
       {
@@ -254,7 +250,7 @@ export const incidentsRouter = createTRPCRouter({
     `;
   }),
 
-  getTotalIncidentsByCallType: publicProcedure.query(async () => {
+  getTotalIncidentsByCallType: protectedProcedure.query(async () => {
     const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
     return await prisma.$queryRaw<{ tipo: string; total: number }[]>`
       SELECT 
@@ -267,7 +263,7 @@ export const incidentsRouter = createTRPCRouter({
     `;
   }),
 
-  getTotalIncidentsByHour: publicProcedure
+  getTotalIncidentsByHour: protectedProcedure
     .input(dateRangeInput)
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input);
@@ -310,7 +306,7 @@ export const incidentsRouter = createTRPCRouter({
           END`;
     }),
 
-  getTotalIncidentsByVehicleType: publicProcedure
+  getTotalIncidentsByVehicleType: protectedProcedure
     .input(dateRangeInput)
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input);
@@ -353,7 +349,7 @@ export const incidentsRouter = createTRPCRouter({
         AVG(DATEDIFF(minute, EnvioEquipeDT, ChegadaLocalDT)) AS QTYQUS,
         AVG(DATEDIFF(minute, SaidaLocalDT, ChegadaDestinoDT)) AS QUSQUY,
         AVG(DATEDIFF(minute, ChegadaDestinoDT, RetornoDestinoDT)) AS QUYQUU
-      FROM OcorrenciaMovimentacao
+      FROM OcorrenciaMovimentacao OM
       JOIN Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID
       WHERE O.DtHr >= ${date}
       `;

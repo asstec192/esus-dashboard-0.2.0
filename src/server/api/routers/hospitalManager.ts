@@ -4,7 +4,7 @@ import { prisma } from "@/server/db";
 import { FormSchemaGerenciadorHospital } from "@/hooks/useHospitalManagerForm";
 
 export const hospitalManagerRouter = createTRPCRouter({
-  getSpecialties: protectedProcedure.query(() =>
+  getEspecialidades: protectedProcedure.query(() =>
     prisma.especialidades.findMany(),
   ),
 
@@ -12,7 +12,7 @@ export const hospitalManagerRouter = createTRPCRouter({
     prisma.equipamentos.findMany(),
   ),
 
-  addSpecialte: protectedProcedure
+  addEspecialidade: protectedProcedure
     .input(z.object({ descricao: z.string().min(1) }))
     .mutation(({ input }) =>
       prisma.especialidades.create({

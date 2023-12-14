@@ -6,6 +6,7 @@ import { FormField } from "../ui/form";
 import { Input } from "../ui/input";
 import { api } from "@/utils/api";
 import { useHospitalManager } from "./FormGerenciamentoHospital.provider";
+import { Label } from "../ui/label";
 
 export const SelectEquipamentos = () => {
   const { manager } = useHospitalManager();
@@ -23,64 +24,72 @@ export const SelectEquipamentos = () => {
         value: eqp.equipamentoId.toString(),
       }))}
     >
-      <SourceList
-        withSearch
-        className="w-1/2"
-        render={({ option, onTransfer }) => (
-          <Button
-            variant="outline"
-            onClick={() => {
-              manager.onItemAdded(Number(option.value), "equipamentos");
-              onTransfer();
-            }}
-            key={option.value + "source"}
-          >
-            <PlusCircle size={14} className="mr-2" />
-            {option.label}
-          </Button>
-        )}
-      />
-      <FormField
-        control={manager.form.control}
-        name="equipamentos"
-        render={({ field }) => (
-          <DestinationList
-            className="w-1/2"
+      <div className="flex flex-1 gap-2">
+        <div className="flex flex-1 flex-col space-y-2">
+          <Label>Equipamentos</Label>
+          <SourceList
+            withSearch
+            className="h-[250px]"
             render={({ option, onTransfer }) => (
-              <div className="flex gap-2" key={option.value}>
-                <Button
-                  className="flex-[4]"
-                  onClick={() => {
-                    manager.onItemRemoved(option.value, "equipamentos");
-                    onTransfer();
-                  }}
-                >
-                  <MinusCircle size={14} className="mr-2" />
-                  {option.label}
-                </Button>
-                <Input
-                  type="number"
-                  placeholder="qtd"
-                  className="flex-[1]"
-                  value={
-                    field.value.find(
-                      (equipamento) =>
-                        equipamento.itemId.toString() === option.value,
-                    )?.itemCount
-                  }
-                  onChange={(e) => {
-                    manager.onItemCountChange(
-                      Number(option.value),
-                      e.target.value,
-                      "equipamentos",
-                    );
-                  }}
-                />
-              </div>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  manager.onItemAdded(Number(option.value), "equipamentos");
+                  onTransfer();
+                }}
+                key={option.value + "source"}
+              >
+                <PlusCircle size={14} className="mr-2" />
+                {option.label}
+              </Button>
             )}
           />
-        )}
-      />
+        </div>
+        <div className="flex flex-1 flex-col space-y-2">
+          <Label>Equipamentos Cadastrados</Label>
+          <FormField
+            control={manager.form.control}
+            name="equipamentos"
+            render={({ field }) => (
+              <DestinationList
+                render={({ option, onTransfer }) => (
+                  <div className="flex gap-2" key={option.value}>
+                    <Button
+                      variant="outline"
+                      className="flex-[4] border-primary"
+                      onClick={() => {
+                        manager.onItemRemoved(option.value, "equipamentos");
+                        onTransfer();
+                      }}
+                    >
+                      <MinusCircle size={14} className="mr-2" />
+                      {option.label}
+                    </Button>
+                    <Input
+                      type="number"
+                      placeholder="qtd"
+                      className="flex-[1]"
+                      value={
+                        field.value.find(
+                          (equipamento) =>
+                            equipamento.itemId.toString() === option.value,
+                        )?.itemCount
+                      }
+                      onChange={(e) => {
+                        manager.onItemCountChange(
+                          Number(option.value),
+                          e.target.value,
+                          "equipamentos",
+                        );
+                      }}
+                    />
+                  </div>
+                )}
+              />
+            )}
+          />
+        </div>
+      </div>
     </TransferlistProvider>
   );
 };

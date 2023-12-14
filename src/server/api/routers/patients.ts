@@ -1,10 +1,10 @@
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { prisma } from "../../db";
 import { dateRangeInput } from "@/hooks/useGlobalDateFilterStore";
 
 export const patientsRouter = createTRPCRouter({
-  getPatientsByAge: publicProcedure
+  getPatientsByAge: protectedProcedure
     .input(dateRangeInput)
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input);
@@ -59,7 +59,7 @@ export const patientsRouter = createTRPCRouter({
       );
     }),
 
-  getPatientsByGender: publicProcedure
+  getPatientsByGender: protectedProcedure
     .input(dateRangeInput)
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input);
@@ -78,7 +78,7 @@ export const patientsRouter = createTRPCRouter({
       GROUP BY V.Sexo`;
     }),
 
-  getTotalPatientsByWeekDay: publicProcedure
+  getTotalPatientsByWeekDay: protectedProcedure
     .input(dateRangeInput)
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input);

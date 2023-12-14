@@ -28,14 +28,14 @@ export function SourceList({
     (opt) => getStringScoreMatches(opt.label, search) > 0,
   );
   return (
-    <Card className={cn("flex flex-col gap-2 p-4", className)}>
+    <Card className={cn("flex flex-grow flex-col gap-2 p-4", className)}>
       {withSearch && (
         <Input
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar..."
         />
       )}
-      <ScrollArea className="h-[300px] flex-grow">
+      <ScrollArea className="h-1 flex-grow">
         <div className="flex flex-col gap-2">
           {filteredSourceList.map((option) =>
             render({
@@ -62,14 +62,14 @@ export const DestinationList = ({
     (opt) => getStringScoreMatches(opt.label, search) > 0,
   );
   return (
-    <Card className={cn("flex w-max flex-col gap-2", className)}>
+    <Card className={cn("flex flex-grow flex-col gap-2", className)}>
       {withSearch && (
         <Input
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar..."
         />
       )}
-      <ScrollArea className="h-[300px] flex-grow">
+      <ScrollArea className="h-1 flex-grow">
         <div className="flex flex-col gap-2 p-4">
           {filteredSourceList.map((option) =>
             render({
