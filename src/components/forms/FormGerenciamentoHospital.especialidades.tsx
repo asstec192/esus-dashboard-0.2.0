@@ -1,17 +1,32 @@
 import { MinusCircle, PlusCircle } from "lucide-react";
 import { Button } from "../ui/button";
-import { FormField } from "../ui/form";
+import { FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { DestinationList, SourceList } from "../ui/transfer-list";
 import { TransferlistProvider } from "../ui/transfer-list-provider";
 import { Input } from "../ui/input";
-import { api } from "@/utils/api";
-import { useHospitalManager } from "./FormGerenciamentoHospital.provider";
+import { RouterOutputs, api } from "@/utils/api";
 import { Label } from "../ui/label";
+import { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
+import { FormSchemaGerenciadorHospital } from "@/hooks/useRelatorioUnidadeForm";
+import { Badge } from "../ui/badge";
+import { Card } from "../ui/card";
+import { ScrollArea } from "../ui/scroll-area";
 
-export const SelectEspecialidades = () => {
-  const { manager } = useHospitalManager();
+type SelectEspecialidadesProps = {
+  especialidadesAtuais?: NonNullable<
+    RouterOutputs["hospitalManager"]["obterRelatorio"]
+  >["UnidadeRelatorioEspecialidades"];
+  form: UseFormReturn<z.infer<typeof FormSchemaGerenciadorHospital>>;
+};
+
+export const SelectEspecialidades = ({
+  especialidadesAtuais,
+  form,
+}: SelectEspecialidadesProps) => {
   const { data: especialidades } =
     api.hospitalManager.getEspecialidades.useQuery();
+
   return (
     <TransferlistProvider
       sourceList={
@@ -20,7 +35,7 @@ export const SelectEspecialidades = () => {
           value: opt.id.toString(),
         })) || []
       }
-      destinationList={manager.especialidades.map((esp) => ({
+      destinationList={especialidadesAtuais?.map((esp) => ({
         label: esp.especialidade.descricao,
         value: esp.especialidadeId.toString(),
       }))}
@@ -35,7 +50,12 @@ export const SelectEspecialidades = () => {
               <Button
                 variant="outline"
                 onClick={() => {
-                  manager.onItemAdded(Number(option.value), "especialidades");
+                  const currentItems = form.getValues("especialidades");
+                  const newItem = {
+                    itemId: Number(option.value),
+                    itemCount: "1",
+                  };
+                  form.setValue("especialidades", [...currentItems, newItem]);
                   onTransfer();
                 }}
                 key={option.value + "source"}
@@ -49,7 +69,7 @@ export const SelectEspecialidades = () => {
         <div className="flex flex-1 flex-col space-y-2">
           <Label>Especialidades Cadastradas</Label>
           <FormField
-            control={manager.form.control}
+            control={form.control}
             name="especialidades"
             render={({ field }) => (
               <DestinationList
@@ -59,7 +79,13 @@ export const SelectEspecialidades = () => {
                       variant="outline"
                       className="flex-[4] border-primary"
                       onClick={() => {
-                        manager.onItemRemoved(option.value, "especialidades");
+                        const currentValue = form.getValues("especialidades");
+                        form.setValue(
+                          "especialidades",
+                          currentValue.filter(
+                            (esp) => esp.itemId.toString() !== option.value,
+                          ),
+                        );
                         onTransfer();
                       }}
                     >
@@ -78,10 +104,14 @@ export const SelectEspecialidades = () => {
                         )?.itemCount
                       }
                       onChange={(e) => {
-                        manager.onItemCountChange(
-                          Number(option.value),
-                          e.target.value,
+                        const currentItems = form.getValues("especialidades");
+                        form.setValue(
                           "especialidades",
+                          currentItems.map((item) =>
+                            item.itemId.toString() === option.value
+                              ? { ...item, itemCount: e.target.value }
+                              : item,
+                          ),
                         );
                       }}
                     />
@@ -93,5 +123,67 @@ export const SelectEspecialidades = () => {
         </div>
       </div>
     </TransferlistProvider>
+  );
+};
+
+export const Especialidades = ({
+  form,
+}: {
+  form: UseFormReturn<z.infer<typeof FormSchemaGerenciadorHospital>>;
+}) => {
+  const { data: especialidades } =
+    api.hospitalManager.getEspecialidades.useQuery();
+
+  return (
+    <FormField
+      control={form.control}
+      name="especialidades"
+      render={({ field }) => (
+        <FormItem className="flex-1">
+          <FormLabel>Especialidades</FormLabel>
+          <FormControl>
+            <Card className="p-4">
+              <ScrollArea className="h-[500px]">
+                <div className="space-y-2">
+                  {especialidades?.map((esp) => (
+                    <FormItem className="flex gap-2 space-y-0">
+                      <Badge
+                        variant="outline"
+                        className="h-10 w-max flex-[4] justify-center rounded-md"
+                      >
+                        {esp.descricao}
+                      </Badge>
+                      <FormControl>
+                        <Input
+                          className="flex-[1]"
+                          type="number"
+                          min={0}
+                          value={
+                            field.value.find((item) => item.itemId === esp.id)
+                              ?.itemCount || "0"
+                          }
+                          onChange={(e) => {
+                            const currentItems =
+                              form.getValues("especialidades");
+                            form.setValue(
+                              "especialidades",
+                              currentItems.map((item) =>
+                                item.itemId === esp.id
+                                  ? { ...item, itemCount: e.target.value }
+                                  : item,
+                              ),
+                            );
+                          }}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  ))}
+                </div>
+              </ScrollArea>
+            </Card>
+          </FormControl>
+        </FormItem>
+      )}
+    />
   );
 };

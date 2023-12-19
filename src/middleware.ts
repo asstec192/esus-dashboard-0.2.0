@@ -8,6 +8,6 @@ export const config = {
     "/monitoramento",
     "/admin",
     "/usuarios/:path*",
-    "/gerenciamento-hospitais",
+    "/gerenciamento-rede",
   ],
 };

@@ -36,6 +36,7 @@ export function DataTable() {
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
             <TableRow
+              className="relative"
               key={row.id}
               data-state={row.getIsSelected() && "selected"}
             >

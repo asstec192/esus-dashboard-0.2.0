@@ -28,20 +28,22 @@ type Option = {
 };
 
 type ComboboxProps = {
-  onValueChange?: (value: string) => void;
+  defaultValue?: string;
   className?: string;
   placeholder?: string;
   options: Option[];
+  onValueChange?: (value: string) => void;
 };
 
 export function Combobox({
+  defaultValue,
   options,
   placeholder,
   className,
   onValueChange,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const [value, setValue] = React.useState(defaultValue || "");
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -49,7 +51,7 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-[200px] justify-between", className)}
+          className={cn("w-full justify-between", className)}
         >
           {value
             ? options.find((option) => option.value === value)?.label
@@ -57,7 +59,7 @@ export function Combobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="p-0">
         <Command
           value={value}
           filter={(value, search) => getMatches(value, search, options)}

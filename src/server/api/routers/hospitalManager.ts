@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { prisma } from "@/server/db";
-import { FormSchemaGerenciadorHospital } from "@/hooks/useHospitalManagerForm";
+import { FormSchemaGerenciadorHospital } from "@/hooks/useRelatorioUnidadeForm";
+import { endOfDay, startOfDay } from "date-fns";
 
 export const hospitalManagerRouter = createTRPCRouter({
   getEspecialidades: protectedProcedure.query(() =>
@@ -30,124 +31,156 @@ export const hospitalManagerRouter = createTRPCRouter({
       }),
     ),
 
-  obterRelatorioHospitalar: protectedProcedure
-    .input(z.object({ hospitalId: z.number() }))
-    .query(({ input }) =>
-      prisma.$transaction([
-        prisma.unidadeEquipamentos.findMany({
-          where: { unidadeId: input.hospitalId },
-          include: {
-            equipamento: true,
+  obterRelatorios: protectedProcedure.input(z.date()).query(({ input }) =>
+    prisma.unidadeRelatorio.findMany({
+      include: {
+        unidade: {
+          select: { UnidadeDS: true, UnidadeCOD: true },
+        },
+        UnidadeRelatorioEquipamentos: {
+          include: { equipamento: true },
+        },
+        UnidadeRelatorioEspecialidades: {
+          include: { especialidade: true },
+        },
+        criadoPor: {
+          select: {
+            operador: { select: { OperadorNM: true } },
           },
-        }),
-        prisma.unidadeEspecialidades.findMany({
-          where: { unidadeId: input.hospitalId },
-          include: {
-            especialidade: true,
+        },
+        editadoPor: {
+          select: {
+            operador: { select: { OperadorNM: true } },
           },
-        }),
-        prisma.unidadeRelatorio.findUnique({
-          where: { unidadeId: input.hospitalId },
-          include: {
-            criadoPor: {
-              select: {
-                operador: { select: { OperadorNM: true } },
-              },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        createdAt: {
+          gte: startOfDay(input),
+          lt: endOfDay(input),
+        },
+      },
+    }),
+  ),
+
+  obterRelatorio: protectedProcedure
+    .input(z.object({ relatorioId: z.number() }))
+    .mutation(({ input }) =>
+      prisma.unidadeRelatorio.findUnique({
+        where: { id: input.relatorioId },
+        include: {
+          UnidadeRelatorioEquipamentos: {
+            include: { equipamento: true },
+          },
+          UnidadeRelatorioEspecialidades: {
+            include: { especialidade: true },
+          },
+          criadoPor: {
+            select: {
+              operador: { select: { OperadorNM: true } },
             },
-            revisadoPor: {
-              select: {
-                operador: { select: { OperadorNM: true } },
-              },
+          },
+          editadoPor: {
+            select: {
+              operador: { select: { OperadorNM: true } },
             },
           },
-        }),
-      ]),
+        },
+      }),
     ),
 
-  criarOuAtualizarRelatorio: protectedProcedure
+  criarRelatorio: protectedProcedure
+    .input(FormSchemaGerenciadorHospital)
+    .mutation(({ input, ctx }) =>
+      prisma.unidadeRelatorio.create({
+        data: {
+          chefeEquipe: input.chefeEquipe,
+          contato: input.foneContato,
+          horaContato: input.horaContato,
+          nomeContato: input.pessoaContactada,
+          observacao: input.obervacao,
+          criadoPorId: Number(ctx.session.user.id),
+          editadoPorId: Number(ctx.session.user.id),
+          unidadeId: input.hospitalId,
+          turno: input.turno,
+          UnidadeRelatorioEquipamentos: {
+            createMany: {
+              data: input.equipamentos.map((eqp) => ({
+                equipamentoId: eqp.itemId,
+                quantidade: Number(eqp.itemCount),
+              })),
+            },
+          },
+          UnidadeRelatorioEspecialidades: {
+            createMany: {
+              data: input.especialidades.map((esp) => ({
+                especialidadeId: esp.itemId,
+                quantidade: Number(esp.itemCount),
+              })),
+            },
+          },
+        },
+      }),
+    ),
+
+  atualizarRelatorio: protectedProcedure
     .input(FormSchemaGerenciadorHospital)
     .mutation(({ input, ctx }) =>
       prisma.$transaction([
-        //CRIA O RELATORIO
-        prisma.unidadeRelatorio.upsert({
-          create: {
+        //ATUALIZANDO O RELATORIO
+        prisma.unidadeRelatorio.update({
+          data: {
             chefeEquipe: input.chefeEquipe,
             contato: input.foneContato,
             horaContato: input.horaContato,
             nomeContato: input.pessoaContactada,
             observacao: input.obervacao,
-            criadoPorId: Number(ctx.session.user.id),
-            revisadoPorId: Number(ctx.session.user.id),
-            unidadeId: input.hospitalId,
-          },
-          update: {
-            chefeEquipe: input.chefeEquipe,
-            contato: input.foneContato,
-            horaContato: input.horaContato,
-            nomeContato: input.pessoaContactada,
-            observacao: input.obervacao,
-            revisadoPorId: Number(ctx.session.user.id),
+            editadoPorId: Number(ctx.session.user.id),
+            turno: input.turno,
           },
           where: {
-            unidadeId: input.hospitalId,
+            id: input.relatorioId,
           },
         }),
 
-        //DELETA AS ESPECIALIDADES QUE ESTAO NO BANCO, MAS NAO NO FORM
-        prisma.unidadeEspecialidades.deleteMany({
-          where: {
-            unidadeId: input.hospitalId,
-            especialidadeId: {
-              notIn: input.especialidades.map((esp) => esp.itemId),
-            },
-          },
-        }),
-
-        //DELETA OS EQUIPAMENTOS QUE ESTAO NO BANCO, MAS NAO NO FORM
-        prisma.unidadeEquipamentos.deleteMany({
-          where: {
-            unidadeId: input.hospitalId,
-            equipamentoId: {
-              notIn: input.equipamentos.map((eqp) => eqp.itemId),
-            },
-          },
-        }),
-
-        // CRIA OU ATUALIZA AS ESPECIALIDADES, DEPENDENDO SE JA EXISTEM OU NAO
-        ...input.especialidades.map((esp) =>
-          prisma.unidadeEspecialidades.upsert({
+        //ATUALIZANDO CADA EQUIPAMENTO
+        ...input.equipamentos.map((eqp) =>
+          prisma.unidadeRelatorioEquipamentos.upsert({
             create: {
-              especialidadeId: esp.itemId,
-              quantidade: Number(esp.itemCount),
-              unidadeId: input.hospitalId,
+              equipamentoId: eqp.itemId,
+              quantidade: Number(eqp.itemCount),
+              relatorioId: input.relatorioId,
             },
             update: {
-              quantidade: Number(esp.itemCount),
+              quantidade: Number(eqp.itemCount),
             },
             where: {
-              unidadeId_especialidadeId: {
-                especialidadeId: esp.itemId,
-                unidadeId: input.hospitalId,
+              relatorioId_equipamentoId: {
+                equipamentoId: eqp.itemId,
+                relatorioId: input.relatorioId,
               },
             },
           }),
         ),
 
-        // CRIA OU ATUALIZA OS EQUIPAMENTOS, DEPENDENDO SE JA EXISTEM OU NAO
-        ...input.equipamentos.map((eqp) =>
-          prisma.unidadeEquipamentos.upsert({
+        //ATUALIZANDO CADA ESPECIALIDADE
+        ...input.especialidades.map((esp) =>
+          prisma.unidadeRelatorioEspecialidades.upsert({
             create: {
-              equipamentoId: eqp.itemId,
-              quantidade: Number(eqp.itemCount),
-              unidadeId: input.hospitalId,
+              especialidadeId: esp.itemId,
+              quantidade: Number(esp.itemCount),
+              relatorioId: input.relatorioId,
             },
             update: {
-              quantidade: Number(eqp.itemCount),
+              quantidade: Number(esp.itemCount),
             },
             where: {
-              unidadeId_equipamentoId: {
-                equipamentoId: eqp.itemId,
-                unidadeId: input.hospitalId,
+              relatorioId_especialidadeId: {
+                especialidadeId: esp.itemId,
+                relatorioId: input.relatorioId,
               },
             },
           }),

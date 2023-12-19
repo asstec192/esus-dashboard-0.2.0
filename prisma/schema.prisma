@@ -654,7 +654,7 @@ model UsuarioDashboard {
     createdAt                    DateTime           @default(now(), map: "DF__UsuarioDa__creat__28112A8D") @db.DateTime
     updatedAt                    DateTime           @default(now(), map: "DF__UsuarioDa__updat__29054EC6") @db.DateTime
     relatoriosDeUnidadeCriados   UnidadeRelatorio[] @relation("criador")
-    relatoriosDeUnidadeRevisados UnidadeRelatorio[] @relation("revisor")
+    relatoriosDeUnidadeRevisados UnidadeRelatorio[] @relation("editor")
 }
 
 model OperadoresLogados {
@@ -1666,9 +1666,7 @@ model UnidadesDestino {
     InativacaoDT              DateTime?                   @db.SmallDateTime
     VEICULO_ITEMRETIDO        VEICULO_ITEMRETIDO[]
     HISTORICO_DECISAO_GESTORA HISTORICO_DECISAO_GESTORA[]
-    especialidades            UnidadeEspecialidades[]
-    equipamentos              UnidadeEquipamentos[]
-    UnidadeRelatorio          UnidadeRelatorio?
+    Relatorios                UnidadeRelatorio[]
 }
 
 model VEICULO_ITEMRETIDO {
@@ -1758,49 +1756,53 @@ model Vitimas {
 }
 
 model Equipamentos {
-    id                   Int                   @id @default(autoincrement())
-    descricao            String
-    unidadesHospitalares UnidadeEquipamentos[]
+    id         Int                            @id @default(autoincrement())
+    descricao  String
+    relatorios UnidadeRelatorioEquipamentos[]
 }
 
 model Especialidades {
-    id                   Int                     @id @default(autoincrement())
-    descricao            String
-    unidadesHospitalares UnidadeEspecialidades[]
-}
-
-model UnidadeEspecialidades {
-    unidadeId       Int
-    especialidadeId Int
-    quantidade      Int
-    especialidade   Especialidades  @relation(fields: [especialidadeId], references: [id])
-    unidade         UnidadesDestino @relation(fields: [unidadeId], references: [UnidadeCOD])
-
-    @@id([unidadeId, especialidadeId])
-}
-
-model UnidadeEquipamentos {
-    unidadeId     Int
-    equipamentoId Int
-    quantidade    Int
-    equipamento   Equipamentos    @relation(fields: [equipamentoId], references: [id])
-    unidade       UnidadesDestino @relation(fields: [unidadeId], references: [UnidadeCOD])
-
-    @@id([unidadeId, equipamentoId])
+    id         Int                              @id @default(autoincrement())
+    descricao  String
+    relatorios UnidadeRelatorioEspecialidades[]
 }
 
 model UnidadeRelatorio {
-    unidadeId     Int              @id //no banco original é um nvarchar(8)
-    criadoPorId   Int
-    revisadoPorId Int
-    contato       String           @db.VarChar(14)
-    nomeContato   String           @db.NVarChar(50)
-    horaContato   String           @db.VarChar(5)
-    chefeEquipe   String           @db.NVarChar(50)
-    observacao    String?          @db.NVarChar(500)
-    createdAt     DateTime         @default(now())
-    updatedAt     DateTime         @updatedAt
-    unidade       UnidadesDestino  @relation(fields: [unidadeId], references: [UnidadeCOD])
-    criadoPor     UsuarioDashboard @relation("criador", fields: [criadoPorId], references: [id], onDelete: NoAction)
-    revisadoPor   UsuarioDashboard @relation("revisor", fields: [revisadoPorId], references: [id], onUpdate: NoAction)
+    id                             Int                              @id @default(autoincrement())
+    unidadeId                      Int //no banco original é um nvarchar(8)
+    criadoPorId                    Int
+    editadoPorId                   Int
+    turno                          String                           @db.VarChar(2)
+    contato                        String                           @db.VarChar(14)
+    nomeContato                    String                           @db.NVarChar(50)
+    horaContato                    String                           @db.VarChar(5)
+    chefeEquipe                    String                           @db.NVarChar(50)
+    observacao                     String?                          @db.NVarChar(500)
+    createdAt                      DateTime                         @default(now())
+    updatedAt                      DateTime                         @updatedAt
+    unidade                        UnidadesDestino                  @relation(fields: [unidadeId], references: [UnidadeCOD])
+    criadoPor                      UsuarioDashboard                 @relation("criador", fields: [criadoPorId], references: [id], onDelete: NoAction)
+    editadoPor                     UsuarioDashboard                 @relation("editor", fields: [editadoPorId], references: [id], onUpdate: NoAction)
+    UnidadeRelatorioEspecialidades UnidadeRelatorioEspecialidades[]
+    UnidadeRelatorioEquipamentos   UnidadeRelatorioEquipamentos[]
+}
+
+model UnidadeRelatorioEspecialidades {
+    relatorioId     Int
+    especialidadeId Int
+    quantidade      Int
+    especialidade   Especialidades   @relation(fields: [especialidadeId], references: [id])
+    relatorio       UnidadeRelatorio @relation(fields: [relatorioId], references: [id])
+
+    @@id([relatorioId, especialidadeId])
+}
+
+model UnidadeRelatorioEquipamentos {
+    relatorioId   Int
+    equipamentoId Int
+    quantidade    Int
+    equipamento   Equipamentos     @relation(fields: [equipamentoId], references: [id])
+    relatorio     UnidadeRelatorio @relation(fields: [relatorioId], references: [id])
+
+    @@id([relatorioId, equipamentoId])
 }
