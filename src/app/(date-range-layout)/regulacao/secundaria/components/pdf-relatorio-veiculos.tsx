@@ -130,7 +130,7 @@ export const PDFRelatorioVeiculo = ({
           </View>
           <View style={styles.body}>
             {data.map((veiculo) => (
-              <View wrap={false}>
+              <View wrap={false} >
                 <Text style={styles.decoratedText}>{veiculo.nome}</Text>
                 <View style={styles.row}>
                   <View style={{ ...styles.col, flex: 4, padding: 4 }}>
