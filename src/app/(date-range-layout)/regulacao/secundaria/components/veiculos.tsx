@@ -21,17 +21,19 @@ import { useOcorrenciaStore } from "@/hooks/useOcorrenciaStore";
 
 export function RegulacaoSecundariaVeiculos({
   data,
+  isLoading
 }: {
   data: RouterOutputs["vehicles"]["getReport"];
+  isLoading?: boolean
 }) {
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
   ) as DateRange;
   const turn = useTurnStore((state) => state.turn);
   const setOcorrencias = useOcorrenciaStore((state) => state.setOcorrencias);
-  const { mutate, isLoading } = useMutationOcorrenciasDoVeiculo();
+  const { mutate, isLoading: isLoadingOcorrencias } = useMutationOcorrenciasDoVeiculo();
   return (
-    <Card>
+    <Card className="overflow-hidden">
       <ScrollArea className="h-[calc(100vh-9rem)]">
         <Table>
           <TableHeader className="sticky top-0 bg-slate-100">
@@ -73,13 +75,21 @@ export function RegulacaoSecundariaVeiculos({
                 <TableCell>{vehicle.pacientes.length}</TableCell>
               </TableRow>
             ))}
-            {data.length === 0 && (
+            {data.length === 0 && !isLoading && (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center">
                   Nenhum resultado.
                 </TableCell>
               </TableRow>
             )}
+            {isLoading &&  <TableRow>
+                <TableCell colSpan={7} className="h-24 text-center">
+                <Loader2
+          size={30}
+          className="animate-spin text-primary mx-auto"
+        />
+                </TableCell>
+              </TableRow>}
           </TableBody>
           <TableFooter className="sticky bottom-0 bg-primary text-primary-foreground">
             <TableRow className="text-end font-bold hover:bg-inherit">
@@ -116,7 +126,7 @@ export function RegulacaoSecundariaVeiculos({
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
 
-      {isLoading && (
+      {isLoadingOcorrencias && (
         <Loader2
           size={30}
           className="fixed left-1/2 top-1/2 animate-spin text-primary"

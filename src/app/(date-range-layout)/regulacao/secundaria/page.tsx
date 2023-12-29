@@ -17,7 +17,6 @@ import {
 import { PDFLink } from "@/components/PDF/link";
 import { useState } from "react";
 import { useTurnStore } from "./stores";
-import { date } from "zod";
 
 export default function RegulacaoSecundaria() {
   const [currentTab, setCurrentTab] = useState("veiculos");
@@ -26,18 +25,18 @@ export default function RegulacaoSecundaria() {
     (state) => state.dateRange,
   ) as DateRange;
 
-  const { data: temposVeiculos } = api.vehicles.getReport.useQuery({
+  const veiculosQuery = api.vehicles.getReport.useQuery({
     dateRange,
     turn,
   });
 
-  const { data: temposUnidadeDestino } =
+  const unidadeDestinoQuery =
     api.destinations.getResponseTimes.useQuery({
       dateRange,
       turn,
     });
 
-  const { data: intercorrencias } = api.intercorrencia.countIncidents.useQuery({
+  const intercorrenciasQuery = api.intercorrencia.countIncidents.useQuery({
     dateRange,
     turn,
   });
@@ -61,11 +60,11 @@ export default function RegulacaoSecundaria() {
             </TabsTrigger>
           </TabsList>
           <RegulacaoSecundariaSelectTurno />
-          {currentTab === "veiculos" && temposVeiculos && (
+          {currentTab === "veiculos" && veiculosQuery.data && (
             <PDFLink
               document={
                 <PDFRelatorioVeiculo
-                  data={temposVeiculos}
+                  data={veiculosQuery.data}
                   dateRange={dateRange}
                   turn={turn}
                 />
@@ -75,17 +74,18 @@ export default function RegulacaoSecundaria() {
         </div>
 
         <TabsContent value="veiculos">
-          <RegulacaoSecundariaVeiculos data={temposVeiculos || []} />
+          <RegulacaoSecundariaVeiculos data={veiculosQuery.data || []} isLoading={veiculosQuery.isLoading}/>
         </TabsContent>
 
         <TabsContent value="destinos">
           <RegulacaoSecundariaUnidadesDestino
-            data={temposUnidadeDestino || []}
+            data={unidadeDestinoQuery.data || []}
+            isLoading={unidadeDestinoQuery.isLoading}
           />
         </TabsContent>
 
         <TabsContent value="intercorrencias">
-          <RegulacaoSecundariaIntercorrencias data={intercorrencias || []} />
+          <RegulacaoSecundariaIntercorrencias data={intercorrenciasQuery.data || []} isLoading={intercorrenciasQuery.isLoading} />
         </TabsContent>
       </Tabs>
       <RegulacaoSecundariaOcorrencias />

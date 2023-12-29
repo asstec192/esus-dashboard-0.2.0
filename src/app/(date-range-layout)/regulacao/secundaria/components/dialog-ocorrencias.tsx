@@ -18,12 +18,20 @@ import { isWithinHour } from "@/utils/isWithinTurn";
 import { formatProperName } from "@/utils/formatProperName";
 import { getColorByRisk } from "@/utils/getColorByRisk";
 import { useOcorrenciaStore } from "@/hooks/useOcorrenciaStore";
+import { Loader2 } from "lucide-react";
 
 export const RegulacaoSecundariaOcorrencias = () => {
   const turn = useTurnStore((state) => state.turn);
   const ocorrencias = useOcorrenciaStore((state) => state.ocorrencias);
   const setOcorrencias = useOcorrenciaStore((state) => state.setOcorrencias);
-  const { mutate } = useMutationGetOcorrencia();
+  const { mutate , isLoading} = useMutationGetOcorrencia();
+
+  if (isLoading) return       (
+    <Loader2
+      size={30}
+      className="fixed left-1/2 top-1/2 animate-spin text-primary"
+    />
+  )
 
   return (
     <Dialog open={!!ocorrencias} onOpenChange={() => setOcorrencias(undefined)}>

@@ -130,7 +130,7 @@ export const PDFRelatorioVeiculo = ({
           </View>
           <View style={styles.body}>
             {data.map((veiculo) => (
-              <View wrap={false}>
+              <View key={veiculo.id}>
                 <Text style={styles.decoratedText}>{veiculo.nome}</Text>
                 <View style={styles.row}>
                   <View style={{ ...styles.col, flex: 4, padding: 4 }}>
@@ -143,8 +143,8 @@ export const PDFRelatorioVeiculo = ({
                       </Text>
                     </View>
 
-                    {veiculo.pacientes.map((paciente) => (
-                      <View style={styles.row}>
+                    {veiculo.pacientes.map((paciente, i) => (
+                      <View style={styles.row} key={paciente.nome + i}>
                         <Text style={styles.text}>
                           #{paciente.ocorrenciaId.toString().slice(2)}
                         </Text>
