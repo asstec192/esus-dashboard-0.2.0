@@ -60,7 +60,7 @@ export default function RegulacaoSecundaria() {
             </TabsTrigger>
           </TabsList>
           <RegulacaoSecundariaSelectTurno />
-          {currentTab === "veiculos" && veiculosQuery.data && (
+{/*           {currentTab === "veiculos" && veiculosQuery.data && (
             <PDFLink
               document={
                 <PDFRelatorioVeiculo
@@ -70,7 +70,7 @@ export default function RegulacaoSecundaria() {
                 />
               }
             />
-          )}
+          )} */}
         </div>
 
         <TabsContent value="veiculos">

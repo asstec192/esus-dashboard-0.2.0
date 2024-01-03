@@ -15,8 +15,6 @@ import { DataTablePagination } from "@/components/table/DataTablePagination";
 import { GerenciamentoRedeDialogRelatorio } from "./dialog.tsx";
 import { DatePicker } from "@/components/date-pickers/date-picker";
 import { GerenciamentoRedePDFRelatorios } from "./pdf";
-import { BlobProvider } from "@react-pdf/renderer";
-import Link from "next/link";
 import { PDFLink } from "@/components/PDF/link";
 
 export function GerenciamentoRedeRelatorios() {
@@ -85,7 +83,7 @@ export function GerenciamentoRedeRelatorios() {
           className="h-8"
           onSelect={(value) => value && setDate(value)}
         />
-        {hospitais && hospitais?.length > 0 && (
+{/*         {hospitais && hospitais?.length > 0 && (
           <PDFLink
             className="h-8"
             document={
@@ -95,7 +93,7 @@ export function GerenciamentoRedeRelatorios() {
               />
             }
           />
-        )}
+        )} */}
         <Button className="ml-auto h-8 w-16" onClick={() => setModalOpen(true)}>
           <Plus />
         </Button>
