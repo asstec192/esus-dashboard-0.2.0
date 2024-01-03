@@ -41,6 +41,16 @@ export const RegulacaoSecundariaOcorrencias = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={4}>
+                    <Loader2
+                      size={30}
+                      className="text-primary mx-auto animate-spin"
+                    />
+                  </TableCell>
+                </TableRow>
+              ) : null}
               {ocorrencias
                 ?.filter((incident) =>
                   isWithinHour(
@@ -74,16 +84,6 @@ export const RegulacaoSecundariaOcorrencias = () => {
                     </TableCell>
                   </TableRow>
                 ))}
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={4}>
-                    <Loader2
-                      size={30}
-                      className="text-primary mx-auto animate-spin"
-                    />
-                  </TableCell>
-                </TableRow>
-              ) : null}
             </TableBody>
           </Table>
         </ScrollArea>

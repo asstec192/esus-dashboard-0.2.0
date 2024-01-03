@@ -22,7 +22,7 @@ export const SideBar = () => {
           </div>
           {navComponents.map((component) => (
             <Navlink
-            key={component.href}
+              key={component.href}
               href={component.href}
               active={pathname === component.href}
               className="justify-start"
