@@ -20,7 +20,7 @@ import { getColorByRisk } from "@/utils/getColorByRisk";
 import { useOcorrenciaStore } from "@/hooks/useOcorrenciaStore";
 import { Loader2 } from "lucide-react";
 
-export const RegulacaoSecundariaOcorrencias = () => {
+export default function RegulacaoSecundariaOcorrencias() {
   const turn = useTurnStore((state) => state.turn);
   const ocorrencias = useOcorrenciaStore((state) => state.ocorrencias);
   const setOcorrencias = useOcorrenciaStore((state) => state.setOcorrencias);
@@ -90,4 +90,4 @@ export const RegulacaoSecundariaOcorrencias = () => {
       </DialogContent>
     </Dialog>
   );
-};
+}
