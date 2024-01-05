@@ -25,7 +25,9 @@ export const hospitalManagerRouter = createTRPCRouter({
     .input(z.object({ descricao: z.string().min(1) }))
     .mutation(({ input }) =>
       db.equipamentos.create({
-        data: input,
+        data: {
+          descricao: input.descricao,
+        },
       }),
     ),
 
@@ -189,6 +191,7 @@ export const hospitalManagerRouter = createTRPCRouter({
           editadoPorId: Number(ctx.session.user.id),
           unidadeId: input.hospitalId,
           turno: input.turno,
+          createdAt: input.createdAt,
           UnidadeRelatorioEquipamentos: {
             createMany: {
               data: input.equipamentos.map((eqp) => ({
