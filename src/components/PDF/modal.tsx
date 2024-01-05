@@ -1,3 +1,5 @@
+"use client";
+
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { BsFiletypePdf } from "react-icons/bs";

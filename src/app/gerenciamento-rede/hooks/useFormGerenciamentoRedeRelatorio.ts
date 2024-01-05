@@ -8,6 +8,8 @@ import { RouterOutputs } from "@/trpc/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useGerenciamentoRedeRelatorioStore } from "../stores";
+import { useEffect } from "react";
 
 export const useRelatorioUnidadeForm = (
   initialData: RouterOutputs["hospitalManager"]["obterRelatorio"],
@@ -27,6 +29,10 @@ export const useRelatorioUnidadeForm = (
       itemDescription: esp.especialidade.descricao,
     }));
 
+  const date = useGerenciamentoRedeRelatorioStore((state) => state.date);
+
+  useEffect(() => console.log(date), [date]);
+
   //OBTENDO O FORM DO HOOK
   const form = useForm<z.infer<typeof formSchemaRelatorioHospital>>({
     resolver: zodResolver(formSchemaRelatorioHospital),
@@ -41,6 +47,7 @@ export const useRelatorioUnidadeForm = (
       turno: initialData?.turno || "",
       equipamentos: equipamentosIniciais || [],
       especialidades: especialidadesIniciais || [],
+      createdAt: initialData?.createdAt || date,
     },
     defaultValues: {
       relatorioId: 0,
@@ -53,6 +60,7 @@ export const useRelatorioUnidadeForm = (
       chefeEquipe: "",
       obervacao: "",
       turno: "",
+      createdAt: date,
     },
   });
 

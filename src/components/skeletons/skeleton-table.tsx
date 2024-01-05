@@ -1,28 +1,32 @@
-import { HTMLAttributes } from "react";
-import { Skeleton } from "../ui/skeleton";
-import { cn } from "@/lib/utils";
-import { Card } from "../ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TableCell, TableRow } from "@/components/ui/table";
 
-export const SkeletonTable = ({
-  className,
-  ...props
-}: HTMLAttributes<HTMLDivElement>) => {
-  return (
-    <Card
-      className={cn("flex flex-col justify-stretch divide-y-2", className)}
-      {...props}
-    >
-      {Array.from(Array(8)).map((_, index) => (
-        <div
-          key={index}
-          className="flex h-full flex-grow items-center gap-4 p-2"
-        >
-          <Skeleton className="h-4 flex-grow" />
-          <Skeleton className="h-4 flex-grow" />
-          <Skeleton className="h-4 flex-grow" />
-          <Skeleton className="h-4 flex-grow" />
-        </div>
+/**
+ *
+ * @example
+ * <Table>
+ *  <TableBody>
+ *    { isLoding 
+ *      ? <SkeletonTable numberOfRows={10} numberOfCols={5}/> 
+ *      : <TableRow/>
+ *    }
+ *  </TableBody>
+ * </Table>
+ */
+export function SkeletonTable({
+  numberOfRows,
+  numberOfCols,
+}: {
+  numberOfRows: number;
+  numberOfCols: number;
+}) {
+  return Array.from(Array(numberOfRows)).map((_, i) => (
+    <TableRow key={i}>
+      {Array.from(Array(numberOfCols)).map((_, j) => (
+        <TableCell key={j}>
+          <Skeleton className="h-5 w-full" />
+        </TableCell>
       ))}
-    </Card>
-  );
-};
+    </TableRow>
+  ));
+}

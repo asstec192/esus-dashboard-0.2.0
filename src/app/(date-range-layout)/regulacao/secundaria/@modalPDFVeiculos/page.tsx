@@ -1,6 +1,7 @@
-import { format } from "date-fns";
+"use client";
+
+import { differenceInDays, format } from "date-fns";
 import { ReactNode } from "react";
-import { RouterOutputs } from "@/trpc/shared";
 import { formatProperName } from "@/utils/formatProperName";
 import logo from "public/images/logo-samu.png";
 import {
@@ -12,8 +13,13 @@ import {
   Font,
   Image,
 } from "@react-pdf/renderer";
-import { Turno } from "@/constants/turnos";
-import { DateRange } from "@/hooks/useGlobalDateFilterStore";
+import {
+  DateRange,
+  useGlogalDateFilterStore,
+} from "@/hooks/useGlobalDateFilterStore";
+import { useTurnStore } from "../stores";
+import { api } from "@/trpc/react";
+import { PDFModal } from "@/components/PDF/modal";
 
 // Register font
 Font.register({
@@ -97,16 +103,17 @@ const Field = ({
   );
 };
 
-export const PDFRelatorioVeiculo = ({
-  data,
-  turn,
-  dateRange
-}: {
-  data: RouterOutputs["vehicles"]["getReport"];
-  turn: Turno,
-  dateRange: DateRange
-}) => {
+export default function PDFRelatorioVeiculo() {
+  const turn = useTurnStore((state) => state.turn);
+  const dateRange = useGlogalDateFilterStore(
+    (state) => state.dateRange,
+  ) as DateRange;
+  const { data } = api.vehicles.getReport.useQuery({ dateRange, turn });
+
+  if (!data || differenceInDays(dateRange.to, dateRange.from) > 1) return null;
+
   return (
+    <PDFModal>
       <Document>
         <Page size="A4" style={styles.page}>
           <View style={styles.header}>
@@ -184,5 +191,6 @@ export const PDFRelatorioVeiculo = ({
           </View>
         </Page>
       </Document>
+    </PDFModal>
   );
-};
+}

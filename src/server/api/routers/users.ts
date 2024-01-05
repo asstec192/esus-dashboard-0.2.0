@@ -31,8 +31,6 @@ export const usersRouter = createTRPCRouter({
         },
       });
 
-      console.log(dashBoardUser, esusUser.OperadorID);
-
       if (!!dashBoardUser) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",

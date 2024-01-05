@@ -5,7 +5,7 @@ import { useOcorrenciaStore } from "./useOcorrenciaStore";
 export const useMutationGetOcorrencia = () => {
   const setOcorrencia = useOcorrenciaStore((state) => state.setOcorrencia);
   const mutation = api.incidents.getOne.useMutation({
-    onSuccess: (ocorrencia) => setOcorrencia(ocorrencia),
+    onSuccess:  setOcorrencia,
     onError: (error) =>
       toast({
         description: error.message,

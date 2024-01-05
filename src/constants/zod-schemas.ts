@@ -37,6 +37,7 @@ export const formSchemaRelatorioHospital = z.object({
   chefeEquipe: z.string().min(1),
   obervacao: z.string().optional(),
   turno: z.string().min(1),
+  createdAt: z.date()
 });
 export type SchemaRelatorioHospital = z.infer<
   typeof formSchemaRelatorioHospital

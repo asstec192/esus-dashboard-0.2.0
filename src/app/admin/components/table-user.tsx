@@ -1,6 +1,5 @@
 "use client";
 
-import { SkeletonTable } from "@/components/skeletons/skeleton-table";
 import { DataTable } from "@/components/table/DataTable";
 import { DataTablePagination } from "@/components/table/DataTablePagination";
 import { DataTableProvider } from "@/components/table/DataTableProvider";
@@ -28,7 +27,7 @@ export const AdminUserTable = () => {
     },
   });
 
-  if (isLoading || isError) return <SkeletonTable className="h-[600px]" />;
+  if (isLoading || isError) return null;
 
   return (
     <DataTableProvider columns={columns} data={users}>
