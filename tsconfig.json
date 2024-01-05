@@ -36,10 +36,7 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.js",
-    ".next/types/**/*.ts",
-    "next.config.mjs",
-    "prettier.config.mjs",
-    "src/env.mjs"
+    ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

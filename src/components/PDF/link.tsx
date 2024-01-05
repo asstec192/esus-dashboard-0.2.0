@@ -1,5 +1,5 @@
 import { BsFiletypePdf } from "react-icons/bs";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { BlobProvider } from "@react-pdf/renderer";
 import Link from "next/link";
 import { ReactNode } from "react";

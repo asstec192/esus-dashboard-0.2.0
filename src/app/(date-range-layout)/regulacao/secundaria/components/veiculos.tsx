@@ -21,17 +21,18 @@ import { useOcorrenciaStore } from "@/hooks/useOcorrenciaStore";
 
 export function RegulacaoSecundariaVeiculos({
   data,
-  isLoading
+  isLoading,
 }: {
   data: RouterOutputs["vehicles"]["getReport"];
-  isLoading?: boolean
+  isLoading?: boolean;
 }) {
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
   ) as DateRange;
   const turn = useTurnStore((state) => state.turn);
   const setOcorrencias = useOcorrenciaStore((state) => state.setOcorrencias);
-  const { mutate, isLoading: isLoadingOcorrencias } = useMutationOcorrenciasDoVeiculo();
+  const { mutate, isLoading: isLoadingOcorrencias } =
+    useMutationOcorrenciasDoVeiculo();
   return (
     <Card className="overflow-hidden">
       <ScrollArea className="h-[calc(100vh-9rem)]">
@@ -82,16 +83,18 @@ export function RegulacaoSecundariaVeiculos({
                 </TableCell>
               </TableRow>
             )}
-            {isLoading &&  <TableRow>
+            {isLoading && (
+              <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center">
-                <Loader2
-          size={30}
-          className="animate-spin text-primary mx-auto"
-        />
+                  <Loader2
+                    size={30}
+                    className="text-primary mx-auto animate-spin"
+                  />
                 </TableCell>
-              </TableRow>}
+              </TableRow>
+            )}
           </TableBody>
-          <TableFooter className="sticky bottom-0 bg-primary text-primary-foreground">
+          <TableFooter className="bg-primary text-primary-foreground sticky bottom-0">
             <TableRow className="text-end font-bold hover:bg-inherit">
               <TableCell className="text-start">Média</TableCell>
               <TableCell>
@@ -129,7 +132,7 @@ export function RegulacaoSecundariaVeiculos({
       {isLoadingOcorrencias && (
         <Loader2
           size={30}
-          className="fixed left-1/2 top-1/2 animate-spin text-primary"
+          className="text-primary fixed left-1/2 top-1/2 animate-spin"
         />
       )}
     </Card>

@@ -24,14 +24,7 @@ export const RegulacaoSecundariaOcorrencias = () => {
   const turn = useTurnStore((state) => state.turn);
   const ocorrencias = useOcorrenciaStore((state) => state.ocorrencias);
   const setOcorrencias = useOcorrenciaStore((state) => state.setOcorrencias);
-  const { mutate , isLoading} = useMutationGetOcorrencia();
-
-  if (isLoading) return       (
-    <Loader2
-      size={30}
-      className="fixed left-1/2 top-1/2 animate-spin text-primary"
-    />
-  )
+  const { mutate, isLoading } = useMutationGetOcorrencia();
 
   return (
     <Dialog open={!!ocorrencias} onOpenChange={() => setOcorrencias(undefined)}>
@@ -48,6 +41,16 @@ export const RegulacaoSecundariaOcorrencias = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={4}>
+                    <Loader2
+                      size={30}
+                      className="text-primary mx-auto animate-spin"
+                    />
+                  </TableCell>
+                </TableRow>
+              ) : null}
               {ocorrencias
                 ?.filter((incident) =>
                   isWithinHour(

@@ -17,6 +17,8 @@ import {
 import { PDFLink } from "@/components/PDF/link";
 import { useState } from "react";
 import { useTurnStore } from "./stores";
+import { PDFModal } from "@/components/PDF/modal";
+import { differenceInDays } from "date-fns";
 
 export default function RegulacaoSecundaria() {
   const [currentTab, setCurrentTab] = useState("veiculos");
@@ -30,11 +32,10 @@ export default function RegulacaoSecundaria() {
     turn,
   });
 
-  const unidadeDestinoQuery =
-    api.destinations.getResponseTimes.useQuery({
-      dateRange,
-      turn,
-    });
+  const unidadeDestinoQuery = api.destinations.getResponseTimes.useQuery({
+    dateRange,
+    turn,
+  });
 
   const intercorrenciasQuery = api.intercorrencia.countIncidents.useQuery({
     dateRange,
@@ -42,7 +43,7 @@ export default function RegulacaoSecundaria() {
   });
 
   return (
-    <div className="flex min-h-nav-offset flex-col px-1 py-4 sm:px-4">
+    <div className="min-h-nav-offset flex flex-col px-1 py-4 sm:px-4">
       <Tabs defaultValue="veiculos" onValueChange={setCurrentTab}>
         <div className="flex flex-wrap gap-2">
           <TabsList className="w-full sm:w-auto">
@@ -60,21 +61,24 @@ export default function RegulacaoSecundaria() {
             </TabsTrigger>
           </TabsList>
           <RegulacaoSecundariaSelectTurno />
-{/*           {currentTab === "veiculos" && veiculosQuery.data && (
-            <PDFLink
-              document={
+          {currentTab === "veiculos" &&
+            veiculosQuery.data &&
+            differenceInDays(dateRange.to, dateRange.from) <= 1 && (
+              <PDFModal>
                 <PDFRelatorioVeiculo
                   data={veiculosQuery.data}
                   dateRange={dateRange}
                   turn={turn}
                 />
-              }
-            />
-          )} */}
+              </PDFModal>
+            )}
         </div>
 
         <TabsContent value="veiculos">
-          <RegulacaoSecundariaVeiculos data={veiculosQuery.data || []} isLoading={veiculosQuery.isLoading}/>
+          <RegulacaoSecundariaVeiculos
+            data={veiculosQuery.data || []}
+            isLoading={veiculosQuery.isLoading}
+          />
         </TabsContent>
 
         <TabsContent value="destinos">
@@ -85,7 +89,10 @@ export default function RegulacaoSecundaria() {
         </TabsContent>
 
         <TabsContent value="intercorrencias">
-          <RegulacaoSecundariaIntercorrencias data={intercorrenciasQuery.data || []} isLoading={intercorrenciasQuery.isLoading} />
+          <RegulacaoSecundariaIntercorrencias
+            data={intercorrenciasQuery.data || []}
+            isLoading={intercorrenciasQuery.isLoading}
+          />
         </TabsContent>
       </Tabs>
       <RegulacaoSecundariaOcorrencias />

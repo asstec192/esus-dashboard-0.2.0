@@ -2,18 +2,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Columns } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { UserRole } from "@/types/UserRole";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from "../ui/navigation-menu";
 import { navComponents } from ".";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { DropdownUserMenu } from "./user-menu-dropdown";
 import { Navlink } from "./nav-link";
 import { DashboardLogo } from "./dahsboard-logo";
 
@@ -32,7 +22,7 @@ export const SideBar = () => {
           </div>
           {navComponents.map((component) => (
             <Navlink
-            key={component.href}
+              key={component.href}
               href={component.href}
               active={pathname === component.href}
               className="justify-start"

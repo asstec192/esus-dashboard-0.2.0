@@ -2,12 +2,11 @@
 const config = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    //project: true,
-    project: './tsconfig.json',
+    project: true,
   },
-  plugins: ["@typescript-eslint", "@ts-safeql/eslint-plugin"],
+  plugins: ["@typescript-eslint"],
   extends: [
-    "plugin:@next/next/recommended",
+    "next/core-web-vitals",
     "plugin:@typescript-eslint/recommended-type-checked",
     "plugin:@typescript-eslint/stylistic-type-checked",
   ],
@@ -30,22 +29,6 @@ const config = {
       "error",
       {
         checksVoidReturn: { attributes: false },
-      },
-    ],
-    '@ts-safeql/check-sql': [
-      'error',
-      {
-        connections: [
-          {
-            connectionUrl: process.env.DATABASE_URL,
-            // The migrations path:
-            //migrationsDir: './prisma/migrations',
-            targets: [
-              // This makes `prisma.$queryRaw` and `prisma.$executeRaw` commands linted
-              { tag: 'db.+($queryRaw|$executeRaw)', transform: '{type}[]' },
-            ],
-          },
-        ],
       },
     ],
   },

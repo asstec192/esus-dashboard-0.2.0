@@ -7,7 +7,7 @@ export default async function Home() {
   const session = await getServerAuthSession();
 
   return (
-    <div className="flex min-h-nav-offset flex-col justify-center">
+    <div className="min-h-nav-offset flex flex-col justify-center">
       <div className="container flex items-center justify-center gap-4 px-4 py-16 ">
         <div className="flex flex-col items-center justify-center gap-4">
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
