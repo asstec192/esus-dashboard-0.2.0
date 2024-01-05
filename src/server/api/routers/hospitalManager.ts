@@ -179,8 +179,17 @@ export const hospitalManagerRouter = createTRPCRouter({
 
   criarRelatorio: protectedProcedure
     .input(formSchemaRelatorioHospital)
-    .mutation(({ input, ctx }) =>
-      db.unidadeRelatorio.create({
+    .mutation(async ({ input, ctx }) => {
+      const dataAtual = new Date();
+      const dataDesejada = input.createdAt.setHours(
+        dataAtual.getHours(),
+        dataAtual.getMinutes(),
+        dataAtual.getSeconds(),
+        dataAtual.getMilliseconds(),
+      );
+      const createdAt = new Date(dataDesejada);
+
+      return db.unidadeRelatorio.create({
         data: {
           chefeEquipe: input.chefeEquipe,
           contato: input.foneContato,
@@ -191,7 +200,7 @@ export const hospitalManagerRouter = createTRPCRouter({
           editadoPorId: Number(ctx.session.user.id),
           unidadeId: input.hospitalId,
           turno: input.turno,
-          createdAt: input.createdAt,
+          createdAt,
           UnidadeRelatorioEquipamentos: {
             createMany: {
               data: input.equipamentos.map((eqp) => ({
@@ -209,8 +218,8 @@ export const hospitalManagerRouter = createTRPCRouter({
             },
           },
         },
-      }),
-    ),
+      });
+    }),
 
   atualizarRelatorio: protectedProcedure
     .input(formSchemaRelatorioHospital)

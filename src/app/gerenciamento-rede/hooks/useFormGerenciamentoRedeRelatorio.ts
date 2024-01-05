@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useGerenciamentoRedeRelatorioStore } from "../stores";
+import { useEffect } from "react";
 
 export const useRelatorioUnidadeForm = (
   initialData: RouterOutputs["hospitalManager"]["obterRelatorio"],
@@ -29,6 +30,8 @@ export const useRelatorioUnidadeForm = (
     }));
 
   const date = useGerenciamentoRedeRelatorioStore((state) => state.date);
+
+  useEffect(() => console.log(date), [date]);
 
   //OBTENDO O FORM DO HOOK
   const form = useForm<z.infer<typeof formSchemaRelatorioHospital>>({
