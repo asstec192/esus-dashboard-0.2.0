@@ -31,8 +31,6 @@ export const useRelatorioUnidadeForm = (
 
   const date = useGerenciamentoRedeRelatorioStore((state) => state.date);
 
-  useEffect(() => console.log(date), [date]);
-
   //OBTENDO O FORM DO HOOK
   const form = useForm<z.infer<typeof formSchemaRelatorioHospital>>({
     resolver: zodResolver(formSchemaRelatorioHospital),
@@ -71,6 +69,7 @@ export const useRelatorioUnidadeForm = (
     onSuccess: () => {
       toast({ description: "Relatório salvo com sucesso" });
       utils.hospitalManager.obterRelatorios.invalidate();
+      form.reset();
     },
     onError: (error) =>
       toast({ description: error.message, variant: "destructive" }),
