@@ -1,24 +1,25 @@
-import { Button } from "@/components/ui/button";
-import { FormField } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { TransferList } from "@/components/ui/transfer-list";
-import { TransferlistProvider } from "@/components/ui/transfer-list-provider";
-import { formSchemaRelatorioHospital } from "@/constants/zod-schemas";
 import { api } from "@/trpc/react";
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-import { atualizarCampoDeEspecialidadesOuEquipamentos } from "../../helpers";
-import { Label } from "@/components/ui/label";
 
-type SelectEspecialidadesProps = {
+import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { TransferList } from "@/components/ui/transfer-list";
+import { TransferlistProvider } from "@/components/ui/transfer-list-provider";
+import { formSchemaRelatorioHospital } from "@/constants/zod-schemas";
+import { atualizarCampoDeEspecialidadesOuEquipamentos } from "@/app/gerenciamento-rede/@modalRelatorio/relatorio/helpers";
+
+type SelectEquipamentosProps = {
   form: UseFormReturn<z.infer<typeof formSchemaRelatorioHospital>>;
 };
 
-export const GerenciamentoRedeTransferEspecialidades = ({
+export const GerenciamentoRedeTransferEquipamentos = ({
   form,
-}: SelectEspecialidadesProps) => {
-  const { data: sourceList } = api.hospitalManager.getEspecialidades.useQuery();
+}: SelectEquipamentosProps) => {
+  const { data: sourceList } = api.hospitalManager.getEquipamentos.useQuery();
 
   return (
     <TransferlistProvider
@@ -28,14 +29,14 @@ export const GerenciamentoRedeTransferEspecialidades = ({
           value: opt.id.toString(),
         })) || []
       }
-      destinationList={form.watch("especialidades").map((esp) => ({
-        label: esp.itemDescription,
-        value: esp.itemId.toString(),
+      destinationList={form.watch("equipamentos").map((eqp) => ({
+        label: eqp.itemDescription,
+        value: eqp.itemId.toString(),
       }))}
     >
       <div className="flex flex-1 gap-2">
         <div className="flex flex-1 flex-col space-y-2">
-          <Label>Adicionar Especialidades</Label>
+          <Label>Adicionar Equipamentos</Label>
           <TransferList
             withSearch
             isSourceList
@@ -45,10 +46,10 @@ export const GerenciamentoRedeTransferEspecialidades = ({
                 variant="outline"
                 onClick={() => {
                   atualizarCampoDeEspecialidadesOuEquipamentos({
-                    option,
-                    form,
                     action: "add",
-                    field: "especialidades",
+                    field: "equipamentos",
+                    form,
+                    option,
                   });
                   onTransfer();
                 }}
@@ -61,10 +62,10 @@ export const GerenciamentoRedeTransferEspecialidades = ({
           />
         </div>
         <div className="flex flex-1 flex-col space-y-2">
-          <Label>Especialidades</Label>
+          <Label>Equipamentos</Label>
           <FormField
             control={form.control}
-            name="especialidades"
+            name="equipamentos"
             render={({ field }) => (
               <TransferList
                 render={({ option, onTransfer }) => (
@@ -75,10 +76,10 @@ export const GerenciamentoRedeTransferEspecialidades = ({
                       className="flex-[4]"
                       onClick={() => {
                         atualizarCampoDeEspecialidadesOuEquipamentos({
-                          option,
-                          form,
                           action: "remove",
-                          field: "especialidades",
+                          field: "equipamentos",
+                          form,
+                          option,
                         });
                         onTransfer();
                       }}
@@ -95,14 +96,14 @@ export const GerenciamentoRedeTransferEspecialidades = ({
                       min={1}
                       value={
                         field.value.find(
-                          (especialidade) =>
-                            especialidade.itemId.toString() === option.value,
+                          (equipamento) =>
+                            equipamento.itemId.toString() === option.value,
                         )?.itemCount
                       }
                       onChange={(e) =>
                         atualizarCampoDeEspecialidadesOuEquipamentos({
                           action: "countChange",
-                          field: "especialidades",
+                          field: "equipamentos",
                           form,
                           option,
                           newCount: e.target.value,

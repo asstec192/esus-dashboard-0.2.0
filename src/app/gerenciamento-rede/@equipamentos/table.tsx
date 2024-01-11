@@ -1,20 +1,26 @@
+"use client";
+
 import { DataTableProvider } from "@/components/table/DataTableProvider";
 import { DataTableSearch } from "@/components/table/DataTableSearch";
-import { RouterOutputs } from "@/trpc/shared";
-import { GerenciamentoRedeAddEquipamento } from "./add-equipamento";
-import { Card } from "@/components/ui/card";
+import { DataTableColumnHeader } from "@/components/table/DataTableColumnHeader";
 import { DataTable } from "@/components/table/DataTable";
 import { DataTablePagination } from "@/components/table/DataTablePagination";
+import { RouterOutputs } from "@/trpc/shared";
+import { GerenciamentoRedeAddEquipamento } from "./new";
+import { Card } from "@/components/ui/card";
 import { ColumnDef } from "@tanstack/react-table";
-import { DataTableColumnHeader } from "@/components/table/DataTableColumnHeader";
+import { api } from "@/trpc/react";
 
-export const GerenciamentoRedeTableEquipamentos = ({
-  equipamentos,
+export function Equipamentos({
+  initialData,
 }: {
-  equipamentos: RouterOutputs["hospitalManager"]["getEquipamentos"];
-}) => {
+  initialData: RouterOutputs["hospitalManager"]["getEquipamentos"];
+}) {
+  const { data } = api.hospitalManager.getEquipamentos.useQuery(undefined, {
+    initialData,
+  });
   return (
-    <DataTableProvider columns={columns} data={equipamentos}>
+    <DataTableProvider columns={columns} data={data}>
       <div className="space-y-2">
         <div className="flex justify-between">
           <DataTableSearch />
@@ -27,7 +33,7 @@ export const GerenciamentoRedeTableEquipamentos = ({
       </div>
     </DataTableProvider>
   );
-};
+}
 
 const columns: ColumnDef<
   RouterOutputs["hospitalManager"]["getEquipamentos"][0]

@@ -6,19 +6,23 @@ import { DataTablePagination } from "@/components/table/DataTablePagination";
 import { Card } from "@/components/ui/card";
 import { api } from "@/trpc/react";
 import { ocorrenciaTableColumns } from "@/constants/ocorrenciaTableColumns";
-import { toast } from "@/components/ui/use-toast";
 import { ColumnDef } from "@tanstack/react-table";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { RouterOutputs } from "@/trpc/shared";
 
-export const MontitoramentoOcorrencias = () => {
+export const MontitoramentoOcorrencias = ({
+  initialData,
+}: {
+  initialData: RouterOutputs["incidents"]["getAllInProgress"];
+}) => {
   const { data } = api.incidents.getAllInProgress.useQuery(undefined, {
+    initialData,
     refetchInterval: 5000,
-    onError: (error) =>
-      toast({ description: error.message, variant: "destructive" }),
   });
+
   return (
     <DataTableProvider
-      data={data || []}
+      data={data}
       columns={ocorrenciaTableColumns as ColumnDef<OcorrenciaEmAndamento>[]}
     >
       <Card className="flex flex-grow flex-col overflow-hidden">

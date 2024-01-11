@@ -68,7 +68,7 @@ export const hospitalManagerRouter = createTRPCRouter({
 
   obterRelatorio: protectedProcedure
     .input(z.object({ relatorioId: z.number() }))
-    .mutation(({ input }) =>
+    .query(({ input }) =>
       db.unidadeRelatorio.findUnique({
         where: { id: input.relatorioId },
         include: {

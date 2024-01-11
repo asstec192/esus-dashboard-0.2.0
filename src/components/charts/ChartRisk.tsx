@@ -1,9 +1,8 @@
 "use client";
 
 import Chart from "react-apexcharts";
-import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
 import { api } from "@/trpc/react";
-import { toast } from "../ui/use-toast";
+import { RouterOutputs } from "@/trpc/shared";
 
 const riskColors: Record<string, string> = {
   "VERMELHO(RISCO ALTO)": "hsl(var(--primary))",
@@ -12,19 +11,15 @@ const riskColors: Record<string, string> = {
   "AZUL(INDEFINIVEL)": "#1eb1e7",
 };
 
-export const ChartRisk = () => {
-  const { data, isLoading, isError } =
-    api.incidents.getTotalIncidentsByRisk.useQuery(undefined, {
-      refetchInterval: 5000, //5s
-      onError: () => {
-        toast({
-          variant: "destructive",
-          description: "Houve um erro ao gerar o gráfico de risco!",
-        });
-      },
-    });
-
-  if (isLoading || isError) return <SkeletonChart />;
+export const ChartRisk = ({
+  initialData,
+}: {
+  initialData: RouterOutputs["incidents"]["getTotalIncidentsByRisk"];
+}) => {
+  const { data } = api.incidents.getTotalIncidentsByRisk.useQuery(undefined, {
+    initialData,
+    refetchInterval: 5000, //5s
+  });
 
   return (
     <Chart

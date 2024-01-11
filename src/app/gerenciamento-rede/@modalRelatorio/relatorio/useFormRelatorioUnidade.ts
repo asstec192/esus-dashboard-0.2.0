@@ -1,3 +1,4 @@
+import { useGerenciamentoRedeRelatorioStore } from "@/app/gerenciamento-rede/stores";
 import { toast } from "@/components/ui/use-toast";
 import {
   HospitalItem,
@@ -8,11 +9,9 @@ import { RouterOutputs } from "@/trpc/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useGerenciamentoRedeRelatorioStore } from "../stores";
-import { useEffect } from "react";
 
-export const useRelatorioUnidadeForm = (
-  initialData: RouterOutputs["hospitalManager"]["obterRelatorio"],
+export const useFormRelatorioUnidade = (
+  initialData?: RouterOutputs["hospitalManager"]["obterRelatorio"],
 ) => {
   //EQUIPAMENTOS E ESPECIALIDADES INICIAIS DO RELATORIO
   const equipamentosIniciais: HospitalItem[] | undefined =
@@ -64,7 +63,7 @@ export const useRelatorioUnidadeForm = (
 
   const utils = api.useUtils();
 
-  //MUTACOES DO SUBMIT
+  //MUTACOES DE SUBMIT
   const { mutate: criar } = api.hospitalManager.criarRelatorio.useMutation({
     onSuccess: () => {
       toast({ description: "Relatório salvo com sucesso" });

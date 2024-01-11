@@ -1,45 +1,43 @@
+"use client";
+
+import { DataTableProvider } from "@/components/table/DataTableProvider";
 import { DataTable } from "@/components/table/DataTable";
 import { DataTableColumnHeader } from "@/components/table/DataTableColumnHeader";
 import { DataTablePagination } from "@/components/table/DataTablePagination";
-import { DataTableProvider } from "@/components/table/DataTableProvider";
 import { DataTableSearch } from "@/components/table/DataTableSearch";
 import { Card } from "@/components/ui/card";
 import { RouterOutputs } from "@/trpc/shared";
 import { ColumnDef } from "@tanstack/react-table";
-import { GerenciamentoRedeAddEspecialidade } from "./add-especialidade";
 
-export const GerenciamentoRedeTableEspecialidades = ({
-  especialidades,
+type Hospital = RouterOutputs["destinations"]["getAll"][0];
+
+export function GerenciamentoRedeHospitaisTable({
+  hospitais,
 }: {
-  especialidades: RouterOutputs["hospitalManager"]["getEspecialidades"];
-}) => {
+  hospitais: Hospital[];
+}) {
   return (
-    <DataTableProvider columns={columns} data={especialidades}>
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <DataTableSearch />
-          <GerenciamentoRedeAddEspecialidade />
-        </div>
+    <div className="space-y-2">
+      <DataTableProvider columns={columns} data={hospitais}>
+        <DataTableSearch />
         <Card>
           <DataTable />
         </Card>
         <DataTablePagination />
-      </div>
-    </DataTableProvider>
+      </DataTableProvider>
+    </div>
   );
-};
+}
 
-const columns: ColumnDef<
-  RouterOutputs["hospitalManager"]["getEspecialidades"][0]
->[] = [
+const columns: ColumnDef<Hospital>[] = [
   {
-    accessorKey: "id",
+    accessorKey: "UnidadeCOD",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="ID" />
     ),
   },
   {
-    accessorKey: "descricao",
+    accessorKey: "UnidadeDS",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Título" />
     ),

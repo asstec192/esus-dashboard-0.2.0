@@ -1,8 +1,9 @@
+"use client";
+
 import { useMask } from "@react-input/mask";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";
 import { useSession } from "next-auth/react";
-import { useRelatorioUnidadeForm } from "../../hooks/useFormGerenciamentoRedeRelatorio";
 import {
   Form,
   FormControl,
@@ -22,19 +23,20 @@ import {
 import { SelectValue } from "@radix-ui/react-select";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useEncontraUltimoRegistroDeItemsDaUnidade } from "./useEncontraUltimoRegistroDeItemsDaUnidade";
+import { useFormRelatorioUnidade } from "./useFormRelatorioUnidade";
 import { GerenciamentoRedeTransferEquipamentos } from "./transferlist-equipamentos";
 import { GerenciamentoRedeTransferEspecialidades } from "./transferlist-especialidades";
-import { useEncontraUltimoRegistroDeItemsDaUnidade } from "../../hooks/useEncontraUltimoRegistroDeItemsDaUnidade";
 
 type FormRelatorioUnidadeProps = {
-  initialData: RouterOutputs["hospitalManager"]["obterRelatorio"];
+  initialData?: RouterOutputs["hospitalManager"]["obterRelatorio"];
 };
 
 export function GerenciamentoRedeFormRelatorioUnidade({
   initialData,
 }: FormRelatorioUnidadeProps) {
   const session = useSession();
-  const { form, onSubmit } = useRelatorioUnidadeForm(initialData);
+  const { form, onSubmit } = useFormRelatorioUnidade(initialData);
   const { buscaEquipamentosMutation, buscaEspecialidadesMutation } =
     useEncontraUltimoRegistroDeItemsDaUnidade(form);
   const foneRef = useMask({

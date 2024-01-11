@@ -1,23 +1,30 @@
+"use client";
+
 import {
   Dialog,
   DialogContent,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useGerenciamentoRedeRelatorioStore } from "../../stores";
 import { GerenciamentoRedeFormRelatorioUnidade } from "./form";
+import { useRouter } from "next/navigation";
+import { useGerenciamentoRedeRelatorioStore } from "@/app/gerenciamento-rede/stores";
 
-export function GerenciamentoRedeDialogRelatorio() {
-  const { open, relatorio, setOpen, setRelatorio } =
-    useGerenciamentoRedeRelatorioStore();
+export default function RelatorioModal() {
+  const router = useRouter();
+  const relatorio = useGerenciamentoRedeRelatorioStore(
+    (state) => state.relatorio,
+  );
+  const setRelatorio = useGerenciamentoRedeRelatorioStore(
+    (state) => state.setRelatorio,
+  );
+
+  const onModalClose = () => {
+    setRelatorio(null);
+    router.back();
+  };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(value) => {
-        setOpen(value);
-        setRelatorio(null);
-      }}
-    >
+    <Dialog defaultOpen onOpenChange={onModalClose}>
       <DialogContent className="max-w-screen-xl">
         <GerenciamentoRedeFormRelatorioUnidade initialData={relatorio} />
         {relatorio && (

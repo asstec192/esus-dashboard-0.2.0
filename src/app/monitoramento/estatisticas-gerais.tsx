@@ -4,32 +4,18 @@ import { type ReactNode } from "react";
 import { TypographyH4 } from "@/components/typography/TypographyH4";
 import { Card } from "@/components/ui/card";
 import { TypographySmall } from "@/components/typography/TypographySmall";
-import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/trpc/react";
-import { toast } from "@/components/ui/use-toast";
+import { RouterOutputs } from "@/trpc/shared";
 
-export const MonitoramentoEstatisticasGerais = () => {
-  const { data, isLoading, isError } = api.incidents.getDailyInfo.useQuery(
-    undefined,
-    {
-      refetchInterval: 5000, //5s
-      onError: () => {
-        toast({
-          variant: "destructive",
-          description: "Houve um erro ao buscar as estatísticas diárias!",
-        });
-      },
-    },
-  );
-
-  if (isLoading || isError)
-    return (
-      <>
-        {Array.from(Array(5)).map((_, i) => (
-          <Skeleton key={i} className="h-14" />
-        ))}
-      </>
-    );
+export const MonitoramentoEstatisticasGerais = ({
+  initialData,
+}: {
+  initialData: RouterOutputs["incidents"]["getDailyInfo"];
+}) => {
+  const { data } = api.incidents.getDailyInfo.useQuery(undefined, {
+    initialData,
+    refetchInterval: 5000, //5s
+  });
 
   return (
     <>

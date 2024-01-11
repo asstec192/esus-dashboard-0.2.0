@@ -10,7 +10,7 @@ services:
     working_dir: /app
     ports:
       - "3000:3000"
-    image: regmed
+    image: samu-dashboard
     environment:
       - DATABASE_URL=sqlserver://172.21.13.177;database=ESUSSAMU5;user=sa;password=MedboX2008;encrypt=true;TrustServerCertificate=true
       - NEXTAUTH_SECRET=vZpSTe7hjWsKNlLhyD+PQ74bJFgtMeF34tVOe8T9obM=

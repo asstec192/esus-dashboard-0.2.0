@@ -1,23 +1,21 @@
 "use client";
 
-import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
-import { toast } from "../ui/use-toast";
 import { api } from "@/trpc/react";
 import Chart from "react-apexcharts";
+import { RouterOutputs } from "@/trpc/shared";
 
-export const ChartCalls = () => {
-  const { data, isLoading, isError } =
-    api.incidents.getTotalIncidentsByCallType.useQuery(undefined, {
+export const ChartCalls = ({
+  initialData,
+}: {
+  initialData: RouterOutputs["incidents"]["getTotalIncidentsByCallType"];
+}) => {
+  const { data } = api.incidents.getTotalIncidentsByCallType.useQuery(
+    undefined,
+    {
+      initialData,
       refetchInterval: 5000, //5s
-      onError: () => {
-        toast({
-          variant: "destructive",
-          description: "Houve um erro ao gerar o gráfico de ligações!",
-        });
-      },
-    });
-
-  if (isLoading || isError) return <SkeletonChart />;
+    },
+  );
 
   return (
     <Chart

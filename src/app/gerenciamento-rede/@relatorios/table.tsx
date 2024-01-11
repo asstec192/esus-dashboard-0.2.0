@@ -1,37 +1,35 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { useGerenciamentoRedeRelatorioStore } from "../../stores";
+import { useGerenciamentoRedeRelatorioStore } from "../stores";
 import { useMemo } from "react";
 import { RouterOutputs } from "@/trpc/shared";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { DataTableProvider } from "@/components/table/DataTableProvider";
 import { DataTableSearch } from "@/components/table/DataTableSearch";
 import { Plus } from "lucide-react";
 import { DataTable } from "@/components/table/DataTable";
 import { Card } from "@/components/ui/card";
 import { DataTablePagination } from "@/components/table/DataTablePagination";
-import { GerenciamentoRedeDialogRelatorio } from "./dialog.tsx";
 import { DatePicker } from "@/components/date-pickers/date-picker";
-import { GerenciamentoRedePDFRelatorios } from "./pdf";
-import { PDFLink } from "@/components/PDF/link";
+import { DataTableProvider } from "@/components/table/DataTableProvider";
+import Link from "next/link";
 
-export function GerenciamentoRedeRelatorios() {
-  const setModalOpen = useGerenciamentoRedeRelatorioStore(
-    (state) => state.setOpen,
-  );
+export function Relatorios({
+  initialData,
+}: {
+  initialData: RouterOutputs["hospitalManager"]["obterRelatorios"];
+}) {
+  const date = useGerenciamentoRedeRelatorioStore((state) => state.date);
+  const setDate = useGerenciamentoRedeRelatorioStore((state) => state.setDate);
   const setRelatorio = useGerenciamentoRedeRelatorioStore(
     (state) => state.setRelatorio,
   );
-  const date = useGerenciamentoRedeRelatorioStore((state) => state.date);
-  const setDate = useGerenciamentoRedeRelatorioStore((state) => state.setDate);
 
-  const { data: relatorios } =
-    api.hospitalManager.obterRelatorios.useQuery(date);
-
-  const { data: hospitais } =
-    api.hospitalManager.obterRelatoriosAgrupadosPorHospitais.useQuery(date);
+  const { data: relatorios } = api.hospitalManager.obterRelatorios.useQuery(
+    date,
+    { initialData },
+  );
 
   const columns = useMemo<
     ColumnDef<RouterOutputs["hospitalManager"]["obterRelatorios"][0]>[]
@@ -42,14 +40,17 @@ export function GerenciamentoRedeRelatorios() {
         header: "#",
         cell: ({ row }) => (
           <Button
+            asChild
             variant="ghost"
             className="absolute left-0 top-0 w-full justify-start hover:bg-transparent"
-            onClick={() => {
-              setModalOpen(true);
-              setRelatorio(row.original);
-            }}
+            onClick={() => setRelatorio(row.original)}
           >
-            {row.original.id}
+            <Link
+              href="/gerenciamento-rede/relatorio"
+              scroll={false}
+            >
+              {row.original.id}
+            </Link>
           </Button>
         ),
       },
@@ -83,26 +84,16 @@ export function GerenciamentoRedeRelatorios() {
           className="h-8"
           onSelect={(value) => value && setDate(value)}
         />
-{/*         {hospitais && hospitais?.length > 0 && (
-          <PDFLink
-            className="h-8"
-            document={
-              <GerenciamentoRedePDFRelatorios
-                hospitais={hospitais}
-                date={date}
-              />
-            }
-          />
-        )} */}
-        <Button className="ml-auto h-8 w-16" onClick={() => setModalOpen(true)}>
-          <Plus />
+        <Button asChild className="ml-auto h-8 w-16">
+          <Link href="gerenciamento-rede/relatorio" scroll={false}>
+            <Plus />
+          </Link>
         </Button>
       </div>
       <Card className="mb-2">
         <DataTable />
       </Card>
       <DataTablePagination />
-      <GerenciamentoRedeDialogRelatorio />
     </DataTableProvider>
   );
 }
