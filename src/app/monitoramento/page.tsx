@@ -1,12 +1,19 @@
-export const dynamic = "force-dynamic";
-
-import { ChartRisk } from "@/components/charts/ChartRisk";
-import { Card } from "@/components/ui/card";
-import { ChartCalls } from "@/components/charts/ChartCalls";
+import { ChartRisk } from "@/app/monitoramento/components/grafico-risco";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ChartCalls } from "@/app/monitoramento/components/grafico-ligacoes";
 import { TypographySmall } from "@/components/typography/TypographySmall";
-import { MontitoramentoOcorrencias } from "./ocorrencias";
-import { MonitoramentoEstatisticasGerais } from "./estatisticas-gerais";
+import { MontitoramentoOcorrencias } from "./components/ocorrencias";
+import { MonitoramentoEstatisticasGerais } from "./components/estatisticas-gerais";
 import { api } from "@/trpc/server";
+import { startOfDay } from "date-fns";
+
+export const dynamic = "force-dynamic";
 
 export default async function Monitoramento() {
   const ocorrencias = await api.incidents.getAllInProgress.query();
@@ -14,6 +21,8 @@ export default async function Monitoramento() {
   const contagemDeRisco = await api.incidents.getTotalIncidentsByRisk.query();
   const contagemDeLigacoes =
     await api.incidents.getTotalIncidentsByCallType.query();
+
+  const inicioDoDia = startOfDay(new Date()).toLocaleString();
 
   return (
     <div className="grid min-h-nav-offset grid-cols-12 gap-2 py-4 sm:p-4">
@@ -24,13 +33,28 @@ export default async function Monitoramento() {
         <div className="col-span-full grid grid-cols-3 gap-2">
           <MonitoramentoEstatisticasGerais initialData={estatisticas} />
         </div>
-        <Card className="col-span-full min-h-[300px] p-2 sm:max-lg:col-span-1">
-          <TypographySmall>Ligações</TypographySmall>
-          <ChartCalls initialData={contagemDeLigacoes} />
+        <Card className="col-span-full min-h-[300px] sm:max-lg:col-span-1">
+          <CardHeader>
+            <CardTitle>Ligações</CardTitle>
+            <CardDescription>
+              O total de ocorrências por tipos de ligações desde {inicioDoDia}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pl-0">
+            <ChartCalls initialData={contagemDeLigacoes} />
+          </CardContent>
         </Card>
-        <Card className="col-span-full p-2 sm:max-lg:col-span-1">
-          <TypographySmall>Risco</TypographySmall>
-          <ChartRisk initialData={contagemDeRisco} />
+        <Card className="col-span-full sm:max-lg:col-span-1 sm:max-lg:self-start">
+          <CardHeader>
+            <CardTitle>Risco</CardTitle>
+            <CardDescription>
+              O total de ocorrências por classificação de risco desde{" "}
+              {inicioDoDia}.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartRisk initialData={contagemDeRisco} />
+          </CardContent>
         </Card>
       </div>
     </div>

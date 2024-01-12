@@ -232,7 +232,7 @@ export const incidentsRouter = createTRPCRouter({
   }),
 
   getTotalIncidentsByRisk: protectedProcedure.query(async () => {
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 10000);
     return await db.$queryRaw<
       {
         risco: string;
@@ -251,7 +251,7 @@ export const incidentsRouter = createTRPCRouter({
   }),
 
   getTotalIncidentsByCallType: protectedProcedure.query(async () => {
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 10000);
     return await db.$queryRaw<{ tipo: string; total: number }[]>`
       SELECT 
         LigacaoTPDS as tipo, 
@@ -259,7 +259,8 @@ export const incidentsRouter = createTRPCRouter({
       FROM Ocorrencia O
       LEFT JOIN LigacaoTP ON O.LigacaoTPID = LigacaoTP.LigacaoTPID
       WHERE O.DtHr >= ${date}
-      GROUP BY LigacaoTPDS;
+      GROUP BY LigacaoTPDS
+      ORDER BY total ASC;
     `;
   }),
 
