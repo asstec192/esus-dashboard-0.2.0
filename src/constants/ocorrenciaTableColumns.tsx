@@ -9,6 +9,7 @@ import { getDay } from "date-fns";
 import { isWithinHour } from "@/utils/isWithinTurn";
 import { isBelowOneYear } from "@/utils/isBelowOneYear";
 import { useMutationGetOcorrencia } from "@/hooks/useMutationGetOcorrencia";
+import { TypographyMuted } from "@/components/typography/TypographyMuted";
 
 type NumberRange = {
   min: number;
@@ -20,35 +21,45 @@ export const ocorrenciaTableColumns: ColumnDef<
 >[] = [
   {
     accessorKey: "id",
-    header: "#",
+    header: "Ocorrência",
+    meta: { className: "w-full max-w-0 sm:w-auto sm:max-w-none" },
     cell: ({ row }) => {
       const { mutate } = useMutationGetOcorrencia();
       return (
-        <Button
-          variant="link"
-          className="!p-0 underline"
-          style={{ color: riskColors[row.original.risco] }}
-          onClick={() => mutate({ incidentId: Number(row.original.id) })}
-        >
-          {row.original.id}
-        </Button>
+        <>
+          <Button
+            variant="link"
+            className="!p-0 underline"
+            style={{ color: riskColors[row.original.risco] }}
+            onClick={() => mutate({ incidentId: Number(row.original.id) })}
+          >
+            #{row.original.id}
+          </Button>
+          <dd className="truncate text-xs md:hidden">{row.original.motivo}</dd>
+          <TypographyMuted className="truncate sm:hidden">
+            {formatProperName(row.original.bairro)}
+          </TypographyMuted>
+        </>
       );
     },
   },
   {
     accessorKey: "motivo",
     header: "Motivo",
-    cell: ({ row }) => <p className="font-semibold">{row.original.motivo}</p>,
+    cell: ({ row }) => row.original.motivo,
+    meta: { className: "hidden md:table-cell" },
   },
   {
     accessorKey: "operador",
     header: "Operador",
     cell: ({ row }) => formatProperName(row.original.operador),
+    meta: { className: "hidden md:table-cell" },
   },
   {
     accessorKey: "bairro",
     header: "Bairro",
     cell: ({ row }) => formatProperName(row.original.bairro),
+    meta: { className: "hidden sm:table-cell" },
   },
   {
     accessorKey: "veiculos",
@@ -64,44 +75,49 @@ export const ocorrenciaTableColumns: ColumnDef<
   //------------COLUNAS OCULTAS, USADAS APENAS PARA FINS DE FILTRAGEM----------------//
   {
     id: "filtro-veiculo",
-    header: () => null,
-    cell: () => null,
+    header: "",
+    cell: "",
     accessorFn: ({ veiculos }) =>
       veiculos.map((veiculo) => veiculo.nome).toString(),
+    meta: { className: "hidden" },
   },
   {
     accessorKey: "risco",
-    header: () => null,
-    cell: () => null,
+    header: "",
+    cell: "",
     filterFn: (row, id, value: string[]) => {
       const risco = row.original.risco;
       return value.includes(risco.toString());
     },
+    meta: { className: "hidden" },
   },
   {
     id: "filtro-pacientes",
-    header: () => null,
-    cell: () => null,
+    header: "",
+    cell: "",
     accessorFn: ({ pacientes }) =>
       pacientes.map((paciente) => paciente.nome).toString(),
+    meta: { className: "hidden" },
   },
   {
     id: "filtro-sexo",
     accessorKey: "pacientes",
-    header: () => null,
-    cell: () => null,
+    header: "",
+    cell: "",
     filterFn: (row, id, selectedSexs: string[]) => {
       const pacientes = row.original.pacientes;
       return pacientes.some(
         (paciente) => paciente.sexo && selectedSexs.includes(paciente.sexo),
       );
     },
+    meta: { className: "hidden" },
   },
   {
     id: "filtro-idade",
     accessorKey: "pacientes",
-    header: () => null,
-    cell: () => null,
+    header: "",
+    cell: "",
+    meta: { className: "hidden" },
     filterFn: (row, id, ageRanges: string[]) => {
       const pacientes = row.original.pacientes;
       const ranges = ageRanges.map((range) => JSON.parse(range) as NumberRange);
@@ -121,8 +137,9 @@ export const ocorrenciaTableColumns: ColumnDef<
   {
     id: "filtro-dia",
     accessorKey: "data",
-    header: () => null,
-    cell: () => null,
+    header: "",
+    cell: "",
+    meta: { className: "hidden" },
     filterFn: (row, id, selectedWeekDays: string[]) => {
       const date = row.original.data;
       const formatedDate = formatDate(date, "yyyy-MM-dd HH:mm:ss");
@@ -133,9 +150,10 @@ export const ocorrenciaTableColumns: ColumnDef<
   },
   {
     id: "filtro-hora",
-    header: () => null,
-    cell: () => null,
+    header: "",
+    cell: "",
     accessorKey: "veiculos",
+    meta: { className: "hidden" },
     filterFn: (row, id, selectedHours: string[]) => {
       const veiculos = row.original.veiculos;
       if (veiculos.length === 0) {

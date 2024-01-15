@@ -9,6 +9,7 @@ import { NextAuthProvider } from "@/providers/NextAuthProvider";
 import { NextQueryParamProvider } from "@/providers/NextQueryParamProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/navbar";
+import { ReactNode } from "react";
 
 const inter = localFont({
   src: [
@@ -60,10 +61,8 @@ export const metadata = {
 
 export default function RootLayout({
   children,
-  modalOcorrencia,
 }: {
   children: React.ReactNode;
-  modalOcorrencia: React.ReactNode;
 }) {
   return (
     <html lang="en">
@@ -78,7 +77,6 @@ export default function RootLayout({
             <ModalOcorrencia />
           </NextAuthProvider>
         </TRPCReactProvider>
-        {modalOcorrencia}
       </body>
     </html>
   );

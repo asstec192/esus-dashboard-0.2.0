@@ -24,6 +24,7 @@ type DataTableProviderProps<TData, TValue> = {
   children: ReactNode;
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  hiddenColumns?: VisibilityState;
 };
 
 const DataTableContext = createContext({} as DataTableContextProps<any>);
@@ -36,9 +37,12 @@ export function DataTableProvider<TData, TValue>({
   children,
   data,
   columns,
+  hiddenColumns,
 }: DataTableProviderProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({});
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    hiddenColumns || {},
+  );
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({

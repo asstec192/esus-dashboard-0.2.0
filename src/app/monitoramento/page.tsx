@@ -7,7 +7,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ChartCalls } from "@/app/monitoramento/components/grafico-ligacoes";
-import { TypographySmall } from "@/components/typography/TypographySmall";
 import { MontitoramentoOcorrencias } from "./components/ocorrencias";
 import { MonitoramentoEstatisticasGerais } from "./components/estatisticas-gerais";
 import { api } from "@/trpc/server";
@@ -35,7 +34,7 @@ export default async function Monitoramento() {
         </div>
         <Card className="col-span-full min-h-[300px] sm:max-lg:col-span-1">
           <CardHeader>
-            <CardTitle>Ligações</CardTitle>
+            <CardTitle className="text-base font-medium">Ligações</CardTitle>
             <CardDescription>
               O total de ocorrências por tipos de ligações desde {inicioDoDia}
             </CardDescription>
@@ -46,7 +45,7 @@ export default async function Monitoramento() {
         </Card>
         <Card className="col-span-full sm:max-lg:col-span-1 sm:max-lg:self-start">
           <CardHeader>
-            <CardTitle>Risco</CardTitle>
+            <CardTitle className="text-base font-medium">Risco</CardTitle>
             <CardDescription>
               O total de ocorrências por classificação de risco desde{" "}
               {inicioDoDia}.

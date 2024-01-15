@@ -179,7 +179,7 @@ export const incidentsRouter = createTRPCRouter({
 
   getAllInProgress: protectedProcedure.query(async () => {
     //tirando 3 horas para ficar com fuso compativel
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 10000);
     const data = await db.$queryRaw<[]>`
     SELECT
       DISTINCT

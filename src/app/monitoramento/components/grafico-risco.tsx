@@ -22,11 +22,7 @@ export const ChartRisk = ({
   });
 
   return (
-    <ResponsiveContainer
-      width="100%"
-      height={300}
-      className="mb-[-150px] overflow-hidden"
-    >
+    <ResponsiveContainer width="100%" height={300} className="mb-[-150px]">
       <PieChart>
         <Pie
           dataKey="total"

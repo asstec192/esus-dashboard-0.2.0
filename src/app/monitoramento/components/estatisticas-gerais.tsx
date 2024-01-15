@@ -1,7 +1,6 @@
 "use client";
 
 import { type ReactNode } from "react";
-import { TypographyH4 } from "@/components/typography/TypographyH4";
 import { Card } from "@/components/ui/card";
 import { TypographySmall } from "@/components/typography/TypographySmall";
 import { api } from "@/trpc/react";
@@ -37,7 +36,7 @@ const InfoCard = ({ title, children }: InfoCardProps) => {
   return (
     <Card className="flex flex-col justify-center px-4 py-1">
       <TypographySmall>{title}</TypographySmall>
-      <TypographyH4 className="font-bold text-primary">{children}</TypographyH4>
+      <span className="font-bold text-primary">{children}</span>
     </Card>
   );
 };
