@@ -17,7 +17,7 @@ import {
   DateRange,
   useGlogalDateFilterStore,
 } from "@/hooks/useGlobalDateFilterStore";
-import { useTurnStore } from "../stores";
+import { useRegulacaoSecundariaStore } from "../stores";
 import { api } from "@/trpc/react";
 import { PDFModal } from "@/components/PDF/modal";
 
@@ -104,10 +104,11 @@ const Field = ({
 };
 
 export default function PDFRelatorioVeiculo() {
-  const turn = useTurnStore((state) => state.turn);
+  const turn = useRegulacaoSecundariaStore((state) => state.turn);
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
   ) as DateRange;
+
   const { data } = api.vehicles.getReport.useQuery({ dateRange, turn });
 
   if (!data || differenceInDays(dateRange.to, dateRange.from) > 1) return null;

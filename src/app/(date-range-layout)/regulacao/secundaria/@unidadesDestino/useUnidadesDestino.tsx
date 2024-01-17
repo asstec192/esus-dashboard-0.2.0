@@ -1,14 +1,16 @@
 import { useOcorrenciaStore } from "@/hooks/useOcorrenciaStore";
-import { useTurnStore } from "../stores";
+import { useRegulacaoSecundariaStore } from "../stores";
 import {
   DateRange,
   useGlogalDateFilterStore,
 } from "@/hooks/useGlobalDateFilterStore";
 import { api } from "@/trpc/react";
 import { toast } from "@/components/ui/use-toast";
+import { useState } from "react";
+import { RouterOutputs } from "@/trpc/shared";
 
 export function useUnidadesDestino() {
-  const turn = useTurnStore((state) => state.turn);
+  const turn = useRegulacaoSecundariaStore((state) => state.turn);
   const setOcorrencias = useOcorrenciaStore((state) => state.setOcorrencias);
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
@@ -20,9 +22,14 @@ export function useUnidadesDestino() {
     turn,
   });
 
+  const [unidadeSelecionada, setUnidadeSelecionada] =
+    useState<RouterOutputs["destinations"]["getResponseTimes"][0]>();
+
   //busca as ocorrencias de uma unidade de destino especifica
-  const { mutate, isLoading: isLoadingOcorrencias } =
-    api.destinations.getIncidents.useMutation({
+  const ocorrenciasQuery = api.destinations.getIncidents.useQuery(
+    { dateRange, turn, destinationId: Number(unidadeSelecionada?.id) },
+    {
+      enabled: !!unidadeSelecionada,
       onSuccess: setOcorrencias,
       onError: (error) => {
         toast({
@@ -30,11 +37,13 @@ export function useUnidadesDestino() {
           variant: "destructive",
         });
       },
-    });
+    },
+  );
 
-  //wrapper para a mutacao acima
-  const getOcorrencias = (destinationId: number) =>
-    mutate({ dateRange, turn, destinationId });
-
-  return { unidades, isLoadingOcorrencias, getOcorrencias };
+  return {
+    unidades,
+    ocorrenciasQuery,
+    unidadeSelecionada,
+    setUnidadeSelecionada,
+  };
 }

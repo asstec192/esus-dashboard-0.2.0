@@ -8,8 +8,8 @@ import { formatDate } from "@/utils/formatDate";
 import { getDay } from "date-fns";
 import { isWithinHour } from "@/utils/isWithinTurn";
 import { isBelowOneYear } from "@/utils/isBelowOneYear";
-import { useMutationGetOcorrencia } from "@/hooks/useMutationGetOcorrencia";
 import { TypographyMuted } from "@/components/typography/TypographyMuted";
+import Link from "next/link";
 
 type NumberRange = {
   min: number;
@@ -23,25 +23,24 @@ export const ocorrenciaTableColumns: ColumnDef<
     accessorKey: "id",
     header: "Ocorrência",
     meta: { className: "w-full max-w-0 sm:w-auto sm:max-w-none" },
-    cell: ({ row }) => {
-      const { mutate } = useMutationGetOcorrencia();
-      return (
-        <>
-          <Button
-            variant="link"
-            className="!p-0 underline"
-            style={{ color: riskColors[row.original.risco] }}
-            onClick={() => mutate({ incidentId: Number(row.original.id) })}
-          >
+    cell: ({ row }) => (
+      <>
+        <Button
+          variant="link"
+          className="!p-0 underline"
+          style={{ color: riskColors[row.original.risco] }}
+          asChild
+        >
+          <Link href={{ query: { ocorrenciaId: row.original.id } }}>
             #{row.original.id}
-          </Button>
-          <dd className="truncate text-xs md:hidden">{row.original.motivo}</dd>
-          <TypographyMuted className="truncate sm:hidden">
-            {formatProperName(row.original.bairro)}
-          </TypographyMuted>
-        </>
-      );
-    },
+          </Link>
+        </Button>
+        <dd className="truncate text-xs md:hidden">{row.original.motivo}</dd>
+        <TypographyMuted className="truncate sm:hidden">
+          {formatProperName(row.original.bairro)}
+        </TypographyMuted>
+      </>
+    ),
   },
   {
     accessorKey: "motivo",

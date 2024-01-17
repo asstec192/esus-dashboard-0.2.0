@@ -3,11 +3,10 @@ import * as z from "zod";
 export const dateRangeSchema = z.object({ from: z.date(), to: z.date() });
 
 export const turnoSchema = z.object({
-  from: z.string(),
-  to: z.string(),
-  numericFrom: z.number(),
-  numericTo: z.number(),
+  from: z.number(),
+  to: z.number(),
   label: z.string(),
+  category: z.enum(["tarm", "veiculo"])
 });
 
 export const formSchemaLogin = z.object({

@@ -10,17 +10,27 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Loader2 } from "lucide-react";
+
 import { useIntercorrencias } from "./useIntercorrencias";
 import { SkeletonTable } from "@/components/skeletons/skeleton-table";
+import { RegulacaoSecundariaOcorrencias } from "../components/ocorrencias";
+import Link from "next/link";
+import { useRegulacaoSecundariaStore } from "../stores";
+import { isWithinHour } from "@/utils/isWithinTurn";
+import { addHours } from "date-fns";
 
 export default function RegulacaoSecundariaIntercorrencias() {
-  const { getOcorrencias, intercorrencias, isLoadingOcorrencias } =
-    useIntercorrencias();
+  const {
+    intercorrencias,
+    ocorrenciasQuery,
+    intercorrenciaSelecionada,
+    setIntercorrenciaSelecionada,
+  } = useIntercorrencias();
+  const turno = useRegulacaoSecundariaStore((state) => state.turn);
 
   return (
-    <>
-      <ScrollArea className="h-[calc(100vh-9rem)] rounded-md border">
+    <div className="grid h-full grid-cols-5 gap-4">
+      <ScrollArea className="col-span-full h-[calc(100vh-9rem)] rounded border lg:col-span-3">
         <ScrollBar orientation="horizontal" />
         <Table>
           <TableHeader className="sticky top-0 bg-slate-100">
@@ -34,18 +44,24 @@ export default function RegulacaoSecundariaIntercorrencias() {
               <SkeletonTable numberOfCols={2} numberOfRows={10} />
             ) : (
               intercorrencias.map((intercorrencia) => (
-                <TableRow
-                  key={intercorrencia.description}
-                  role="button"
-                  onClick={() => getOcorrencias(intercorrencia.id)}
+                <Link
+                  key={intercorrencia.id}
+                  href="#ocorrencias"
+                  legacyBehavior
                 >
-                  <TableCell className="font-medium">
-                    {intercorrencia.description}
-                  </TableCell>
-                  <TableCell className="text-end">
-                    {intercorrencia.count}
-                  </TableCell>
-                </TableRow>
+                  <TableRow
+                    key={intercorrencia.description}
+                    role="button"
+                    onClick={() => setIntercorrenciaSelecionada(intercorrencia)}
+                  >
+                    <TableCell className="font-medium">
+                      {intercorrencia.description}
+                    </TableCell>
+                    <TableCell className="text-end">
+                      {intercorrencia.count}
+                    </TableCell>
+                  </TableRow>
+                </Link>
               ))
             )}
             {intercorrencias && intercorrencias.length === 0 && (
@@ -56,7 +72,7 @@ export default function RegulacaoSecundariaIntercorrencias() {
               </TableRow>
             )}
           </TableBody>
-          <TableFooter className="bg-primary text-primary-foreground sticky bottom-0">
+          <TableFooter className="sticky bottom-0 bg-primary text-primary-foreground">
             <TableRow className="text-end font-bold hover:bg-inherit">
               <TableCell className="text-start">Total</TableCell>
               <TableCell>
@@ -70,13 +86,14 @@ export default function RegulacaoSecundariaIntercorrencias() {
           </TableFooter>
         </Table>
       </ScrollArea>
-
-      {isLoadingOcorrencias && (
-        <Loader2
-          size={30}
-          className="text-primary fixed left-1/2 top-1/2 animate-spin"
-        />
-      )}
-    </>
+      <RegulacaoSecundariaOcorrencias
+        description={intercorrenciaSelecionada?.description || ""}
+        ocorrencias={
+          ocorrenciasQuery.data?.filter((o) =>
+            isWithinHour(addHours(o.DtHr!, 3), turno.from, turno.to),
+          ) || []
+        }
+      />
+    </div>
   );
 }

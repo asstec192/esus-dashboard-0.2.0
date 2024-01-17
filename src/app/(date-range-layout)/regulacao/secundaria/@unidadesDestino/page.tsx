@@ -10,17 +10,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Loader2 } from "lucide-react";
 import { useUnidadesDestino } from "./useUnidadesDestino";
 import { SkeletonTable } from "@/components/skeletons/skeleton-table";
+import { RegulacaoSecundariaOcorrencias } from "../components/ocorrencias";
+import Link from "next/link";
+import { isWithinHour } from "@/utils/isWithinTurn";
+import { useRegulacaoSecundariaStore } from "../stores";
+import { addHours } from "date-fns";
 
 export default function RegulacaoSecundariaUnidadesDestino() {
-  const { getOcorrencias, isLoadingOcorrencias, unidades } =
-    useUnidadesDestino();
+  const {
+    unidades,
+    ocorrenciasQuery,
+    unidadeSelecionada,
+    setUnidadeSelecionada,
+  } = useUnidadesDestino();
+  const turno = useRegulacaoSecundariaStore((state) => state.turn);
 
   return (
-    <>
-      <ScrollArea className="h-[calc(100vh-9rem)] rounded-md border">
+    <div className="grid h-full grid-cols-5 gap-4">
+      <ScrollArea className="col-span-full h-[calc(100vh-9rem)] rounded-md border lg:col-span-3">
         <Table>
           <TableHeader className="sticky top-0 bg-slate-100">
             <TableRow>
@@ -34,21 +43,23 @@ export default function RegulacaoSecundariaUnidadesDestino() {
               <SkeletonTable numberOfCols={3} numberOfRows={10} />
             ) : (
               unidades.map((destination) => (
-                <TableRow
-                  key={destination.nome}
-                  role="button"
-                  onClick={() => getOcorrencias(Number(destination.id))}
-                >
-                  <TableCell className="font-medium">
-                    {destination.nome}
-                  </TableCell>
-                  <TableCell className="text-end">
-                    {destination.tempo}
-                  </TableCell>
-                  <TableCell className="text-end">
-                    {destination.totalOcorrencias}
-                  </TableCell>
-                </TableRow>
+                <Link key={destination.id} href="#ocorrencias" legacyBehavior>
+                  <TableRow
+                    key={destination.nome}
+                    role="button"
+                    onClick={() => setUnidadeSelecionada(destination)}
+                  >
+                    <TableCell className="font-medium">
+                      {destination.nome}
+                    </TableCell>
+                    <TableCell className="text-end">
+                      {destination.tempo}
+                    </TableCell>
+                    <TableCell className="text-end">
+                      {destination.totalOcorrencias}
+                    </TableCell>
+                  </TableRow>
+                </Link>
               ))
             )}
             {unidades && unidades.length === 0 && (
@@ -59,9 +70,9 @@ export default function RegulacaoSecundariaUnidadesDestino() {
               </TableRow>
             )}
           </TableBody>
-          <TableFooter className="bg-primary text-primary-foreground sticky bottom-0">
+          <TableFooter className="sticky bottom-0 bg-primary text-primary-foreground">
             <TableRow className="hover:bg-inherit">
-              <TableCell className="font-bold">Média</TableCell>
+              <TableCell />
               <TableCell className="text-end font-bold">
                 {/* calcula a media dos tempos */}
                 {(unidades &&
@@ -71,20 +82,29 @@ export default function RegulacaoSecundariaUnidadesDestino() {
                       0,
                     ) / unidades.length,
                   )) ||
-                  ""}
+                  ""}{" "}
+                (média)
               </TableCell>
-              <TableCell></TableCell>
+              <TableCell className="text-end font-bold">
+                {unidades?.reduce(
+                  (acc, unidade) => acc + unidade.totalOcorrencias,
+                  0,
+                )}{" "}
+                (total)
+              </TableCell>
             </TableRow>
           </TableFooter>
         </Table>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-      {isLoadingOcorrencias && (
-        <Loader2
-          size={30}
-          className="text-primary fixed left-1/2 top-1/2 animate-spin"
-        />
-      )}
-    </>
+      <RegulacaoSecundariaOcorrencias
+        description={unidadeSelecionada?.nome || ""}
+        ocorrencias={
+          ocorrenciasQuery.data?.filter((o) =>
+            isWithinHour(addHours(o.DtHr!, 3), turno.from, turno.to),
+          ) || []
+        }
+      />
+    </div>
   );
 }

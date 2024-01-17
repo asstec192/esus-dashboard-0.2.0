@@ -4,7 +4,6 @@ import * as z from "zod";
 import { getTurnFilterQuery } from "@/utils/getTurnQuery";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { addHours } from "date-fns";
-import { turnosVeiculos } from "@/constants/turnos";
 import { dateRangeSchema, turnoSchema } from "@/constants/zod-schemas";
 
 export type IntercorrenciaCount = {
@@ -22,11 +21,9 @@ export const intercorrenciaRouter = createTRPCRouter({
         turn: turnoSchema,
       }),
     )
-    .mutation(async ({ input }) => {
+    .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input.dateRange);
-      const turnoDeVeiculo = turnosVeiculos.some(
-        (turno) => turno.label === input.turn.label,
-      );
+
       return await db.ocorrencia.findMany({
         select: {
           OcorrenciaID: true,
@@ -41,8 +38,8 @@ export const intercorrenciaRouter = createTRPCRouter({
         },
         where: {
           DtHr: {
-            gte: turnoDeVeiculo ? addHours(from, 7) : addHours(from, 1), //primeiro turno inicia as 1h. 7h caso seja se veiculos
-            lt: turnoDeVeiculo ? addHours(to, 7) : addHours(to, 1), //ultimo turno encerra as 1h. 7h caso seja se veiculos
+            gte: input.turn.category === "veiculo"  ? addHours(from, 7) : addHours(from, 1), //primeiro turno inicia as 1h. 7h caso seja se veiculos
+            lt: input.turn.category === "veiculo"  ? addHours(to, 7) : addHours(to, 1), //ultimo turno encerra as 1h. 7h caso seja se veiculos
           },
           HISTORICO_DECISAO_GESTORA: {
             some: {
@@ -59,7 +56,8 @@ export const intercorrenciaRouter = createTRPCRouter({
   countIncidents: protectedProcedure
     .input(z.object({ dateRange: dateRangeSchema, turn: turnoSchema }))
     .query(async ({ input }) => {
-      const filter = getTurnFilterQuery(input.dateRange, input.turn);
+      const filter = getTurnFilterQuery("O.DtHr", input.dateRange, input.turn);
+      
       return await db.$queryRaw<IntercorrenciaCount[]>`
         SELECT 
           I.IntercorrenciaDS as description, 

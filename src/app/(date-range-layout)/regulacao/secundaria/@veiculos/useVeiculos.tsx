@@ -1,26 +1,35 @@
 import { useOcorrenciaStore } from "@/hooks/useOcorrenciaStore";
-import { useTurnStore } from "../stores";
 import {
   DateRange,
   useGlogalDateFilterStore,
 } from "@/hooks/useGlobalDateFilterStore";
 import { api } from "@/trpc/react";
 import { toast } from "@/components/ui/use-toast";
+import { useState } from "react";
+import { useRegulacaoSecundariaStore } from "../stores";
 
 export function useVeiculos() {
   const setOcorrencias = useOcorrenciaStore((state) => state.setOcorrencias);
-  const turn = useTurnStore((state) => state.turn);
+  const turn = useRegulacaoSecundariaStore((state) => state.turn);
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
   ) as DateRange;
-
   const { data: veiculos } = api.vehicles.getReport.useQuery({
     dateRange,
     turn,
   });
 
-  const { mutate, isLoading: isLoadingOcorrencias } =
-    api.vehicles.getIncidents.useMutation({
+  const [veiculoSelecionado, setVeiculoSelecionado] =
+    useState<NonNullable<typeof veiculos>[0]>();
+
+  const ocorrenciasQuery = api.vehicles.getIncidents.useQuery(
+    {
+      dateRange,
+      turn,
+      vehicleId: veiculoSelecionado?.id || 0,
+    },
+    {
+      enabled: !!veiculoSelecionado,
       onSuccess: setOcorrencias,
       onError: (error) => {
         toast({
@@ -28,10 +37,13 @@ export function useVeiculos() {
           variant: "destructive",
         });
       },
-    });
+    },
+  );
 
-  const getOcorrencias = (vehicleId: number) =>
-    mutate({ dateRange, turn, vehicleId });
-
-  return { veiculos, isLoadingOcorrencias, getOcorrencias };
+  return {
+    veiculos,
+    ocorrenciasQuery,
+    veiculoSelecionado,
+    setVeiculoSelecionado,
+  };
 }

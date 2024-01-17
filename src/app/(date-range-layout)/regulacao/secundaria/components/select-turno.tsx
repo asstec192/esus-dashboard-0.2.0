@@ -11,11 +11,11 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "../../../../../components/ui/separator";
 import { turnos, turnosVeiculos } from "@/constants/turnos";
-import { useTurnStore } from "../stores";
+import { useRegulacaoSecundariaStore } from "../stores";
 
 export function RegulacaoSecundariaSelectTurno() {
-  const turn = useTurnStore((state) => state.turn);
-  const setTurn = useTurnStore((state) => state.setTurn);
+  const turn = useRegulacaoSecundariaStore((state) => state.turn);
+  const setTurn = useRegulacaoSecundariaStore((state) => state.setTurn);
   return (
     <Select
       defaultValue={JSON.stringify(turn)}

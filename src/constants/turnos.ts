@@ -5,62 +5,54 @@ export type Turno = z.infer<typeof turnoSchema>;
 
 export const turnos: Turno[] = [
   {
-    from: "01:00:00",
-    to: "01:00:00",
-    numericFrom: 1,
-    numericTo: 1,
+    from: 1,
+    to: 1,
     label: "1h-1h",
+    category: "tarm"
   },
   {
-    from: "1:00:00",
-    to: "7:00:00",
-    numericFrom: 1,
-    numericTo: 7,
+    from: 1,
+    to: 7,
     label: "T0 (1h-7h)",
+    category: "tarm"
   },
   {
-    from: "7:00:00",
-    to: "13:00:00",
-    numericFrom: 7,
-    numericTo: 13,
+    from: 7,
+    to: 13,
     label: "T1 (7h-13h)",
+    category: "tarm"
   },
   {
-    from: "13:00:00",
-    to: "19:00:00",
-    numericFrom: 13,
-    numericTo: 19,
+    from: 13,
+    to: 19,
     label: "T2 (13h-19h)",
+    category: "tarm"
   },
   {
-    from: "19:00:00",
-    to: "1:00:00",
-    numericFrom: 19,
-    numericTo: 1,
+    from: 19,
+    to: 1,
     label: "T3 (19h-1h)",
+    category: "tarm"
   },
 ];
 
 export const turnosVeiculos: Turno[] = [
   {
-    from: "07:00:00",
-    to: "07:00:00",
-    numericFrom: 7,
-    numericTo: 7,
+    from: 7,
+    to: 7,
     label: "7h-7h",
+    category: "veiculo"
   },
   {
-    from: "7:00:00",
-    to: "19:00:00",
-    numericFrom: 7,
-    numericTo: 19,
+    from: 7,
+    to: 19,
     label: "7h-19h",
+    category: "veiculo"
   },
   {
-    from: "19:00:00",
-    to: "07:00:00",
-    numericFrom: 19,
-    numericTo: 7,
+    from: 19,
+    to: 7,
     label: "19h-7h",
+    category: "veiculo"
   },
 ];
