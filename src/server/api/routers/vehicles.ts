@@ -4,7 +4,6 @@ import * as z from "zod";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { getTurnFilterQuery } from "@/utils/getTurnQuery";
 import { addHours } from "date-fns";
-import { turnosVeiculos } from "@/constants/turnos";
 import { dateRangeSchema, turnoSchema } from "@/constants/zod-schemas";
 
 export const vehicleRouter = createTRPCRouter({
@@ -19,11 +18,8 @@ export const vehicleRouter = createTRPCRouter({
         turn: turnoSchema,
       }),
     )
-    .mutation(async ({ input }) => {
+    .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input.dateRange);
-      const turnoDeVeiculo = turnosVeiculos.some(
-        (turno) => turno.label === input.turn.label,
-      );
       return await db.ocorrencia.findMany({
         select: {
           OcorrenciaID: true,
@@ -35,15 +31,27 @@ export const vehicleRouter = createTRPCRouter({
               MotivoDS: true,
             },
           },
+          OcorrenciaMovimentacao: {
+            select: { EnvioEquipeDT: true, VeiculoID: true },
+            orderBy: { EnvioEquipeDT: "asc" },
+          },
         },
         where: {
-          DtHr: {
-            gte: turnoDeVeiculo ? addHours(from, 7) : addHours(from, 1), //primeiro turno inicia as 1h. 7h caso seja se veiculos
-            lt: turnoDeVeiculo ? addHours(to, 7) : addHours(to, 1), //ultimo turno encerra as 1h. 7h caso seja se veiculos
-          },
           OcorrenciaMovimentacao: {
             some: {
-              VeiculoID: input.vehicleId,
+              AND: {
+                VeiculoID: input.vehicleId,
+                EnvioEquipeDT: {
+                  gte:
+                    input.turn.category === "veiculo"
+                      ? addHours(from, 7)
+                      : addHours(from, 1), //primeiro turno inicia as 1h. 7h caso seja se veiculos
+                  lt:
+                    input.turn.category === "veiculo"
+                      ? addHours(to, 7)
+                      : addHours(to, 1), //ultimo turno encerra as 1h. 7h caso seja se veiculos
+                },
+              },
             },
           },
           LigacaoTPID: {
@@ -62,7 +70,12 @@ export const vehicleRouter = createTRPCRouter({
   getReport: protectedProcedure
     .input(z.object({ dateRange: dateRangeSchema, turn: turnoSchema }))
     .query(async ({ input }) => {
-      const filter = getTurnFilterQuery(input.dateRange, input.turn);
+      const filter = getTurnFilterQuery(
+        "OM.EnvioEquipeDT",
+        input.dateRange,
+        input.turn,
+      );
+
       const veiculos = await db.$queryRaw<RelatorioVeiculo[]>`
         SELECT
             V.VeiculoID AS id,
@@ -85,8 +98,6 @@ export const vehicleRouter = createTRPCRouter({
             Veiculos V
         LEFT JOIN
             OcorrenciaMovimentacao OM ON V.VeiculoID = OM.VeiculoID
-        LEFT JOIN
-            Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID
         WHERE ${filter}
         GROUP BY
             V.VeiculoID, V.VeiculoDS
