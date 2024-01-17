@@ -10,6 +10,7 @@ import { isWithinHour } from "@/utils/isWithinTurn";
 import { isBelowOneYear } from "@/utils/isBelowOneYear";
 import { TypographyMuted } from "@/components/typography/TypographyMuted";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 type NumberRange = {
   min: number;
@@ -27,8 +28,13 @@ export const ocorrenciaTableColumns: ColumnDef<
       <>
         <Button
           variant="link"
-          className="!p-0 underline"
-          style={{ color: riskColors[row.original.risco] }}
+          className={cn(
+            "!p-0 underline",
+            !riskColors[row.original.risco] && "!text-foreground",
+          )}
+          style={{
+            color: riskColors[row.original.risco],
+          }}
           asChild
         >
           <Link href={{ query: { ocorrenciaId: row.original.id } }}>

@@ -24,6 +24,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { riskColors } from "@/constants/riskColors";
 
 export const dynamic = "force-dynamic"; //força a página dinamica
 export const revalidate = 60; //revalida os dados a cada 1 min
@@ -60,7 +62,17 @@ export default async function ModalOcorrencia({
     <ParallelDialog open={!!searchParams.ocorrenciaId}>
       <DialogContent className="sm:px sm:max-w-4xl">
         <DialogHeader className="p">
-          <DialogTitle style={{ color: getColorByRisk(ocorrencia.RISCOCOD) }}>
+          <DialogTitle
+            className={cn(
+              ocorrencia.RISCOCOD &&
+                !riskColors[ocorrencia.RISCOCOD] &&
+                "!text-foreground",
+            )}
+            style={{
+              color:
+                (ocorrencia.RISCOCOD && riskColors[ocorrencia.RISCOCOD]) || "",
+            }}
+          >
             #{ocorrencia.OcorrenciaID.toString()}
           </DialogTitle>
           <TypographySmall>

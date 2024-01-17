@@ -22,7 +22,7 @@ export const DropdownUserMenu = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger className="ml-2">
         <Avatar>
           <AvatarImage src="" alt="retrato do usuário" />
           <AvatarFallback className="font-medium text-primary">
