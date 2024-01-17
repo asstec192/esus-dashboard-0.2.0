@@ -20,7 +20,7 @@ export default async function Monitoramento() {
   const contagemDeRisco = await api.incidents.getTotalIncidentsByRisk.query();
   const contagemDeLigacoes =
     await api.incidents.getTotalIncidentsByCallType.query();
-
+  console.log(new Date());
   const inicioDoDia = startOfDay(new Date()).toLocaleString();
 
   return (

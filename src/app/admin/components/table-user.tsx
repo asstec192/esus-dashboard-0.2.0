@@ -33,7 +33,7 @@ export const AdminUserTable = () => {
     <DataTableProvider columns={columns} data={users}>
       <div className="space-y-2">
         <DataTableSearch />
-        <Card>
+        <Card className="bg-background">
           <DataTable />
         </Card>
         <DataTablePagination />

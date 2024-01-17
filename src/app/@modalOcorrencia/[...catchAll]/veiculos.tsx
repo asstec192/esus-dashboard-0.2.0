@@ -106,7 +106,10 @@ export function ModalOcorrenciaVeiculos({
                 <ScrollArea className="h-[20rem]">
                   <CardContent className="space-y-4">
                     {movimentacao.Veiculo?.HISTORICO_CONDUTA.map((conduta) => (
-                      <div className="flex flex-col">
+                      <div
+                        key={conduta.DTHR_CONDUTA?.toString()}
+                        className="flex flex-col"
+                      >
                         <TypographySmall className="font-medium">
                           Vítima: {formatProperName(conduta.vitima?.VitimaNM)}
                         </TypographySmall>

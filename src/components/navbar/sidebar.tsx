@@ -7,6 +7,8 @@ import { DashboardLogo } from "./dahsboard-logo";
 import { getServerAuthSession } from "@/server/auth";
 import { headers } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 export const SideBar = async () => {
   const session = await getServerAuthSession(); // verifica se há uma sessao ativa
   const heads = headers(); //obtem a lsita de cabeçalhos

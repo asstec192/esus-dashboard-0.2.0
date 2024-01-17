@@ -10,6 +10,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/navbar";
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/providers/NextThemeProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -78,11 +79,18 @@ export default function RootLayout({
       >
         <TRPCReactProvider cookies={cookies().toString()}>
           <NextAuthProvider>
-            <Navbar />
-            <Toaster />
             <NextQueryParamProvider>
-              {children}
-              {modalOcorrencia}
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <Navbar />
+                <Toaster />
+                {children}
+                {modalOcorrencia}
+              </ThemeProvider>
             </NextQueryParamProvider>
           </NextAuthProvider>
         </TRPCReactProvider>

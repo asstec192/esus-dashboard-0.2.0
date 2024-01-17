@@ -20,7 +20,7 @@ export function GerenciamentoRedeHospitaisTable({
     <div className="space-y-2">
       <DataTableProvider columns={columns} data={hospitais}>
         <DataTableSearch />
-        <Card>
+        <Card className="bg-background">
           <DataTable />
         </Card>
         <DataTablePagination />

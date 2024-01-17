@@ -26,7 +26,7 @@ export const Especialidades = ({
           <DataTableSearch />
           <GerenciamentoRedeAddEspecialidade />
         </div>
-        <Card>
+        <Card className="bg-background">
           <DataTable />
         </Card>
         <DataTablePagination />

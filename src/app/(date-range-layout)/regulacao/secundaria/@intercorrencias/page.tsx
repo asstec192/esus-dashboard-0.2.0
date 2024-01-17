@@ -33,7 +33,7 @@ export default function RegulacaoSecundariaIntercorrencias() {
       <ScrollArea className="col-span-full h-[calc(100vh-9rem)] rounded border lg:col-span-3">
         <ScrollBar orientation="horizontal" />
         <Table>
-          <TableHeader className="sticky top-0 bg-slate-100">
+          <TableHeader className="sticky top-0 bg-slate-100 dark:bg-card">
             <TableRow>
               <TableHead>Intercorrência</TableHead>
               <TableHead className="text-end">N° de Ocorrências</TableHead>

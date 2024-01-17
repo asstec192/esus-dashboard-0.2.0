@@ -26,7 +26,7 @@ export function Equipamentos({
           <DataTableSearch />
           <GerenciamentoRedeAddEquipamento />
         </div>
-        <Card>
+        <Card className="bg-background">
           <DataTable />
         </Card>
         <DataTablePagination />

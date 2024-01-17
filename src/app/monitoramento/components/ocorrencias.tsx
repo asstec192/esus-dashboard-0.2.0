@@ -24,8 +24,8 @@ export const MontitoramentoOcorrencias = ({
       data={data}
       columns={ocorrenciaTableColumns as ColumnDef<OcorrenciaEmAndamento>[]}
     >
-      <Card className="flex flex-grow flex-col overflow-hidden">
-        <p className="bg-slate-100 p-2 text-center font-semibold">
+      <Card className="flex flex-grow flex-col overflow-hidden bg-background">
+        <p className="bg-slate-100 p-2 text-center font-semibold dark:bg-card">
           Ocorrências em Atendimento
         </p>
         <DataTable />

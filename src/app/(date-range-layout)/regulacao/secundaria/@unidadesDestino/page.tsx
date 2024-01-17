@@ -31,7 +31,7 @@ export default function RegulacaoSecundariaUnidadesDestino() {
     <div className="grid h-full grid-cols-5 gap-4">
       <ScrollArea className="col-span-full h-[calc(100vh-9rem)] rounded-md border lg:col-span-3">
         <Table>
-          <TableHeader className="sticky top-0 bg-slate-100">
+          <TableHeader className="sticky top-0 bg-slate-100 dark:bg-card">
             <TableRow>
               <TableHead className="text-start ">Unidade de destino</TableHead>
               <TableHead className="text-end">Tempo resposta</TableHead>

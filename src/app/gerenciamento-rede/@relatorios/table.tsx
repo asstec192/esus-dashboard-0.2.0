@@ -45,10 +45,7 @@ export function Relatorios({
             className="absolute left-0 top-0 w-full justify-start hover:bg-transparent"
             onClick={() => setRelatorio(row.original)}
           >
-            <Link
-              href="/gerenciamento-rede/relatorio"
-              scroll={false}
-            >
+            <Link href="/gerenciamento-rede/relatorio" scroll={false}>
               {row.original.id}
             </Link>
           </Button>
@@ -90,7 +87,7 @@ export function Relatorios({
           </Link>
         </Button>
       </div>
-      <Card className="mb-2">
+      <Card className="mb-2 bg-background">
         <DataTable />
       </Card>
       <DataTablePagination />

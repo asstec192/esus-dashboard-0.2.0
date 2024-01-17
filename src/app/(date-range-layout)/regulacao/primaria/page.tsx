@@ -27,7 +27,7 @@ export default function RegulacaoPrimaria() {
     <main className="flex min-h-nav-offset flex-col px-1 py-4 sm:px-4">
       <DataTableProvider data={data || []} columns={ocorrenciaTableColumns}>
         <RegulacaoPrimariaTableToolbar />
-        <Card className="mt-2 flex flex-grow flex-col justify-between overflow-hidden">
+        <Card className="mt-2 flex flex-grow flex-col justify-between overflow-hidden bg-background">
           <ScrollArea className="h-40 flex-grow">
             <DataTable isLoading={isLoading} />
             <ScrollBar orientation="horizontal" />

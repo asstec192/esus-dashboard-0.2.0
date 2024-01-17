@@ -59,7 +59,7 @@ export function ModalOcorrenciaVitimas({
                 {vitima.OCORRENCIA_AVALIACAO_INICIAL.map((avaliacao, index) => (
                   <div
                     key={index}
-                    className="flex flex-col gap-1 rounded bg-slate-100 px-2 py-1 [&:not(:first-child)]:mt-2"
+                    className="flex flex-col gap-1 rounded bg-slate-100 px-2 py-1 dark:bg-background [&:not(:first-child)]:mt-2"
                   >
                     <TypographySmall>
                       {formatProperName(avaliacao.Operador?.OperadorNM)}:
