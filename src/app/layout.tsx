@@ -1,17 +1,22 @@
 import "@/styles/globals.css";
 
 import localFont from "next/font/local";
+import { Inter } from "next/font/google";
 import { cookies } from "next/headers";
-
 import { TRPCReactProvider } from "@/trpc/react";
-import { ModalOcorrencia } from "@/components/dialogs/ModalOcorrencia";
 import { NextAuthProvider } from "@/providers/NextAuthProvider";
 import { NextQueryParamProvider } from "@/providers/NextQueryParamProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/navbar";
 import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
-const inter = localFont({
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+/* const inter = localFont({
   src: [
     {
       path: "../../public/fonts/Inter-Thin.ttf",
@@ -51,7 +56,7 @@ const inter = localFont({
     },
   ],
   variable: "--font-sans",
-});
+}); */
 
 export const metadata = {
   title: "SAMUDashboard",
@@ -61,20 +66,24 @@ export const metadata = {
 
 export default function RootLayout({
   children,
+  modalOcorrencia,
 }: {
   children: React.ReactNode;
+  modalOcorrencia: ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="!scroll-smooth">
       <body
-        className={`font-sans ${inter.variable} flex flex-col overflow-auto`}
+        className={cn("flex flex-col font-sans antialiased", inter.variable)}
       >
         <TRPCReactProvider cookies={cookies().toString()}>
           <NextAuthProvider>
             <Navbar />
             <Toaster />
-            <NextQueryParamProvider>{children}</NextQueryParamProvider>
-            <ModalOcorrencia />
+            <NextQueryParamProvider>
+              {children}
+              {modalOcorrencia}
+            </NextQueryParamProvider>
           </NextAuthProvider>
         </TRPCReactProvider>
       </body>

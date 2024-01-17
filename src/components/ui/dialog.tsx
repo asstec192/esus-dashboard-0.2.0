@@ -5,6 +5,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 const Dialog = DialogPrimitive.Root;
 
@@ -108,7 +109,14 @@ const DialogDescription = React.forwardRef<
 ));
 DialogDescription.displayName = DialogPrimitive.Description.displayName;
 
+//Wrapper do Dialog, util para usar em rotas paralelas
+const ParallelDialog = (props: DialogPrimitive.DialogProps) => {
+  const router = useRouter();
+  return <Dialog onOpenChange={() => router.back()} {...props} />;
+};
+
 export {
+  ParallelDialog,
   Dialog,
   DialogPortal,
   DialogOverlay,
