@@ -113,8 +113,8 @@ export default async function ModalOcorrencia({
                 </CarouselItem>
               )}
             </CarouselContent>
-            <CarouselPrevious className="left-0 opacity-80" />
-            <CarouselNext className="right-0 opacity-80" />
+            <CarouselPrevious className="left-0 " />
+            <CarouselNext className="right-0" />
           </Carousel>
         </ScrollArea>
       </DialogContent>

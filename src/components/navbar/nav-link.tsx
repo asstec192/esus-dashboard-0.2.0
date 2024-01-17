@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 
 type NavlinkProps = {
-  active: boolean;
+  active?: boolean;
   children: ReactNode;
   href: string;
   className?: string;

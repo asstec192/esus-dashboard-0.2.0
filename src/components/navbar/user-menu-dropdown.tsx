@@ -1,3 +1,5 @@
+"use client";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +16,9 @@ import { extractFirstAndLastNames } from "@/utils/extractFirstAndLastNames";
 import { formatProperName } from "@/utils/formatProperName";
 
 export const DropdownUserMenu = () => {
-  const { data: sessionData } = useSession();
+  const { data: sessionData } = useSession(); //obtem a sessao ativa
 
-  if (!sessionData) return null;
+  if (!sessionData) return null; //retorna nulo se nao houver uma sessao ativa
 
   return (
     <DropdownMenu>

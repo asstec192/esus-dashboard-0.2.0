@@ -1,15 +1,16 @@
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Columns } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { UserRole } from "@/types/UserRole";
 import { navComponents } from ".";
-import { usePathname } from "next/navigation";
 import { Navlink } from "./nav-link";
 import { DashboardLogo } from "./dahsboard-logo";
+import { getServerAuthSession } from "@/server/auth";
+import { headers } from "next/headers";
 
-export const SideBar = () => {
-  const pathname = usePathname();
-  const session = useSession();
+export const SideBar = async () => {
+  const session = await getServerAuthSession(); // verifica se há uma sessao ativa
+  const heads = headers(); //obtem a lsita de cabeçalhos
+  const pathname = heads.get("x-pathname"); //obtem o pathname da ro
   return (
     <Sheet>
       <SheetTrigger className="mr-3 text-xl lg:hidden">
@@ -24,16 +25,16 @@ export const SideBar = () => {
             <Navlink
               key={component.href}
               href={component.href}
-              active={pathname === component.href}
+              active={pathname?.includes(component.href)}
               className="justify-start"
             >
               {component.label}
             </Navlink>
           ))}
-          {session.data?.user.role === UserRole.admin ? (
+          {session?.user.role === UserRole.admin ? (
             <Navlink
               href="/admin"
-              active={pathname === "/admin"}
+              active={pathname?.includes("/admin")}
               className="justify-start"
             >
               Administrador

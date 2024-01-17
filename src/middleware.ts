@@ -16,8 +16,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/regulacao/primaria",
-    "/regulacao/secundaria",
+    "/regulacao/:path*",
     "/epidemiologia",
     "/monitoramento",
     "/admin",
