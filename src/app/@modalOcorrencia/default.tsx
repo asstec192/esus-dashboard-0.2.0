@@ -1,3 +1,1 @@
-import ModalOcorrencia from "./[...catchAll]/page";
-
-export default ModalOcorrencia;
+export { default } from "./[...catchAll]/page";

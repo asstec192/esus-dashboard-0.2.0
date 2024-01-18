@@ -1,4 +1,3 @@
-import { useOcorrenciaStore } from "@/hooks/useOcorrenciaStore";
 import {
   DateRange,
   useGlogalDateFilterStore,
@@ -8,7 +7,6 @@ import { useState } from "react";
 import { useRegulacaoSecundariaStore } from "../stores";
 
 export function useVeiculos() {
-  const setOcorrencias = useOcorrenciaStore((state) => state.setOcorrencias);
   const turn = useRegulacaoSecundariaStore((state) => state.turn);
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
@@ -29,7 +27,6 @@ export function useVeiculos() {
     },
     {
       enabled: !!veiculoSelecionado,
-      onSuccess: setOcorrencias,
     },
   );
 

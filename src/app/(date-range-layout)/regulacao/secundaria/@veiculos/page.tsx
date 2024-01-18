@@ -17,12 +17,17 @@ import { RegulacaoSecundariaOcorrencias } from "../components/ocorrencias";
 import Link from "next/link";
 
 export default function RegulacaoSecundariaVeiculos() {
-  const { veiculos, ocorrenciasQuery, setVeiculoSelecionado } = useVeiculos();
+  const {
+    veiculos,
+    ocorrenciasQuery,
+    veiculoSelecionado,
+    setVeiculoSelecionado,
+  } = useVeiculos();
 
   return (
     <div className="grid h-full grid-cols-5 gap-4">
       <ScrollArea className="col-span-full h-[calc(100vh-9rem)] rounded-md border lg:col-span-3">
-        <Table>
+        <Table className="min-h-[calc(100vh-9.1rem)]">
           <TableHeader className="sticky top-0 bg-slate-100 dark:bg-card">
             <TableRow>
               <TableHead>Veículo</TableHead>
@@ -130,6 +135,7 @@ export default function RegulacaoSecundariaVeiculos() {
       <RegulacaoSecundariaOcorrencias
         description={ocorrenciasQuery.data?.nome || ""}
         ocorrencias={ocorrenciasQuery.data?.ocorrencias || []}
+        isLoading={ocorrenciasQuery.isLoading && !!veiculoSelecionado}
       />
     </div>
   );

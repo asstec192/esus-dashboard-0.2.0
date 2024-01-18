@@ -1,7 +1,6 @@
 import { TypographySmall } from "@/components/typography/TypographySmall";
 import { Separator } from "@/components/ui/separator";
 import { formatProperName } from "@/utils/formatProperName";
-import { getColorByRisk } from "@/utils/getColorByRisk";
 import { UserRole } from "@/types/UserRole";
 import { addHours } from "date-fns";
 import { getServerAuthSession } from "@/server/auth";
@@ -24,11 +23,10 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+
 import { riskColors } from "@/constants/riskColors";
 
-export const dynamic = "force-dynamic"; //força a página dinamica
-export const revalidate = 60; //revalida os dados a cada 1 min
+export const revalidate = 0; //nunca cacheia o resultado
 
 export default async function ModalOcorrencia({
   searchParams,

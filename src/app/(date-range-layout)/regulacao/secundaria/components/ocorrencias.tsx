@@ -13,13 +13,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { SkeletonTable } from "@/components/skeletons/skeleton-table";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function RegulacaoSecundariaOcorrencias({
   ocorrencias,
   description,
+  isLoading,
 }: {
   ocorrencias: RouterOutputs["destinations"]["getIncidents"];
   description: string;
+  isLoading: boolean;
 }) {
   return (
     <Card
@@ -28,7 +32,9 @@ export function RegulacaoSecundariaOcorrencias({
     >
       <CardHeader className="p-4">
         <CardTitle className="text-base font-semibold">Ocorrências</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardDescription>
+          {isLoading ? <Skeleton className="h-4 w-40" /> : description}
+        </CardDescription>
       </CardHeader>
       <ScrollArea className="relative flex-grow border-t-[1px]">
         <CardContent className="relative  px-0">
@@ -70,7 +76,11 @@ export function RegulacaoSecundariaOcorrencias({
                 </Link>
               ))}
 
-              {ocorrencias.length === 0 && (
+              {isLoading && (
+                <SkeletonTable numberOfRows={20} numberOfCols={3} />
+              )}
+
+              {ocorrencias.length === 0 && !isLoading && (
                 <TableRow>
                   <TableCell className="h-24 text-center">
                     Nenhum resultado

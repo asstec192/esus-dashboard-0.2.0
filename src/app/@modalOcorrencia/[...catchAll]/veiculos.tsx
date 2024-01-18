@@ -24,7 +24,7 @@ export function ModalOcorrenciaVeiculos({
     <Tabs
       defaultValue={`${movimentacoes[0]?.OcorrenciaID}-${movimentacoes[0]?.VeiculoID}-${movimentacoes[0]?.VeiculoSEQ}`}
     >
-      <TabsList className="grid h-max grid-cols-[repeat(auto-fit,minmax(70px,1fr))]">
+      <TabsList className="flex h-max w-full flex-wrap justify-start">
         {movimentacoes.map((movimentacao) => (
           <TabsTrigger
             key={`trigger-${movimentacao.OcorrenciaID}-${movimentacao.VeiculoID}-${movimentacao.VeiculoSEQ}`}
@@ -40,7 +40,7 @@ export function ModalOcorrenciaVeiculos({
           key={`content-${movimentacao.OcorrenciaID}-${movimentacao.VeiculoID}-${movimentacao.VeiculoSEQ}`}
           value={`${movimentacao.OcorrenciaID}-${movimentacao.VeiculoID}-${movimentacao.VeiculoSEQ}`}
         >
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2  gap-2">
             {/* ---------------MOVIMENTACOES DO VEICULO------------------ */}
             <div className="col-span-full flex max-w-[300px] flex-col self-start sm:max-md:grid sm:max-md:max-w-none sm:max-md:grid-cols-2 md:col-span-1">
               <p className="grid grid-cols-2 items-baseline">

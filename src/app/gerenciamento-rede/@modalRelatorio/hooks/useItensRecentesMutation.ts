@@ -2,10 +2,15 @@ import { SchemaRelatorioHospital } from "@/constants/zod-schemas";
 import { api } from "@/trpc/react";
 import { UseFormReturn } from "react-hook-form";
 
-export function useEncontraUltimoRegistroDeItemsDaUnidade(
+/**
+ * Obtem os equipamentos e unidades mais recentes do hospital selecionado
+ * @param form O formulario de  gerenciamento da rede
+ * @returns
+ */
+export function useItensRecentesMutation(
   form: UseFormReturn<SchemaRelatorioHospital>,
 ) {
-  const buscaEquipamentosMutation =
+  const { mutate: buscaEquipamentosRecentes } =
     api.hospitalManager.obterUltimoRegistroDeEquipamentosDoHospital.useMutation(
       {
         onSuccess: (relatorio) =>
@@ -20,7 +25,7 @@ export function useEncontraUltimoRegistroDeItemsDaUnidade(
       },
     );
 
-  const buscaEspecialidadesMutation =
+  const { mutate: buscaEspecialidadesRecentes } =
     api.hospitalManager.obterUltimoRegistroDeEspecialidadesDoHospital.useMutation(
       {
         onSuccess: (relatorio) =>
@@ -35,5 +40,10 @@ export function useEncontraUltimoRegistroDeItemsDaUnidade(
       },
     );
 
-  return { buscaEquipamentosMutation, buscaEspecialidadesMutation };
+  const buscarItensRecentes = (unidadeId: number) => {
+    buscaEquipamentosRecentes({ unidadeId });
+    buscaEspecialidadesRecentes({ unidadeId });
+  };
+
+  return buscarItensRecentes;
 }

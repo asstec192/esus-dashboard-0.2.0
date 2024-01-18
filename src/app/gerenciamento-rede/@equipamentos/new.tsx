@@ -20,9 +20,9 @@ export const GerenciamentoRedeAddEquipamento = () => {
       utils.hospitalManager.getEquipamentos.invalidate();
       toast({ description: "Equipamento adicionada com sucesso!" });
     },
-    onError: () =>
+    onError: (error) =>
       toast({
-        description: "Ocorreu um erro interno ao adicionar o equipamento!",
+        description: error.message,
         variant: "destructive",
       }),
   });

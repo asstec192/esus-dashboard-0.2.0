@@ -29,7 +29,7 @@ export const MontitoramentoOcorrencias = ({
           Ocorrências em Atendimento
         </p>
         <DataTable />
-        <div className="mt-auto border border-transparent border-t-border py-3">
+        <div className="mt-auto border border-transparent border-t-border p-3">
           <DataTablePagination />
         </div>
       </Card>

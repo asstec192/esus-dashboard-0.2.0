@@ -10,6 +10,7 @@ import { isWithinHour } from "@/utils/isWithinTurn";
 import { isBelowOneYear } from "@/utils/isBelowOneYear";
 import { TypographyMuted } from "@/components/typography/TypographyMuted";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 type NumberRange = {
   min: number;
@@ -33,7 +34,10 @@ export const ocorrenciaTableColumns: ColumnDef<
           }}
           asChild
         >
-          <Link href={{ query: { ocorrenciaId: row.original.id } }}>
+          <Link
+            href={{ query: { ocorrenciaId: row.original.id } }}
+            scroll={false}
+          >
             #{row.original.id}
           </Link>
         </Button>

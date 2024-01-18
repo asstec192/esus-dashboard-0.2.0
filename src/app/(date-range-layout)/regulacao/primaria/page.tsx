@@ -24,7 +24,7 @@ export default function RegulacaoPrimaria() {
     },
   );
   return (
-    <main className="flex min-h-nav-offset flex-col px-1 py-4 sm:px-4">
+    <main className="mt-2 flex min-h-nav-offset flex-col px-1 py-4 sm:px-4">
       <DataTableProvider data={data || []} columns={ocorrenciaTableColumns}>
         <RegulacaoPrimariaTableToolbar />
         <Card className="mt-2 flex flex-grow flex-col justify-between overflow-hidden bg-background">

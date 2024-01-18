@@ -42,10 +42,15 @@ export function Relatorios({
           <Button
             asChild
             variant="ghost"
-            className="absolute left-0 top-0 w-full justify-start hover:bg-transparent"
+            className="absolute left-0 top-0 h-full w-full justify-start hover:bg-transparent"
             onClick={() => setRelatorio(row.original)}
           >
-            <Link href="/gerenciamento-rede/relatorio" scroll={false}>
+            <Link
+              href={{
+                query: { isRelatorioOpen: true, relatorioId: row.original.id },
+              }}
+              scroll={false}
+            >
               {row.original.id}
             </Link>
           </Button>
@@ -82,7 +87,7 @@ export function Relatorios({
           onSelect={(value) => value && setDate(value)}
         />
         <Button asChild className="ml-auto h-8 w-16">
-          <Link href="gerenciamento-rede/relatorio" scroll={false}>
+          <Link href={{ query: { isRelatorioOpen: true } }} scroll={false}>
             <Plus />
           </Link>
         </Button>

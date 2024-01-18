@@ -11,7 +11,7 @@ export const GerenciamentoRedeAddEspecialidade = () => {
   const [openInput, setOpenInput] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const divRef = useClickOutside<HTMLDivElement>(() => setOpenInput(false));
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   const { mutate } = api.hospitalManager.addEspecialidade.useMutation({
     onSuccess: () => {
@@ -22,9 +22,9 @@ export const GerenciamentoRedeAddEspecialidade = () => {
       utils.hospitalManager.getEspecialidades.invalidate();
       toast({ description: "Especialidade adicionada com sucesso!" });
     },
-    onError: () =>
+    onError: (error) =>
       toast({
-        description: "Ocorreu um erro interno ao adicionar a especialidade!",
+        description: error.message,
         variant: "destructive",
       }),
   });

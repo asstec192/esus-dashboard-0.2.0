@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 export const useFormRelatorioUnidade = (
+  /**Os dados iniciais que preencherão o form, caso de atualizacao de relatorio*/
   initialData?: RouterOutputs["hospitalManager"]["obterRelatorio"],
 ) => {
   //EQUIPAMENTOS E ESPECIALIDADES INICIAIS DO RELATORIO
@@ -28,9 +29,9 @@ export const useFormRelatorioUnidade = (
       itemDescription: esp.especialidade.descricao,
     }));
 
+  //obtem a data selecionada no date picker
   const date = useGerenciamentoRedeRelatorioStore((state) => state.date);
 
-  //OBTENDO O FORM DO HOOK
   const form = useForm<z.infer<typeof formSchemaRelatorioHospital>>({
     resolver: zodResolver(formSchemaRelatorioHospital),
     values: {
@@ -63,7 +64,7 @@ export const useFormRelatorioUnidade = (
 
   const utils = api.useUtils();
 
-  //MUTACOES DE SUBMIT
+  //requisicao de criacao do relatorio
   const { mutate: criar } = api.hospitalManager.criarRelatorio.useMutation({
     onSuccess: () => {
       toast({ description: "Relatório salvo com sucesso" });
@@ -74,18 +75,21 @@ export const useFormRelatorioUnidade = (
       toast({ description: error.message, variant: "destructive" }),
   });
 
-  const { mutate: atualizar } =
-    api.hospitalManager.atualizarRelatorio.useMutation({
+  //requisicao de edicao de relatorio
+  const { mutate: editar } = api.hospitalManager.atualizarRelatorio.useMutation(
+    {
       onSuccess: () => {
         toast({ description: "Relatório salvo com sucesso" });
         utils.hospitalManager.obterRelatorios.invalidate();
       },
       onError: (error) =>
         toast({ description: error.message, variant: "destructive" }),
-    });
+    },
+  );
 
+  //edita se quando ha dados iniciais, e cria quando não há
   const onSubmit = form.handleSubmit((values) =>
-    initialData ? atualizar(values) : criar(values),
+    initialData ? editar(values) : criar(values),
   );
 
   return { form, onSubmit };

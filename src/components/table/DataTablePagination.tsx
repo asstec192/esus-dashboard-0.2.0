@@ -32,13 +32,14 @@ export function DataTablePagination({
       )}
       {...props}
     >
+      <div className="mr-auto text-sm font-medium">
+        {table.getFilteredRowModel().rows.length} resultados
+      </div>
       <div className="flex items-center space-x-2">
         <p className="text-sm font-medium">Resultados por página</p>
         <Select
           value={`${table.getState().pagination.pageSize}`}
-          onValueChange={(value) => {
-            table.setPageSize(Number(value));
-          }}
+          onValueChange={(value) => table.setPageSize(Number(value))}
         >
           <SelectTrigger className="h-8 w-[70px]">
             <SelectValue placeholder={table.getState().pagination.pageSize} />

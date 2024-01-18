@@ -1,7 +1,6 @@
 import { DataTableSearch } from "@/components/table/DataTableSearch";
 import { DataTableFilter } from "@/components/table/DataTableFilter";
 import { useDataTable } from "@/components/table/DataTableProvider";
-import { TypographyMuted } from "@/components/typography/TypographyMuted";
 
 export function RegulacaoPrimariaTableToolbar() {
   const { table } = useDataTable();
@@ -80,9 +79,6 @@ export function RegulacaoPrimariaTableToolbar() {
           ]}
         />
       )}
-      <TypographyMuted className="w-full">
-        Exibindo {table.getFilteredRowModel().rows.length} resultados
-      </TypographyMuted>
     </div>
   );
 }

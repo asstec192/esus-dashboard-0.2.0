@@ -28,7 +28,7 @@ export default function RegulacaoSecundariaIntercorrencias() {
     <div className="grid h-full grid-cols-5 gap-4">
       <ScrollArea className="col-span-full h-[calc(100vh-9rem)] rounded border lg:col-span-3">
         <ScrollBar orientation="horizontal" />
-        <Table>
+        <Table className="min-h-[calc(100vh-9.1rem)]">
           <TableHeader className="sticky top-0 bg-slate-100 dark:bg-card">
             <TableRow>
               <TableHead>Intercorrência</TableHead>
@@ -85,6 +85,7 @@ export default function RegulacaoSecundariaIntercorrencias() {
       <RegulacaoSecundariaOcorrencias
         description={intercorrenciaSelecionada?.description || ""}
         ocorrencias={ocorrenciasQuery.data || []}
+        isLoading={ocorrenciasQuery.isLoading && !!intercorrenciaSelecionada}
       />
     </div>
   );

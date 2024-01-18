@@ -56,7 +56,7 @@ export function Combobox({
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
-          className={cn("w-full justify-between", className)}
+          className={cn("w-full justify-between truncate", className)}
         >
           {value
             ? options.find((option) => option.value === value)?.label
