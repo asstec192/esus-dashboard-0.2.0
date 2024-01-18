@@ -10,23 +10,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Card } from "@/components/ui/card";
+
 import { useVeiculos } from "./useVeiculos";
 import { SkeletonTable } from "@/components/skeletons/skeleton-table";
 import { RegulacaoSecundariaOcorrencias } from "../components/ocorrencias";
 import Link from "next/link";
-import { useRegulacaoSecundariaStore } from "../stores";
-import { isWithinHour } from "@/utils/isWithinTurn";
-import { addHours } from "date-fns";
 
 export default function RegulacaoSecundariaVeiculos() {
-  const {
-    veiculos,
-    ocorrenciasQuery,
-    veiculoSelecionado,
-    setVeiculoSelecionado,
-  } = useVeiculos();
-  const turno = useRegulacaoSecundariaStore((state) => state.turn);
+  const { veiculos, ocorrenciasQuery, setVeiculoSelecionado } = useVeiculos();
 
   return (
     <div className="grid h-full grid-cols-5 gap-4">
@@ -137,19 +128,8 @@ export default function RegulacaoSecundariaVeiculos() {
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
       <RegulacaoSecundariaOcorrencias
-        description={veiculoSelecionado?.nome || ""}
-        ocorrencias={
-          ocorrenciasQuery.data?.filter((o) => {
-            const [veiculo] = o.OcorrenciaMovimentacao.filter(
-              (om) => om.VeiculoID === veiculoSelecionado?.id,
-            );
-            return isWithinHour(
-              addHours(veiculo?.EnvioEquipeDT!, 3),
-              turno.from,
-              turno.to,
-            );
-          }) || []
-        }
+        description={ocorrenciasQuery.data?.nome || ""}
+        ocorrencias={ocorrenciasQuery.data?.ocorrencias || []}
       />
     </div>
   );

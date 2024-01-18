@@ -14,9 +14,6 @@ import { useUnidadesDestino } from "./useUnidadesDestino";
 import { SkeletonTable } from "@/components/skeletons/skeleton-table";
 import { RegulacaoSecundariaOcorrencias } from "../components/ocorrencias";
 import Link from "next/link";
-import { isWithinHour } from "@/utils/isWithinTurn";
-import { useRegulacaoSecundariaStore } from "../stores";
-import { addHours } from "date-fns";
 
 export default function RegulacaoSecundariaUnidadesDestino() {
   const {
@@ -25,7 +22,6 @@ export default function RegulacaoSecundariaUnidadesDestino() {
     unidadeSelecionada,
     setUnidadeSelecionada,
   } = useUnidadesDestino();
-  const turno = useRegulacaoSecundariaStore((state) => state.turn);
 
   return (
     <div className="grid h-full grid-cols-5 gap-4">
@@ -99,11 +95,7 @@ export default function RegulacaoSecundariaUnidadesDestino() {
       </ScrollArea>
       <RegulacaoSecundariaOcorrencias
         description={unidadeSelecionada?.nome || ""}
-        ocorrencias={
-          ocorrenciasQuery.data?.filter((o) =>
-            isWithinHour(addHours(o.DtHr!, 3), turno.from, turno.to),
-          ) || []
-        }
+        ocorrencias={ocorrenciasQuery.data || []}
       />
     </div>
   );

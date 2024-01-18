@@ -2,7 +2,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { addHours } from "date-fns";
 import { formatProperName } from "@/utils/formatProperName";
-import { getColorByRisk } from "@/utils/getColorByRisk";
+import { RouterOutputs } from "@/trpc/shared";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { riskColors } from "@/constants/riskColors";
 import {
   Card,
   CardContent,
@@ -10,14 +13,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { RouterOutputs } from "@/trpc/shared";
-import Link from "next/link";
 
 export function RegulacaoSecundariaOcorrencias({
   ocorrencias,
   description,
 }: {
-  ocorrencias: RouterOutputs["vehicles"]["getIncidents"];
+  ocorrencias: RouterOutputs["destinations"]["getIncidents"];
   description: string;
 }) {
   return (
@@ -37,15 +38,21 @@ export function RegulacaoSecundariaOcorrencias({
                 <Link
                   key={ocorrencia.OcorrenciaID.toString()}
                   href={{
-                    query: { ocorrenciaId: ocorrencia.OcorrenciaID.toString() },
+                    query: {
+                      ocorrenciaId: ocorrencia.OcorrenciaID.toString(),
+                    },
                   }}
                   legacyBehavior
                 >
                   <TableRow role="button">
                     <TableCell className="flex flex-col items-start gap-2 align-top">
                       <span
-                        className="font-medium"
-                        style={{ color: getColorByRisk(ocorrencia.RISCOCOD) }}
+                        className={cn("font-medium text-foreground")}
+                        style={{
+                          color: ocorrencia.RISCOCOD
+                            ? riskColors[ocorrencia.RISCOCOD]
+                            : undefined,
+                        }}
                       >
                         {ocorrencia.OcorrenciaID.toString()}
                       </span>

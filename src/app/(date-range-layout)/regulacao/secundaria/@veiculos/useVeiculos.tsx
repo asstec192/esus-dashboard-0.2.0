@@ -4,7 +4,6 @@ import {
   useGlogalDateFilterStore,
 } from "@/hooks/useGlobalDateFilterStore";
 import { api } from "@/trpc/react";
-import { toast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { useRegulacaoSecundariaStore } from "../stores";
 
@@ -31,12 +30,6 @@ export function useVeiculos() {
     {
       enabled: !!veiculoSelecionado,
       onSuccess: setOcorrencias,
-      onError: (error) => {
-        toast({
-          description: error.message,
-          variant: "destructive",
-        });
-      },
     },
   );
 

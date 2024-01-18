@@ -1,11 +1,11 @@
+import * as z from "zod";
 import { db } from "@/server/db";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import * as z from "zod";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { getTurnFilterQuery } from "@/utils/getTurnQuery";
 import { addHours } from "date-fns";
-import { turnosVeiculos } from "@/constants/turnos";
 import { dateRangeSchema, turnoSchema } from "@/constants/zod-schemas";
+import { isWithinHour } from "@/utils/isWithinTurn";
 
 export const destinationRouter = createTRPCRouter({
   /**Obtém a lista de todas as unidades de destino */
@@ -30,7 +30,8 @@ export const destinationRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input.dateRange);
 
-      return await db.ocorrencia.findMany({
+      //busca as ocorrencias
+      const ocorrencias = await db.ocorrencia.findMany({
         select: {
           OcorrenciaID: true,
           Bairro: true,
@@ -44,8 +45,14 @@ export const destinationRouter = createTRPCRouter({
         },
         where: {
           DtHr: {
-            gte: input.turn.category === "veiculo"  ? addHours(from, 7) : addHours(from, 1), //primeiro turno inicia as 1h. 7h caso seja se veiculos
-            lt: input.turn.category === "veiculo"  ? addHours(to, 7) : addHours(to, 1), //ultimo turno encerra as 1h. 7h caso seja se veiculos
+            gte:
+              input.turn.category === "veiculo"
+                ? addHours(from, 7)
+                : addHours(from, 1), //primeiro turno inicia as 1h. 7h caso seja se veiculos
+            lt:
+              input.turn.category === "veiculo"
+                ? addHours(to, 7)
+                : addHours(to, 1), //ultimo turno encerra as 1h. 7h caso seja se veiculos
           },
           HISTORICO_DECISAO_GESTORA: {
             some: {
@@ -60,6 +67,15 @@ export const destinationRouter = createTRPCRouter({
           OcorrenciaID: "desc",
         },
       });
+
+      //responde com as ocorrencias filtradas pelo turno selecionado
+      return (
+        ocorrencias.filter(
+          (o) =>
+            o.DtHr &&
+            isWithinHour(addHours(o.DtHr, 3), input.turn.from, input.turn.to),
+        ) || []
+      );
     }),
 
   /**Obtém o relatório de tempo resposta da unidade de destino. Recebe como input um date range e um turno */
@@ -70,7 +86,7 @@ export const destinationRouter = createTRPCRouter({
       return await db.$queryRaw<TempoRespostaDestino[]>`
         SELECT
             UD.UnidadeCOD AS id,
-          UD.UnidadeDS AS nome,
+            UD.UnidadeDS AS nome,
             COUNT(DISTINCT OM.OcorrenciaID) AS totalOcorrencias,
             AVG(
                 DATEDIFF(

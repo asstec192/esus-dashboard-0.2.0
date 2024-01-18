@@ -5,6 +5,7 @@ import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { getTurnFilterQuery } from "@/utils/getTurnQuery";
 import { addHours } from "date-fns";
 import { dateRangeSchema, turnoSchema } from "@/constants/zod-schemas";
+import { isWithinHour } from "@/utils/isWithinTurn";
 
 export const vehicleRouter = createTRPCRouter({
   /**
@@ -20,48 +21,64 @@ export const vehicleRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input.dateRange);
-      return await db.ocorrencia.findMany({
+
+      //obtem o veiculo com suas respectivas ocorrencias
+      const veiculo = await db.veiculos.findUnique({
+        where: { VeiculoID: input.vehicleId },
         select: {
-          OcorrenciaID: true,
-          Bairro: true,
-          DtHr: true,
-          RISCOCOD: true,
-          Motivo: {
+          VeiculoDS: true,
+          OcorrenciaMovimentacao: {
+            distinct: ["OcorrenciaID"],
             select: {
-              MotivoDS: true,
-            },
-          },
-          OcorrenciaMovimentacao: {
-            select: { EnvioEquipeDT: true, VeiculoID: true },
-            orderBy: { EnvioEquipeDT: "asc" },
-          },
-        },
-        where: {
-          OcorrenciaMovimentacao: {
-            some: {
-              AND: {
-                VeiculoID: input.vehicleId,
-                EnvioEquipeDT: {
-                  gte:
-                    input.turn.category === "veiculo"
-                      ? addHours(from, 7)
-                      : addHours(from, 1), //primeiro turno inicia as 1h. 7h caso seja se veiculos
-                  lt:
-                    input.turn.category === "veiculo"
-                      ? addHours(to, 7)
-                      : addHours(to, 1), //ultimo turno encerra as 1h. 7h caso seja se veiculos
+              EnvioEquipeDT: true,
+              Ocorrencia: {
+                select: {
+                  OcorrenciaID: true,
+                  Bairro: true,
+                  DtHr: true,
+                  RISCOCOD: true,
+                  Motivo: {
+                    select: {
+                      MotivoDS: true,
+                    },
+                  },
                 },
               },
             },
+            where: {
+              EnvioEquipeDT: {
+                gte:
+                  input.turn.category === "veiculo"
+                    ? addHours(from, 7)
+                    : addHours(from, 1), //primeiro turno inicia as 1h. 7h caso seja se veiculos
+                lt:
+                  input.turn.category === "veiculo"
+                    ? addHours(to, 7)
+                    : addHours(to, 1), //ultimo turno encerra as 1h. 7h caso seja se veiculos
+              },
+            },
+            orderBy: { OcorrenciaID: "desc" },
           },
-          LigacaoTPID: {
-            in: [9, 11, 15, 20],
-          },
-        },
-        orderBy: {
-          OcorrenciaID: "desc",
         },
       });
+
+      //obtendo as ocorrencias filtradas pelo turno
+      const ocorrencias =
+        veiculo?.OcorrenciaMovimentacao.filter(
+          (movimentacao) =>
+            movimentacao.EnvioEquipeDT &&
+            isWithinHour(
+              addHours(movimentacao.EnvioEquipeDT, 3),
+              input.turn.from,
+              input.turn.to,
+            ),
+        ).map((mov) => mov.Ocorrencia) || [];
+
+      //resposta final com o nome do veiculo e suas ocorrencias filtradas
+      return {
+        nome: veiculo?.VeiculoDS,
+        ocorrencias,
+      };
     }),
 
   /**

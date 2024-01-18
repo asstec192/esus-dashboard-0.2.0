@@ -63,14 +63,11 @@ export default async function ModalOcorrencia({
       <DialogContent className="sm:px sm:max-w-4xl">
         <DialogHeader className="p">
           <DialogTitle
-            className={cn(
-              ocorrencia.RISCOCOD &&
-                !riskColors[ocorrencia.RISCOCOD] &&
-                "!text-foreground",
-            )}
+            className="text-foreground"
             style={{
-              color:
-                (ocorrencia.RISCOCOD && riskColors[ocorrencia.RISCOCOD]) || "",
+              color: ocorrencia.RISCOCOD
+                ? riskColors[ocorrencia.RISCOCOD]
+                : undefined,
             }}
           >
             #{ocorrencia.OcorrenciaID.toString()}
