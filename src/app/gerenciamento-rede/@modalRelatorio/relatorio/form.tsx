@@ -37,9 +37,14 @@ export function GerenciamentoRedeFormRelatorioUnidade({
 }: FormRelatorioUnidadeProps) {
   const session = useSession();
   const { form, onSubmit } = useFormRelatorioUnidade(initialData);
+
   const { buscaEquipamentosMutation, buscaEspecialidadesMutation } =
     useEncontraUltimoRegistroDeItemsDaUnidade(form);
+
   const foneRef = useMask({
+    modify: (value) => ({
+      mask: value[2] === "9" ? "(__) _____-____" : undefined, //se for celular acrescenta 1 digito à mascara
+    }),
     mask: "(__) ____-____",
     replacement: { _: /\d/ },
   });
@@ -97,7 +102,7 @@ export function GerenciamentoRedeFormRelatorioUnidade({
                     <Input
                       {...field}
                       ref={foneRef}
-                      placeholder="(88) 8888-8888"
+                      placeholder="(85) 98888-8888"
                     />
                   </FormControl>
                   <FormMessage />
