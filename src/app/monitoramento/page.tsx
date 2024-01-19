@@ -10,7 +10,7 @@ import { ChartCalls } from "@/app/monitoramento/components/grafico-ligacoes";
 import { MontitoramentoOcorrencias } from "./components/ocorrencias";
 import { MonitoramentoEstatisticasGerais } from "./components/estatisticas-gerais";
 import { api } from "@/trpc/server";
-import { startOfDay } from "date-fns";
+import { format, startOfDay } from "date-fns";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,7 @@ export default async function Monitoramento() {
   const contagemDeLigacoes =
     await api.incidents.getTotalIncidentsByCallType.query();
   console.log(new Date());
-  const inicioDoDia = startOfDay(new Date()).toLocaleString();
+  const inicioDoDia = format(startOfDay(new Date()), "dd/MM/yyyy, HH:mm:ss");
 
   return (
     <div className="grid min-h-nav-offset grid-cols-12 gap-2 py-4 sm:p-4">

@@ -179,7 +179,7 @@ export const incidentsRouter = createTRPCRouter({
 
   getAllInProgress: protectedProcedure.query(async () => {
     //tirando 3 horas para ficar com fuso compativel
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 10000);
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
     const data = await db.$queryRaw<[]>`
     SELECT
       DISTINCT
@@ -232,7 +232,7 @@ export const incidentsRouter = createTRPCRouter({
   }),
 
   getTotalIncidentsByRisk: protectedProcedure.query(async () => {
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 10000);
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
     return await db.$queryRaw<
       {
         risco: string;
@@ -251,7 +251,7 @@ export const incidentsRouter = createTRPCRouter({
   }),
 
   getTotalIncidentsByCallType: protectedProcedure.query(async () => {
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 10000);
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
     return await db.$queryRaw<{ tipo: string; total: number }[]>`
       SELECT 
         LigacaoTPDS as tipo, 
