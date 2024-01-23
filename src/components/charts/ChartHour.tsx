@@ -12,7 +12,7 @@ import Chart from "react-apexcharts";
 export const ChartHour = (props: HTMLAttributes<HTMLDivElement>) => {
   const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
   const { data, isLoading, isError } =
-    api.incidents.getTotalIncidentsByHour.useQuery(
+    api.ocorrencias.countByHoraDeEnvioDoVeiculo.useQuery(
       { from: dateRange.from!, to: dateRange.to! },
       {
         onError: (error) => {

@@ -15,12 +15,11 @@ import { format, startOfDay } from "date-fns";
 export const dynamic = "force-dynamic";
 
 export default async function Monitoramento() {
-  const ocorrencias = await api.incidents.getAllInProgress.query();
-  const estatisticas = await api.incidents.getDailyInfo.query();
-  const contagemDeRisco = await api.incidents.getTotalIncidentsByRisk.query();
-  const contagemDeLigacoes =
-    await api.incidents.getTotalIncidentsByCallType.query();
-  console.log(new Date());
+  const ocorrencias = await api.ocorrencias.getAllInProgress.query();
+  const estatisticas = await api.ocorrencias.getDailyInfo.query();
+  const contagemDeRisco = await api.ocorrencias.countByRisco.query();
+  const contagemDeLigacoes = await api.ocorrencias.countByTipoLigacao.query();
+
   const inicioDoDia = format(startOfDay(new Date()), "dd/MM/yyyy, HH:mm:ss");
 
   return (

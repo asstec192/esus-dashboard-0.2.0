@@ -3,6 +3,10 @@ type Ocorrencia = {
   data: Date;
   bairro: string;
   risco: number;
+  riscoColorClass: {
+    text: string;
+    fill: string;
+  };
   operador: string | null;
   motivo?: string;
   veiculos: Veiculo[];

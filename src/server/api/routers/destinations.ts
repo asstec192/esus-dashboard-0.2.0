@@ -36,7 +36,7 @@ export const destinationRouter = createTRPCRouter({
           OcorrenciaID: true,
           Bairro: true,
           DtHr: true,
-          RISCOCOD: true,
+          riscoColorClass: true,
           Motivo: {
             select: {
               MotivoDS: true,

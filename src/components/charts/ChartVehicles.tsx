@@ -1,92 +1,89 @@
-"use client"
+"use client";
 
 import { type HTMLAttributes } from "react";
 import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
 import { Card } from "@/components/ui/card";
 import { useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
-import { toast } from "@/components/ui/use-toast";
 import { TypographySmall } from "@/components/typography/TypographySmall";
 import { api } from "@/trpc/react";
-import Chart from "react-apexcharts";
+
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 export const ChartVehicles = (props: HTMLAttributes<HTMLDivElement>) => {
   const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
-  const { data, isLoading, isError } =
-    api.incidents.getTotalIncidentsByVehicleType.useQuery(
-      { from: dateRange.from!, to: dateRange.to! },
-      {
-        onError: (error) => {
-          toast({
-            title:
-              "Houve ao gerar o gráfico de ocorrências por tipo de veículo!",
-            description: error.message,
-            variant: "destructive",
-          });
-        },
-      },
-    );
+  const { data, isLoading } = api.ocorrencias.countByTipoDeVeiculo.useQuery({
+    from: dateRange.from!,
+    to: dateRange.to!,
+  });
 
-  //Gambiarra para somar as contagens dos tipos "M-0," "M-1," e "USB" e juntá-los em um único tipo, "USB"
-  const modifiedData = data?.reduce(
-    (accumulator, currentItem) => {
-      const type =
-        currentItem.tipo === "M-0" ||
-        currentItem.tipo === "M-1" ||
-        currentItem.tipo === "USB"
-          ? "USB"
-          : currentItem.tipo;
-      const existingEntry = accumulator.find((entry) => entry.x === type);
-
-      if (existingEntry) {
-        existingEntry.y += currentItem.contagem;
-      } else {
-        accumulator.push({ x: type, y: currentItem.contagem });
-      }
-      return accumulator;
-    },
-    [] as { x: string; y: number }[],
-  );
+  console.log(data);
 
   return (
     <Card {...props} className="p-2">
       <TypographySmall>Ocorrências X Tipo de Veìculo</TypographySmall>
-      {isLoading || isError ? (
+      {isLoading ? (
         <SkeletonChart />
       ) : (
-        <Chart
-          options={{
-            chart: {
-              type: "bar",
-              fontFamily: "Roboto",
-              toolbar: {
-                show: true,
-                tools: {
-                  download: true,
-                },
-                export: {
-                  csv: {
-                    filename: undefined,
-                    columnDelimiter: ";",
-                    headerCategory: "Tipo de Veículo",
-                    headerValue: "Quantidade",
-                  },
-                },
-                autoSelected: "zoom",
-              },
-            },
-            colors: ["hsl(var(--primary))"],
-            dataLabels: {
-              enabled: false,
-            },
-          }}
-          series={[
-            //@ts-ignore
-            {
-              data: modifiedData,
-            },
-          ]}
-          type="bar"
-        />
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart
+            data={data}
+            width={300}
+            height={300}
+            barCategoryGap={2}
+            margin={{
+              left: -100,
+              top: 20,
+            }}
+          >
+            <XAxis
+              dataKey="tipo"
+              type="category"
+              stroke="#888888"
+              fontSize={12}
+              axisLine={false}
+            />
+            <YAxis
+              width={130}
+              dataKey="count"
+              type="number"
+              stroke="#888888"
+              fontSize={12}
+              //tickLine={false}
+              axisLine={false}
+              //label={{ position: "center" }}
+              interval={0}
+            />
+            <Tooltip
+              content={({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="flex flex-col rounded-lg border bg-background p-2 shadow-sm">
+                      <span className="text-[0.70rem] uppercase text-muted-foreground">
+                        {label}
+                      </span>
+                      <span className="font-bold text-muted-foreground">
+                        {payload[0]?.value}
+                      </span>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Bar
+              dataKey="count"
+              className="fill-primary"
+              radius={[4, 4, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
       )}
     </Card>
   );

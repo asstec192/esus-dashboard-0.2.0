@@ -14,21 +14,18 @@ import {
 export const ChartCalls = ({
   initialData,
 }: {
-  initialData: RouterOutputs["incidents"]["getTotalIncidentsByCallType"];
+  initialData: RouterOutputs["ocorrencias"]["countByTipoLigacao"];
 }) => {
-  const { data } = api.incidents.getTotalIncidentsByCallType.useQuery(
-    undefined,
-    {
-      initialData,
-      refetchInterval: 5000, //5s
-    },
-  );
+  const { data } = api.ocorrencias.countByTipoLigacao.useQuery(undefined, {
+    initialData,
+    refetchInterval: 5000, //5s
+  });
 
   return (
     <ResponsiveContainer width="100%" height={250}>
       <BarChart data={data} barCategoryGap={2} layout="vertical">
         <XAxis
-          dataKey="total"
+          dataKey="count"
           type="number"
           stroke="#888888"
           fontSize={12}
@@ -36,7 +33,7 @@ export const ChartCalls = ({
         />
         <YAxis
           width={130}
-          dataKey="tipo"
+          dataKey="label"
           type="category"
           stroke="#888888"
           fontSize={12}
@@ -63,7 +60,7 @@ export const ChartCalls = ({
             return null;
           }}
         />
-        <Bar dataKey="total" className="fill-primary" radius={[0, 4, 4, 0]} />
+        <Bar dataKey="count" className="fill-primary" radius={[0, 4, 4, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

@@ -4,8 +4,7 @@ import { addHours } from "date-fns";
 import { formatProperName } from "@/utils/formatProperName";
 import { RouterOutputs } from "@/trpc/shared";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { riskColors } from "@/constants/riskColors";
+
 import {
   Card,
   CardContent,
@@ -53,12 +52,7 @@ export function RegulacaoSecundariaOcorrencias({
                   <TableRow role="button">
                     <TableCell className="flex flex-col items-start gap-2 align-top">
                       <span
-                        className={cn("font-medium text-foreground")}
-                        style={{
-                          color: ocorrencia.RISCOCOD
-                            ? riskColors[ocorrencia.RISCOCOD]
-                            : undefined,
-                        }}
+                        className={`${ocorrencia.riscoColorClass.text} font-medium`}
                       >
                         {ocorrencia.OcorrenciaID.toString()}
                       </span>

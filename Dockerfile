@@ -30,8 +30,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ENV GENERATE_SOURCEMAP=false
-
 # ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN \
@@ -45,6 +43,9 @@ RUN \
 
 FROM base AS runner
 WORKDIR /app
+
+# Set the locale
+
 
 ENV NODE_ENV production
 

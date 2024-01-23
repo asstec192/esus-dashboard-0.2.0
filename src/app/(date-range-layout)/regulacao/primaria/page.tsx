@@ -13,7 +13,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export default function RegulacaoPrimaria() {
   const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
-  const { data, isLoading } = api.incidents.getAll.useQuery(
+  const { data, isLoading } = api.ocorrencias.getAll.useQuery(
     {
       from: dateRange.from!,
       to: dateRange.to!,
@@ -23,6 +23,7 @@ export default function RegulacaoPrimaria() {
         toast({ description: error.message, variant: "destructive" }),
     },
   );
+  
   return (
     <main className="mt-2 flex min-h-nav-offset flex-col px-1 py-4 sm:px-4">
       <DataTableProvider data={data || []} columns={ocorrenciaTableColumns}>

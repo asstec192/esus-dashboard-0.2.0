@@ -1,7 +1,7 @@
 import { exampleRouter } from "@/server/api/routers/example";
 import { createTRPCRouter } from "@/server/api/trpc";
 import { patientsRouter } from "./routers/patients";
-import { incidentsRouter } from "./routers/incidents";
+import { ocorrenciaRouter } from "./routers/ocorrencias";
 import { usersRouter } from "./routers/users";
 import { vehicleRouter } from "./routers/vehicles";
 import { intercorrenciaRouter } from "./routers/intercorrencias";
@@ -17,13 +17,13 @@ import { roleRouter } from "./routers/roles";
 export const appRouter = createTRPCRouter({
   //   example: exampleRouter,
   patients: patientsRouter,
-  incidents: incidentsRouter,
+  ocorrencias: ocorrenciaRouter,
   users: usersRouter,
   vehicles: vehicleRouter,
   destinations: destinationRouter,
   intercorrencia: intercorrenciaRouter,
   hospitalManager: hospitalManagerRouter,
-  roles: roleRouter
+  roles: roleRouter,
 });
 
 // export type definition of API

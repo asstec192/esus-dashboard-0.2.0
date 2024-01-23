@@ -12,9 +12,9 @@ import { RouterOutputs } from "@/trpc/shared";
 export const MontitoramentoOcorrencias = ({
   initialData,
 }: {
-  initialData: RouterOutputs["incidents"]["getAllInProgress"];
+  initialData: RouterOutputs["ocorrencias"]["getAllInProgress"];
 }) => {
-  const { data } = api.incidents.getAllInProgress.useQuery(undefined, {
+  const { data } = api.ocorrencias.getAllInProgress.useQuery(undefined, {
     initialData,
     refetchInterval: 5000,
   });

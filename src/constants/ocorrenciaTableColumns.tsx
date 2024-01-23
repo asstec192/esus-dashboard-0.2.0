@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { RouterOutputs } from "@/trpc/shared";
 import { ColumnDef } from "@tanstack/react-table";
-import { riskColors } from "./riskColors";
 import { formatProperName } from "@/utils/formatProperName";
 import { PopoverVeiculo } from "@/components/popovers/VeiculoPopover";
 import { formatDate } from "@/utils/formatDate";
@@ -10,7 +9,7 @@ import { isWithinHour } from "@/utils/isWithinTurn";
 import { isBelowOneYear } from "@/utils/isBelowOneYear";
 import { TypographyMuted } from "@/components/typography/TypographyMuted";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 type NumberRange = {
   min: number;
@@ -18,7 +17,7 @@ type NumberRange = {
 };
 
 export const ocorrenciaTableColumns: ColumnDef<
-  RouterOutputs["incidents"]["getAll"][0]
+  RouterOutputs["ocorrencias"]["getAll"][0]
 >[] = [
   {
     accessorKey: "id",
@@ -28,10 +27,7 @@ export const ocorrenciaTableColumns: ColumnDef<
       <>
         <Button
           variant="link"
-          className="!p-0 text-foreground underline"
-          style={{
-            color: riskColors[row.original.risco],
-          }}
+          className={cn(`!p-0 ${row.original.riscoColorClass.text} underline`)}
           asChild
         >
           <Link

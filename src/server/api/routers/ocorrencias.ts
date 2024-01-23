@@ -4,8 +4,9 @@ import { db } from "@/server/db";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { dateRangeSchema } from "@/constants/zod-schemas";
+import { getColorByRisk } from "@/utils/getColorByRisk";
 
-export const incidentsRouter = createTRPCRouter({
+export const ocorrenciaRouter = createTRPCRouter({
   getOne: protectedProcedure
     .input(z.object({ incidentId: z.number() }))
     .mutation(({ input }) =>
@@ -15,7 +16,7 @@ export const incidentsRouter = createTRPCRouter({
           Bairro: true,
           DtHr: true,
           OcorrenciaFinalDT: true,
-          RISCOCOD: true,
+          riscoColorClass: true,
           QueixaDS: true,
           Logradouro: true,
           Logradouro_: { select: { Abreviatura: true } },
@@ -169,6 +170,7 @@ export const incidentsRouter = createTRPCRouter({
       data: ocorrencia.data,
       bairro: ocorrencia.bairro || "",
       risco: ocorrencia.risco,
+      riscoColorClass: getColorByRisk(ocorrencia.risco),
       desfecho: ocorrencia.desfecho,
       operador: ocorrencia.operador || "",
       motivo: ocorrencia.motivo?.replace(/\*/g, "") || "NÃO PREENCHIDO",
@@ -179,7 +181,7 @@ export const incidentsRouter = createTRPCRouter({
 
   getAllInProgress: protectedProcedure.query(async () => {
     //tirando 3 horas para ficar com fuso compativel
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 10000);
     const data = await db.$queryRaw<[]>`
     SELECT
       DISTINCT
@@ -225,46 +227,87 @@ export const incidentsRouter = createTRPCRouter({
       id: ocorrencia.id.toString(),
       bairro: ocorrencia.bairro,
       risco: ocorrencia.risco,
+      riscoColorClass: getColorByRisk(ocorrencia.risco),
       operador: ocorrencia.operador,
       motivo: ocorrencia.motivo?.replace(/\*/g, "") || "NÃO PREENCHIDO",
       veiculos: ocorrencia.veiculos ? JSON.parse(ocorrencia.veiculos) : [],
     })) as OcorrenciaEmAndamento[];
   }),
 
-  getTotalIncidentsByRisk: protectedProcedure.query(async () => {
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
-    return await db.$queryRaw<
-      {
-        risco: string;
-        total: number;
-      }[]
-    >`
-      SELECT 
-        RISCODS as risco, 
-        COUNT(*) AS total
-      FROM Ocorrencia O
-      JOIN CLASSIFICACAO_RISCO ON O.RISCOCOD = CLASSIFICACAO_RISCO.RISCOCOD
-      WHERE (O.RISCOCOD BETWEEN 1 AND 4)
-      AND  O.DtHr >= ${date}
-      GROUP BY RISCODS
-    `;
+  countByRisco: protectedProcedure.query(async () => {
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 10000);
+
+    //obtendo dados brutos dos riscos com contagens de ocorrencias
+    const rawData = await db.cLASSIFICACAO_RISCO.findMany({
+      select: {
+        RISCODS: true,
+        riscoColorClass: true,
+        _count: {
+          select: {
+            Ocorrencia: {
+              where: {
+                //somente ocorrencias apos a data
+                DtHr: {
+                  gte: date,
+                },
+              },
+            },
+          },
+        },
+      },
+      //somente riscos de 1 a 4
+      where: {
+        RISCOCOD: { in: [1, 2, 3, 4] },
+      },
+      orderBy: { RISCOCOD: "asc" },
+    });
+
+    //tratando os dados
+    const riscoCount = rawData.map((r) => ({
+      label: r.RISCODS,
+      colorClass: r.riscoColorClass,
+      count: r._count.Ocorrencia,
+    }));
+
+    //reposta para o client
+    return riscoCount;
   }),
 
-  getTotalIncidentsByCallType: protectedProcedure.query(async () => {
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
-    return await db.$queryRaw<{ tipo: string; total: number }[]>`
-      SELECT 
-        LigacaoTPDS as tipo, 
-        COUNT(*) AS total
-      FROM Ocorrencia O
-      LEFT JOIN LigacaoTP ON O.LigacaoTPID = LigacaoTP.LigacaoTPID
-      WHERE O.DtHr >= ${date}
-      GROUP BY LigacaoTPDS
-      ORDER BY total ASC;
-    `;
+  countByTipoLigacao: protectedProcedure.query(async () => {
+    //inicio do dia
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 10000);
+
+    //obtendos os dados crus da contagem de ocorrencias por ligacao
+    const rawData = await db.ligacaoTP.findMany({
+      select: {
+        LigacaoTPDS: true,
+        _count: {
+          select: {
+            Ocorrencia: {
+              where: {
+                DtHr: { gte: date },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    //trata os dados
+    const ligacoes = rawData
+      .filter((l) => l._count.Ocorrencia > 0) //filtra somente as ligacoes com mais de 0 ocorrencias
+      .map((l) => ({
+        //remapea o array para nova estrutura
+        label: l.LigacaoTPDS,
+        count: l._count.Ocorrencia,
+      }))
+      .sort((a, b) => a.count - b.count); //poe em ordem crescente de contagem
+
+    //resposta para o client
+    return ligacoes;
   }),
 
-  getTotalIncidentsByHour: protectedProcedure
+  countByHoraDeEnvioDoVeiculo: protectedProcedure
     .input(dateRangeSchema)
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input);
@@ -307,24 +350,54 @@ export const incidentsRouter = createTRPCRouter({
           END`;
     }),
 
-  getTotalIncidentsByVehicleType: protectedProcedure
+  countByTipoDeVeiculo: protectedProcedure
     .input(dateRangeSchema)
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input);
-      return await db.$queryRaw<
-        {
-          tipo: "USB" | "M-0" | "M-1" | "MOT" | "BIK" | "USI" | "USA";
-          contagem: number;
-        }[]
-      >`
-        SELECT
-          SUBSTRING(V.VeiculoDS, 1, 3) AS tipo,
-          COUNT(*) AS contagem
-        FROM OcorrenciaMovimentacao OM
-        JOIN Veiculos V ON V.VeiculoID = OM.VeiculoID
-        JOIN Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID
-        WHERE O.DtHr BETWEEN ${from} AND ${to} 
-        GROUP BY SUBSTRING(V.VeiculoDS, 1, 3)`;
+
+      //obtem a contagem para cada veiculo unico
+      const veiculos = await db.veiculos.findMany({
+        select: {
+          tipo: true,
+          _count: {
+            select: {
+              OcorrenciaMovimentacao: {
+                where: {
+                  Ocorrencia: {
+                    DtHr: {
+                      gte: from,
+                      lt: to,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      //tratamento para obter a contagem para cada "tipo" de veiculo
+      const tiposDeVeiculos = veiculos.reduce(
+        (acc, veiculo) => {
+          const tipo = veiculo.tipo;
+          const count = veiculo._count.OcorrenciaMovimentacao;
+
+          // Verifica se o tipo de veiculo ja existe no "acc"
+          const existingType = acc.find((item) => item.tipo === tipo && !!tipo);
+
+          if (existingType) {
+            existingType.count += count; //se existir soma as contagens
+          } else {
+            acc.push({ tipo, count }); // se nao adiciona o objeto ao "acc"
+          }
+
+          return acc;
+        },
+        [] as { tipo: TipoVeiculo; count: number }[],
+      );
+
+      // resposta final ao client
+      return tiposDeVeiculos;
     }),
 
   getDailyInfo: protectedProcedure.query(async () => {

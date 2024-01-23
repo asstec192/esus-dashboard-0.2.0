@@ -31,7 +31,7 @@ export const intercorrenciaRouter = createTRPCRouter({
           OcorrenciaID: true,
           Bairro: true,
           DtHr: true,
-          RISCOCOD: true,
+          riscoColorClass: true,
           Motivo: {
             select: {
               MotivoDS: true,

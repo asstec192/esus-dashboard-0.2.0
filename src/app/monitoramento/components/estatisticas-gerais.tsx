@@ -9,9 +9,9 @@ import { RouterOutputs } from "@/trpc/shared";
 export const MonitoramentoEstatisticasGerais = ({
   initialData,
 }: {
-  initialData: RouterOutputs["incidents"]["getDailyInfo"];
+  initialData: RouterOutputs["ocorrencias"]["getDailyInfo"];
 }) => {
-  const { data } = api.incidents.getDailyInfo.useQuery(undefined, {
+  const { data } = api.ocorrencias.getDailyInfo.useQuery(undefined, {
     initialData,
     refetchInterval: 5000, //5s
   });

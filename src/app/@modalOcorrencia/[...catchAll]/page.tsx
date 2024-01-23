@@ -24,8 +24,6 @@ import {
 } from "@/components/ui/carousel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { riskColors } from "@/constants/riskColors";
-
 export const revalidate = 0; //nunca cacheia o resultado
 
 export default async function ModalOcorrencia({
@@ -44,7 +42,7 @@ export default async function ModalOcorrencia({
   if (isNaN(ocorrenciaId)) return null;
 
   //busca a ocorrencia
-  const ocorrencia = await api.incidents.getOne.mutate({
+  const ocorrencia = await api.ocorrencias.getOne.mutate({
     incidentId: ocorrenciaId,
   });
 
@@ -60,14 +58,7 @@ export default async function ModalOcorrencia({
     <ParallelDialog open={!!searchParams.ocorrenciaId}>
       <DialogContent className="sm:px sm:max-w-4xl">
         <DialogHeader className="p">
-          <DialogTitle
-            className="text-foreground"
-            style={{
-              color: ocorrencia.RISCOCOD
-                ? riskColors[ocorrencia.RISCOCOD]
-                : undefined,
-            }}
-          >
+          <DialogTitle className={ocorrencia.riscoColorClass.text}>
             #{ocorrencia.OcorrenciaID.toString()}
           </DialogTitle>
           <TypographySmall>

@@ -12,7 +12,7 @@ import { addHours } from "date-fns";
 type ModalOcorrenciaProps = {
   hasPrivilege?: boolean;
   movimentacoes: NonNullable<
-    RouterOutputs["incidents"]["getOne"]
+    RouterOutputs["ocorrencias"]["getOne"]
   >["OcorrenciaMovimentacao"];
 };
 

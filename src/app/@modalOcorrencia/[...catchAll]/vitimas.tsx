@@ -9,7 +9,7 @@ import { addHours } from "date-fns";
 
 type ModalOcorrenciaVitimasProps = {
   hasPrivilege?: boolean;
-  vitimas: NonNullable<RouterOutputs["incidents"]["getOne"]>["Vitimas"];
+  vitimas: NonNullable<RouterOutputs["ocorrencias"]["getOne"]>["Vitimas"];
 };
 
 export function ModalOcorrenciaVitimas({
