@@ -383,7 +383,7 @@ export const ocorrenciaRouter = createTRPCRouter({
           const count = veiculo._count.OcorrenciaMovimentacao;
 
           // Verifica se o tipo de veiculo ja existe no "acc"
-          const existingType = acc.find((item) => item.tipo === tipo && !!tipo);
+          const existingType = acc.find((item) => item.tipo === tipo);
 
           if (existingType) {
             existingType.count += count; //se existir soma as contagens
@@ -397,7 +397,7 @@ export const ocorrenciaRouter = createTRPCRouter({
       );
 
       // resposta final ao client
-      return tiposDeVeiculos;
+      return tiposDeVeiculos.filter((v) => v.tipo !== null);
     }),
 
   getDailyInfo: protectedProcedure.query(async () => {

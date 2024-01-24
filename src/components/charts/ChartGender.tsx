@@ -1,29 +1,28 @@
 "use client";
 
-import Chart from "react-apexcharts";
 import { type HTMLAttributes } from "react";
 import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
 import { Card } from "@/components/ui/card";
-import { toast } from "@/components/ui/use-toast";
 import { useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
 import { TypographySmall } from "@/components/typography/TypographySmall";
 import { api } from "@/trpc/react";
+import {
+  Bar,
+  BarChart,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { cn } from "@/lib/utils";
 
 export const ChartGender = (props: HTMLAttributes<HTMLDivElement>) => {
   const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
-  const { data, isLoading, isError } = api.pacientes.countByGender.useQuery(
-    { from: dateRange.from!, to: dateRange.to! },
-    {
-      onError: () => {
-        toast({
-          title: "Erro",
-          description:
-            "Houve um erro ao gerar o gráfico de pacientes por sexo!",
-          variant: "destructive",
-        });
-      },
-    },
-  );
+  const { data, isLoading, isError } = api.pacientes.countByGender.useQuery({
+    from: dateRange.from!,
+    to: dateRange.to!,
+  });
 
   return (
     <Card {...props} className="p-2">
@@ -31,50 +30,54 @@ export const ChartGender = (props: HTMLAttributes<HTMLDivElement>) => {
       {isLoading || isError ? (
         <SkeletonChart />
       ) : (
-        <Chart
-          options={{
-            chart: {
-              type: "bar",
-              fontFamily: "Roboto",
-              toolbar: {
-                show: true,
-                tools: {
-                  download: true,
-                },
-                export: {
-                  csv: {
-                    filename: undefined,
-                    columnDelimiter: ";",
-                    headerCategory: "Sexo",
-                    headerValue: "Quantidade",
-                  },
-                },
-                autoSelected: "zoom",
-              },
-            },
-            colors: ["rgba(16, 148, 158)"],
-            dataLabels: {
-              enabled: true,
-            },
-          }}
-          series={[
-            {
-              data: data.map((item) => ({
-                x: item.sexo,
-                y: item.count,
-                fillColor: genderColors[item.sexo],
-              })),
-            },
-          ]}
-          type="bar"
-        />
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={data} width={300} height={300} margin={{ top: 20 }}>
+            <XAxis
+              dataKey="sexo"
+              type="category"
+              axisLine={false}
+              tickLine={false}
+              fontSize={12}
+            />
+            <YAxis
+              dataKey="count"
+              type="number"
+              axisLine={false}
+              fontSize={12}
+            />
+            <Tooltip
+              content={({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="flex flex-col rounded-lg border bg-background p-2 shadow-sm">
+                      <span className="text-[0.70rem] uppercase text-muted-foreground">
+                        {label}
+                      </span>
+                      <span className="font-bold text-muted-foreground">
+                        {payload[0]?.value}
+                      </span>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+              {data.map((item) => (
+                <Cell
+                  className={cn(
+                    item.sexo === "Masculino"
+                      ? "fill-[#ce5d13]"
+                      : item.sexo === "Feminino"
+                        ? "fill-primary"
+                        : "fill-muted-foreground",
+                  )}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       )}
     </Card>
   );
-};
-
-const genderColors: Record<string, string> = {
-  "Não informado": "#979aa5",
-  Masculino: "hsl(var(--secondary))",
-  Feminino: "hsl(var(--primary))",
 };

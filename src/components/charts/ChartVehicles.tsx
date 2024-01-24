@@ -18,12 +18,11 @@ import {
 
 export const ChartVehicles = (props: HTMLAttributes<HTMLDivElement>) => {
   const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
+
   const { data, isLoading } = api.ocorrencias.countByTipoDeVeiculo.useQuery({
     from: dateRange.from!,
     to: dateRange.to!,
   });
-
-  console.log(data);
 
   return (
     <Card {...props} className="p-2">
@@ -34,30 +33,24 @@ export const ChartVehicles = (props: HTMLAttributes<HTMLDivElement>) => {
         <ResponsiveContainer width="100%" height={300}>
           <BarChart
             data={data}
-            width={300}
-            height={300}
             barCategoryGap={2}
             margin={{
-              left: -100,
               top: 20,
             }}
           >
             <XAxis
               dataKey="tipo"
               type="category"
-              stroke="#888888"
               fontSize={12}
+              tickLine={false}
               axisLine={false}
             />
             <YAxis
-              width={130}
               dataKey="count"
               type="number"
-              stroke="#888888"
               fontSize={12}
-              //tickLine={false}
               axisLine={false}
-              //label={{ position: "center" }}
+              label={{ position: "center" }}
               interval={0}
             />
             <Tooltip

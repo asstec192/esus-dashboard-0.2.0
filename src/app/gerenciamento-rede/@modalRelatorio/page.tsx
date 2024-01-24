@@ -26,7 +26,7 @@ export default async function ModalRelatorioPage({
   });
 
   //obtendo os nomes dos hospitais
-  const hospitais = await api.destinations.getAll.query();
+  const hospitais = await api.destinos.getAll.query();
 
   return (
     <ParallelDialog defaultOpen>

@@ -2,6 +2,7 @@ import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { db } from "../../db";
 import { dateRangeSchema } from "@/constants/zod-schemas";
+import { range } from "lodash";
 
 export const pacientesRouter = createTRPCRouter({
   countByAgeRange: protectedProcedure
@@ -102,12 +103,21 @@ export const pacientesRouter = createTRPCRouter({
         ORDER BY
           DATEPART(WEEKDAY, o.DtHr);`;
 
-      return data.map((item) => ({
-        weekDay: weekDays[item.weekDay],
-        count: item.count,
-      }));
+      // Mesclar o array base com os resultados da consulta
+      const mergedResult = allDaysOfWeek.map((day) => {
+        const resultItem = data.find((item) => item.weekDay === day);
+        return {
+          weekDay: weekDays[day],
+          count: resultItem ? resultItem.count : 0,
+        };
+      });
+
+      return mergedResult;
     }),
 });
+
+// Isso cria um array de 1 a 7 (representando os dias da semana)
+const allDaysOfWeek = range(1, 8);
 
 const weekDays: Record<number, string> = {
   1: "Dom",

@@ -7,10 +7,10 @@ import { RouterOutputs } from "@/trpc/shared";
 import { ColumnDef } from "@tanstack/react-table";
 import { api } from "@/trpc/server";
 
-type Hospital = RouterOutputs["destinations"]["getAll"][0];
+type Hospital = RouterOutputs["destinos"]["getAll"][0];
 
 export default async function GerenciamentoRedeHospitaisPage() {
-  const hospitais = await api.destinations.getAll.query();
+  const hospitais = await api.destinos.getAll.query();
   return (
     <div className="space-y-2">
       <DataTableProvider columns={columns} data={hospitais}>

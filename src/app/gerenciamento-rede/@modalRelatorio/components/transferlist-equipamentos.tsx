@@ -44,7 +44,7 @@ export const GerenciamentoRedeTransferEquipamentos = ({
             render={({ option, onTransfer }) => (
               <Button
                 variant="outline"
-                className="truncate"
+                className="w-full max-w-[370px]"
                 onClick={() => {
                   atualizarCampoDeEspecialidadesOuEquipamentos({
                     action: "add",
@@ -56,7 +56,7 @@ export const GerenciamentoRedeTransferEquipamentos = ({
                 }}
                 key={option.value + "source"}
               >
-                {option.label}
+                <span className="w-full truncate">{option.label}</span>
                 <ChevronsRight size={14} className="ml-2" />
               </Button>
             )}
@@ -75,7 +75,7 @@ export const GerenciamentoRedeTransferEquipamentos = ({
                     {/* ---------------- BOTAO DE REMOVER ITEM ---------------*/}
                     <Button
                       variant="outline"
-                      className="flex-[4] truncate"
+                      className="max-w-sm truncate"
                       onClick={() => {
                         atualizarCampoDeEspecialidadesOuEquipamentos({
                           action: "remove",

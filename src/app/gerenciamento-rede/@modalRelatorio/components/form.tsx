@@ -32,7 +32,7 @@ export function GerenciamentoRedeFormRelatorioUnidade({
   hospitais,
 }: {
   initialData: RouterOutputs["hospitalManager"]["obterRelatorio"];
-  hospitais: RouterOutputs["destinations"]["getAll"];
+  hospitais: RouterOutputs["destinos"]["getAll"];
 }) {
   //obtem a sessao ativa
   const session = useSession();
