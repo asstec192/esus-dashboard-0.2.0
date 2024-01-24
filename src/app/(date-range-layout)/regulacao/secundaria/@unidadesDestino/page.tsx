@@ -38,21 +38,19 @@ export default function RegulacaoSecundariaUnidadesDestino() {
             {!unidades ? (
               <SkeletonTable numberOfCols={3} numberOfRows={10} />
             ) : (
-              unidades.map((destination) => (
-                <Link key={destination.id} href="#ocorrencias" legacyBehavior>
+              unidades.map((unidade) => (
+                <Link key={unidade.id} href="#ocorrencias" legacyBehavior>
                   <TableRow
-                    key={destination.nome}
+                    key={unidade.nome}
                     role="button"
-                    onClick={() => setUnidadeSelecionada(destination)}
+                    onClick={() => setUnidadeSelecionada(unidade)}
                   >
                     <TableCell className="font-medium">
-                      {destination.nome}
+                      {unidade.nome}
                     </TableCell>
+                    <TableCell className="text-end">{unidade.tempo}</TableCell>
                     <TableCell className="text-end">
-                      {destination.tempo}
-                    </TableCell>
-                    <TableCell className="text-end">
-                      {destination.totalOcorrencias}
+                      {unidade.totalOcorrencias}
                     </TableCell>
                   </TableRow>
                 </Link>
@@ -73,10 +71,8 @@ export default function RegulacaoSecundariaUnidadesDestino() {
                 {/* calcula a media dos tempos */}
                 {(unidades &&
                   Math.ceil(
-                    unidades.reduce(
-                      (acc, destination) => acc + destination.tempo,
-                      0,
-                    ) / unidades.length,
+                    unidades.reduce((acc, unidade) => acc + unidade.tempo, 0) /
+                      unidades.length,
                   )) ||
                   ""}{" "}
                 (média)

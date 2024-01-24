@@ -4,8 +4,8 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RouterOutputs } from "@/trpc/shared";
+import { formatClientDateToLocaleString } from "@/utils/formatClientDateToLocaleString";
 import { formatProperName } from "@/utils/formatProperName";
-import { addHours } from "date-fns";
 
 type ModalOcorrenciaVitimasProps = {
   hasPrivilege?: boolean;
@@ -66,7 +66,7 @@ export function ModalOcorrenciaVitimas({
                     </TypographySmall>
                     <TypographyMuted>{avaliacao.AVALICAO}</TypographyMuted>
                     <TypographySmall className="self-end text-xs ">
-                      {addHours(avaliacao.DTHR, 3).toLocaleString()}
+                      {formatClientDateToLocaleString(avaliacao.DTHR)}
                     </TypographySmall>
                   </div>
                 ))}

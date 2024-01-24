@@ -7,14 +7,14 @@ import { addHours } from "date-fns";
 import { dateRangeSchema, turnoSchema } from "@/constants/zod-schemas";
 import { isWithinHour } from "@/utils/isWithinTurn";
 
-export const vehicleRouter = createTRPCRouter({
+export const veiculosRouter = createTRPCRouter({
   /**
    * Obtém todas as ocorrências relacioanadas ao veículo, recebe como input um date range
    */
-  getIncidents: protectedProcedure
+  getOcorrencias: protectedProcedure
     .input(
       z.object({
-        vehicleId: z.number(),
+        veiculoId: z.number(),
         dateRange: dateRangeSchema,
         turn: turnoSchema,
       }),
@@ -24,7 +24,7 @@ export const vehicleRouter = createTRPCRouter({
 
       //obtem o veiculo com suas respectivas ocorrencias
       const veiculo = await db.veiculos.findUnique({
-        where: { VeiculoID: input.vehicleId },
+        where: { VeiculoID: input.veiculoId },
         select: {
           VeiculoDS: true,
           OcorrenciaMovimentacao: {
@@ -84,7 +84,7 @@ export const vehicleRouter = createTRPCRouter({
   /**
    * Obtém o relatório de tempo resposta de todos os veículos, recebe como input um date range e um turno
    */
-  getReport: protectedProcedure
+  getTempoResposta: protectedProcedure
     .input(z.object({ dateRange: dateRangeSchema, turn: turnoSchema }))
     .query(async ({ input }) => {
       const filter = getTurnFilterQuery(

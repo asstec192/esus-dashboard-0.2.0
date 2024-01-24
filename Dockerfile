@@ -44,9 +44,6 @@ RUN \
 FROM base AS runner
 WORKDIR /app
 
-# Set the locale
-
-
 ENV NODE_ENV production
 
 # ENV NEXT_TELEMETRY_DISABLED 1
@@ -62,3 +59,4 @@ EXPOSE 3000
 ENV PORT 3000
 
 CMD ["server.js"]
+

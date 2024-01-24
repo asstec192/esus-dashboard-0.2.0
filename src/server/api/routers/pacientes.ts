@@ -3,8 +3,8 @@ import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { db } from "../../db";
 import { dateRangeSchema } from "@/constants/zod-schemas";
 
-export const patientsRouter = createTRPCRouter({
-  getPatientsByAge: protectedProcedure
+export const pacientesRouter = createTRPCRouter({
+  countByAgeRange: protectedProcedure
     .input(dateRangeSchema)
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input);
@@ -59,7 +59,7 @@ export const patientsRouter = createTRPCRouter({
       );
     }),
 
-  getPatientsByGender: protectedProcedure
+  countByGender: protectedProcedure
     .input(dateRangeSchema)
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input);
@@ -78,7 +78,7 @@ export const patientsRouter = createTRPCRouter({
       GROUP BY V.Sexo`;
     }),
 
-  getTotalPatientsByWeekDay: protectedProcedure
+  countByWeekDay: protectedProcedure
     .input(dateRangeSchema)
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input);

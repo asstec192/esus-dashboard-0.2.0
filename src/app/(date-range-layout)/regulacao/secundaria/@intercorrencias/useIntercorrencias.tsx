@@ -14,16 +14,17 @@ export function useIntercorrencias() {
   ) as DateRange;
 
   //Busca as intercorrencias
-  const { data: intercorrencias } = api.intercorrencia.countIncidents.useQuery({
-    dateRange,
-    turn,
-  });
+  const { data: intercorrencias } =
+    api.intercorrencia.countOcorrencias.useQuery({
+      dateRange,
+      turn,
+    });
 
   const [intercorrenciaSelecionada, setIntercorrenciaSelecionada] =
-    useState<RouterOutputs["intercorrencia"]["countIncidents"][0]>();
+    useState<RouterOutputs["intercorrencia"]["countOcorrencias"][0]>();
 
   //busca as ocorrencias e uma intercorrencia especifica
-  const ocorrenciasQuery = api.intercorrencia.getIncidents.useQuery(
+  const ocorrenciasQuery = api.intercorrencia.getOcorrencias.useQuery(
     { dateRange, turn, intercorrenciaId: intercorrenciaSelecionada?.id || 0 },
     {
       enabled: !!intercorrenciaSelecionada,

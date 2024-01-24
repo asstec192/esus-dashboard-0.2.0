@@ -11,7 +11,7 @@ export function useVeiculos() {
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
   ) as DateRange;
-  const { data: veiculos } = api.vehicles.getReport.useQuery({
+  const { data: veiculos } = api.veiculos.getTempoResposta.useQuery({
     dateRange,
     turn,
   });
@@ -19,11 +19,11 @@ export function useVeiculos() {
   const [veiculoSelecionado, setVeiculoSelecionado] =
     useState<NonNullable<typeof veiculos>[0]>();
 
-  const ocorrenciasQuery = api.vehicles.getIncidents.useQuery(
+  const ocorrenciasQuery = api.veiculos.getOcorrencias.useQuery(
     {
       dateRange,
       turn,
-      vehicleId: veiculoSelecionado?.id || 0,
+      veiculoId: veiculoSelecionado?.id || 0,
     },
     {
       enabled: !!veiculoSelecionado,

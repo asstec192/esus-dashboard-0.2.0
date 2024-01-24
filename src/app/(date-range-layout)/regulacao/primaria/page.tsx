@@ -23,7 +23,7 @@ export default function RegulacaoPrimaria() {
         toast({ description: error.message, variant: "destructive" }),
     },
   );
-  
+
   return (
     <main className="mt-2 flex min-h-nav-offset flex-col px-1 py-4 sm:px-4">
       <DataTableProvider data={data || []} columns={ocorrenciaTableColumns}>

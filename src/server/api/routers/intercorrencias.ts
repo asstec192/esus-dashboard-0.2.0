@@ -14,7 +14,7 @@ export type IntercorrenciaCount = {
 };
 
 export const intercorrenciaRouter = createTRPCRouter({
-  getIncidents: protectedProcedure
+  getOcorrencias: protectedProcedure
     .input(
       z.object({
         intercorrenciaId: z.number(),
@@ -70,7 +70,7 @@ export const intercorrenciaRouter = createTRPCRouter({
       );
     }),
 
-  countIncidents: protectedProcedure
+  countOcorrencias: protectedProcedure
     .input(z.object({ dateRange: dateRangeSchema, turn: turnoSchema }))
     .query(async ({ input }) => {
       const filter = getTurnFilterQuery("O.DtHr", input.dateRange, input.turn);

@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RouterOutputs } from "@/trpc/shared";
+import { formatClientDateToLocaleString } from "@/utils/formatClientDateToLocaleString";
 import { formatProperName } from "@/utils/formatProperName";
-import { addHours } from "date-fns";
 
 type ModalOcorrenciaProps = {
   hasPrivilege?: boolean;
@@ -46,50 +46,47 @@ export function ModalOcorrenciaVeiculos({
               <p className="grid grid-cols-2 items-baseline">
                 <TypographySmall>Contato com equipe:</TypographySmall>
                 <TypographyMuted>
-                  {movimentacao.EnvioEquipeDT &&
-                    addHours(movimentacao.EnvioEquipeDT, 3).toLocaleString()}
+                  {formatClientDateToLocaleString(movimentacao.EnvioEquipeDT)}
                 </TypographyMuted>
               </p>
               <p className="grid grid-cols-2 items-baseline">
                 <TypographySmall>Saída da base:</TypographySmall>
                 <TypographyMuted>
-                  {movimentacao.SaidaBaseDT &&
-                    addHours(movimentacao.SaidaBaseDT, 3).toLocaleString()}
+                  {formatClientDateToLocaleString(movimentacao.SaidaBaseDT)}
                 </TypographyMuted>
               </p>
               <p className="grid grid-cols-2 items-baseline">
                 <TypographySmall>Chegada ao local:</TypographySmall>
                 <TypographyMuted>
-                  {movimentacao.ChegadaLocalDT &&
-                    addHours(movimentacao.ChegadaLocalDT, 3).toLocaleString()}
+                  {formatClientDateToLocaleString(movimentacao.ChegadaLocalDT)}
                 </TypographyMuted>
               </p>
               <p className="grid grid-cols-2 items-baseline">
                 <TypographySmall>Saída do local:</TypographySmall>
                 <TypographyMuted>
-                  {movimentacao.SaidaLocalDT &&
-                    addHours(movimentacao.SaidaLocalDT, 3).toLocaleString()}
+                  {formatClientDateToLocaleString(movimentacao.SaidaLocalDT)}
                 </TypographyMuted>
               </p>
               <p className="grid grid-cols-2 items-baseline">
                 <TypographySmall>Chegada ao destino:</TypographySmall>
                 <TypographyMuted>
-                  {movimentacao.ChegadaDestinoDT &&
-                    addHours(movimentacao.ChegadaDestinoDT, 3).toLocaleString()}
+                  {formatClientDateToLocaleString(
+                    movimentacao.ChegadaDestinoDT,
+                  )}
                 </TypographyMuted>
               </p>
               <p className="grid grid-cols-2 items-baseline">
                 <TypographySmall>Retorno do destino:</TypographySmall>
                 <TypographyMuted>
-                  {movimentacao.RetornoDestinoDT &&
-                    addHours(movimentacao.RetornoDestinoDT, 3).toLocaleString()}
+                  {formatClientDateToLocaleString(
+                    movimentacao.RetornoDestinoDT,
+                  )}
                 </TypographyMuted>
               </p>
               <p className="grid grid-cols-2 items-baseline">
                 <TypographySmall>Chegada à base:</TypographySmall>
                 <TypographyMuted>
-                  {movimentacao.ChegadaBaseDT &&
-                    addHours(movimentacao.ChegadaBaseDT, 3).toLocaleString()}
+                  {formatClientDateToLocaleString(movimentacao.ChegadaBaseDT)}
                 </TypographyMuted>
               </p>
             </div>
@@ -115,8 +112,7 @@ export function ModalOcorrenciaVeiculos({
                         </TypographySmall>
                         <TypographyMuted>{conduta.OBS_MEDICO}</TypographyMuted>
                         <TypographyMuted className="text-end font-medium">
-                          {conduta.DTHR_CONDUTA &&
-                            addHours(conduta.DTHR_CONDUTA, 3).toLocaleString()}
+                          {formatClientDateToLocaleString(conduta.DTHR_CONDUTA)}
                         </TypographyMuted>
                       </div>
                     ))}

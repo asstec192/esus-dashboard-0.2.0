@@ -1,11 +1,11 @@
 import { exampleRouter } from "@/server/api/routers/example";
 import { createTRPCRouter } from "@/server/api/trpc";
-import { patientsRouter } from "./routers/patients";
+import { pacientesRouter } from "./routers/pacientes";
 import { ocorrenciaRouter } from "./routers/ocorrencias";
 import { usersRouter } from "./routers/users";
-import { vehicleRouter } from "./routers/vehicles";
+import { veiculosRouter } from "./routers/veiculos";
 import { intercorrenciaRouter } from "./routers/intercorrencias";
-import { destinationRouter } from "./routers/destinations";
+import { destinosRouter } from "./routers/destinos";
 import { hospitalManagerRouter } from "./routers/hospitalManager";
 import { roleRouter } from "./routers/roles";
 
@@ -16,11 +16,11 @@ import { roleRouter } from "./routers/roles";
  */
 export const appRouter = createTRPCRouter({
   //   example: exampleRouter,
-  patients: patientsRouter,
+  pacientes: pacientesRouter,
   ocorrencias: ocorrenciaRouter,
   users: usersRouter,
-  vehicles: vehicleRouter,
-  destinations: destinationRouter,
+  veiculos: veiculosRouter,
+  destinos: destinosRouter,
   intercorrencia: intercorrenciaRouter,
   hospitalManager: hospitalManagerRouter,
   roles: roleRouter,

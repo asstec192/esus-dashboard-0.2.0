@@ -8,6 +8,7 @@ import {
 import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "@/server/db";
 import { UserRole } from "@/types/UserRole";
+import { PrismaClient } from "@prisma/client";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -64,7 +65,7 @@ export const authOptions: NextAuthOptions = {
       };
     },
   },
-  adapter: PrismaAdapter(db),
+  adapter: PrismaAdapter(db as any),
   providers: [
     CredentialsProvider({
       name: "Credentials",

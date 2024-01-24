@@ -1,6 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { addHours } from "date-fns";
 import { formatProperName } from "@/utils/formatProperName";
 import { RouterOutputs } from "@/trpc/shared";
 import Link from "next/link";
@@ -14,13 +13,14 @@ import {
 } from "@/components/ui/card";
 import { SkeletonTable } from "@/components/skeletons/skeleton-table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatClientDateToLocaleString } from "@/utils/formatClientDateToLocaleString";
 
 export function RegulacaoSecundariaOcorrencias({
   ocorrencias,
   description,
   isLoading,
 }: {
-  ocorrencias: RouterOutputs["destinations"]["getIncidents"];
+  ocorrencias: RouterOutputs["destinos"]["getOcorrencias"];
   description: string;
   isLoading: boolean;
 }) {
@@ -64,7 +64,7 @@ export function RegulacaoSecundariaOcorrencias({
                       {formatProperName(ocorrencia.Bairro)}
                     </TableCell>
                     <TableCell colSpan={2} className="text-end align-top">
-                      {addHours(ocorrencia.DtHr!, 3).toLocaleString()}
+                      {formatClientDateToLocaleString(ocorrencia.DtHr)}
                     </TableCell>
                   </TableRow>
                 </Link>

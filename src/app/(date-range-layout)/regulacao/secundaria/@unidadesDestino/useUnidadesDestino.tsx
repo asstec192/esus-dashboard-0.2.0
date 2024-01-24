@@ -14,19 +14,19 @@ export function useUnidadesDestino() {
   ) as DateRange;
 
   //busca relatorio das unidades de destino
-  const { data: unidades } = api.destinations.getResponseTimes.useQuery({
+  const { data: unidades } = api.destinos.getTempoResposta.useQuery({
     dateRange,
     turn,
   });
 
   const [unidadeSelecionada, setUnidadeSelecionada] =
-    useState<RouterOutputs["destinations"]["getResponseTimes"][0]>();
+    useState<RouterOutputs["destinos"]["getTempoResposta"][0]>();
 
   //busca as ocorrencias de uma unidade de destino especifica
-  const ocorrenciasQuery = api.destinations.getIncidents.useQuery(
+  const ocorrenciasQuery = api.destinos.getOcorrencias.useQuery(
     {
       dateRange,
-      destinationId: Number(unidadeSelecionada?.id),
+      destinoId: Number(unidadeSelecionada?.id),
       turn,
     },
     {
@@ -34,8 +34,8 @@ export function useUnidadesDestino() {
     },
   );
 
-  api.destinations.getIncidents.useQuery(
-    { dateRange, turn, destinationId: Number(unidadeSelecionada?.id) },
+  api.destinos.getOcorrencias.useQuery(
+    { dateRange, turn, destinoId: Number(unidadeSelecionada?.id) },
     { enabled: !!unidadeSelecionada },
   );
 

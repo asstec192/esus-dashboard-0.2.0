@@ -2,9 +2,8 @@ import { Button } from "@/components/ui/button";
 import { RouterOutputs } from "@/trpc/shared";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatProperName } from "@/utils/formatProperName";
-import { PopoverVeiculo } from "@/components/popovers/VeiculoPopover";
-import { formatDate } from "@/utils/formatDate";
-import { getDay } from "date-fns";
+import { PopoverVeiculo } from "@/components/popovers/PopoverVeiculo";
+import { addHours, getDay } from "date-fns";
 import { isWithinHour } from "@/utils/isWithinTurn";
 import { isBelowOneYear } from "@/utils/isBelowOneYear";
 import { TypographyMuted } from "@/components/typography/TypographyMuted";
@@ -142,10 +141,9 @@ export const ocorrenciaTableColumns: ColumnDef<
     cell: "",
     meta: { className: "hidden" },
     filterFn: (row, id, selectedWeekDays: string[]) => {
-      const date = row.original.data;
-      const formatedDate = formatDate(date, "yyyy-MM-dd HH:mm:ss");
-      const newDate = new Date(formatedDate);
-      const weekDay = getDay(newDate).toString();
+      const timeZoneOffset = row.original.data.getTimezoneOffset() / 60;
+      const date = addHours(row.original.data, timeZoneOffset);
+      const weekDay = getDay(date).toString();
       return selectedWeekDays.includes(weekDay);
     },
   },

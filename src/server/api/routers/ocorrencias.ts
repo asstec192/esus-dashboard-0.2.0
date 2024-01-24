@@ -161,7 +161,7 @@ export const ocorrenciaRouter = createTRPCRouter({
       LEFT JOIN Motivo m ON o.MotivoID = m.MotivoID
       LEFT JOIN LigacaoTP lt ON lt.LigacaoTPID = o.LigacaoTPID
       WHERE 
-        o.LigacaoTPID IN (9, 11, 15, 20) AND o.DtHr BETWEEN ${from} AND  ${to}
+        o.LigacaoTPID IN (9, 11, 15, 20) AND o.DtHr BETWEEN ${from} AND ${to}
       ORDER BY
         o.OcorrenciaID DESC`;
 

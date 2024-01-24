@@ -9,6 +9,7 @@ import {
   formSchemaChangeOwnPassword,
 } from "@/constants/zod-schemas";
 import { z } from "zod";
+import { getColorByRisk } from "@/utils/getColorByRisk";
 
 export const usersRouter = createTRPCRouter({
   create: protectedProcedure
@@ -78,21 +79,26 @@ export const usersRouter = createTRPCRouter({
           id: parseInt(ctx.session.user.id),
         },
       });
+
       if (!loggedUser)
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "Usuário não está logado ou não existe!",
         });
+
       const validPassword = bcrypt.compareSync(
         input.password,
         loggedUser.senha,
       );
+
       if (!validPassword)
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "Senha atual incorreta!",
         });
+
       const newPassword = bcrypt.hashSync(input.newPassword, 10);
+
       await db.usuarioDashboard.update({
         data: {
           senha: newPassword,
@@ -102,6 +108,7 @@ export const usersRouter = createTRPCRouter({
           id: loggedUser.id,
         },
       });
+
       return "Senha alterada com sucesso";
     }),
 
@@ -143,7 +150,7 @@ export const usersRouter = createTRPCRouter({
       return "Senha alterada com sucesso";
     }),
 
-  getIncidents: protectedProcedure
+  getOcorrencias: protectedProcedure
     .input(z.object({ esusId: z.string() }))
     .query(async ({ input }) => {
       const data = await db.$queryRaw<[]>`
@@ -197,6 +204,7 @@ export const usersRouter = createTRPCRouter({
         data: ocorrencia.data,
         bairro: ocorrencia.bairro || "",
         risco: ocorrencia.risco,
+        riscoColorClass: getColorByRisk(ocorrencia.risco),
         desfecho: ocorrencia.desfecho,
         operador: ocorrencia.operador || "",
         motivo: ocorrencia.motivo?.replace(/\*/g, "") || "NÃO PREENCHIDO",

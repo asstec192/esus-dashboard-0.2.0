@@ -109,7 +109,7 @@ export default function PDFRelatorioVeiculo() {
     (state) => state.dateRange,
   ) as DateRange;
 
-  const { data } = api.vehicles.getReport.useQuery({ dateRange, turn });
+  const { data } = api.veiculos.getTempoResposta.useQuery({ dateRange, turn });
 
   if (!data || differenceInDays(dateRange.to, dateRange.from) > 1) return null;
 

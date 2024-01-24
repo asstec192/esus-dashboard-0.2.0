@@ -11,7 +11,7 @@ import Chart from "react-apexcharts";
 
 export const ChartAge = (props: HTMLAttributes<HTMLDivElement>) => {
   const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
-  const { data, isLoading, isError } = api.patients.getPatientsByAge.useQuery(
+  const { data, isLoading, isError } = api.pacientes.countByAgeRange.useQuery(
     { from: dateRange.from!, to: dateRange.to! },
     {
       onError: (error) => {

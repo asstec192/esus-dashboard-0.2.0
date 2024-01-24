@@ -26,28 +26,6 @@ const prismaClientSingleton = () => {
           needs: { RISCOCOD: true },
           compute: (risco) => getColorByRisk(risco.RISCOCOD),
         },
-
-        //coluna computada para o turno da ocorrencia, baseada no turno dos TARMS
-        turnoTarm: {
-          needs: { DtHr: true },
-          compute(ocorrencia) {
-            if (!ocorrencia.DtHr) return null;
-            if (isWithinHour(addHours(ocorrencia.DtHr, 3), 1, 7)) return "T0";
-            if (isWithinHour(addHours(ocorrencia.DtHr, 3), 7, 13)) return "T1";
-            if (isWithinHour(addHours(ocorrencia.DtHr, 3), 13, 19)) return "T2";
-            return "T3";
-          },
-        },
-
-        //coluna computada para o turno da ocorrencias baseada nos turnos de veiculos
-        turnoVeiculo: {
-          needs: { DtHr: true },
-          compute(ocorrencia) {
-            if (!ocorrencia.DtHr) return null;
-            if (isWithinHour(addHours(ocorrencia.DtHr, 3), 7, 19)) return "V0";
-            return "V1";
-          },
-        },
       },
 
       veiculos: {

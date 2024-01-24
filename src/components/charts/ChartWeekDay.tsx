@@ -11,19 +11,18 @@ import Chart from "react-apexcharts";
 
 export const ChartWeekDay = (props: HTMLAttributes<HTMLDivElement>) => {
   const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
-  const { data, isLoading, isError } =
-    api.patients.getTotalPatientsByWeekDay.useQuery(
-      { from: dateRange.from!, to: dateRange.to! },
-      {
-        onError: (error) => {
-          toast({
-            title: "Houve ao gerar o gráfico de pacientes por dia da semana!",
-            description: error.message,
-            variant: "destructive",
-          });
-        },
+  const { data, isLoading, isError } = api.pacientes.countByWeekDay.useQuery(
+    { from: dateRange.from!, to: dateRange.to! },
+    {
+      onError: (error) => {
+        toast({
+          title: "Houve ao gerar o gráfico de pacientes por dia da semana!",
+          description: error.message,
+          variant: "destructive",
+        });
       },
-    );
+    },
+  );
 
   return (
     <Card {...props} className="p-2">

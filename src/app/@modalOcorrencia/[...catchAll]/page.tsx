@@ -1,20 +1,15 @@
 import { TypographySmall } from "@/components/typography/TypographySmall";
 import { Separator } from "@/components/ui/separator";
-import { formatProperName } from "@/utils/formatProperName";
 import { UserRole } from "@/types/UserRole";
-import { addHours } from "date-fns";
-import { getServerAuthSession } from "@/server/auth";
-import { api } from "@/trpc/server";
 import { ModalOcorrenciaVeiculos } from "./veiculos";
 import { ModalOcorrenciaVitimas } from "./vitimas";
-
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ParallelDialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
 import {
   Carousel,
   CarouselContent,
@@ -22,7 +17,11 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
+import { formatClientDateToLocaleString } from "@/utils/formatClientDateToLocaleString";
+import { getServerAuthSession } from "@/server/auth";
+import { api } from "@/trpc/server";
+import { formatProperName } from "@/utils/formatProperName";
 
 export const revalidate = 0; //nunca cacheia o resultado
 
@@ -85,7 +84,7 @@ export default async function ModalOcorrencia({
           <TypographySmall>
             Data:{" "}
             <span className="text-muted-foreground">
-              {addHours(ocorrencia.DtHr!, 3).toLocaleString()}
+              {formatClientDateToLocaleString(ocorrencia.DtHr)}
             </span>
           </TypographySmall>
         </DialogHeader>

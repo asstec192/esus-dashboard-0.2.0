@@ -7,7 +7,7 @@ import { addHours } from "date-fns";
 import { dateRangeSchema, turnoSchema } from "@/constants/zod-schemas";
 import { isWithinHour } from "@/utils/isWithinTurn";
 
-export const destinationRouter = createTRPCRouter({
+export const destinosRouter = createTRPCRouter({
   /**Obtém a lista de todas as unidades de destino */
   getAll: protectedProcedure.query(() =>
     db.unidadesDestino.findMany({
@@ -19,10 +19,10 @@ export const destinationRouter = createTRPCRouter({
   ),
 
   /** Obtém todos as ocorrências relacionadas à unidade de destino. Recebe como input um date range */
-  getIncidents: protectedProcedure
+  getOcorrencias: protectedProcedure
     .input(
       z.object({
-        destinationId: z.number(),
+        destinoId: z.number(),
         dateRange: dateRangeSchema,
         turn: turnoSchema,
       }),
@@ -56,7 +56,7 @@ export const destinationRouter = createTRPCRouter({
           },
           HISTORICO_DECISAO_GESTORA: {
             some: {
-              DESTINOID: input.destinationId,
+              DESTINOID: input.destinoId,
             },
           },
           LigacaoTPID: {
@@ -79,7 +79,7 @@ export const destinationRouter = createTRPCRouter({
     }),
 
   /**Obtém o relatório de tempo resposta da unidade de destino. Recebe como input um date range e um turno */
-  getResponseTimes: protectedProcedure
+  getTempoResposta: protectedProcedure
     .input(z.object({ dateRange: dateRangeSchema, turn: turnoSchema }))
     .query(async ({ input }) => {
       const filter = getTurnFilterQuery("O.DtHr", input.dateRange, input.turn);

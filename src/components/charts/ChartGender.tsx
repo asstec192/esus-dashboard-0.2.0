@@ -11,20 +11,19 @@ import { api } from "@/trpc/react";
 
 export const ChartGender = (props: HTMLAttributes<HTMLDivElement>) => {
   const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
-  const { data, isLoading, isError } =
-    api.patients.getPatientsByGender.useQuery(
-      { from: dateRange.from!, to: dateRange.to! },
-      {
-        onError: () => {
-          toast({
-            title: "Erro",
-            description:
-              "Houve um erro ao gerar o gráfico de pacientes por sexo!",
-            variant: "destructive",
-          });
-        },
+  const { data, isLoading, isError } = api.pacientes.countByGender.useQuery(
+    { from: dateRange.from!, to: dateRange.to! },
+    {
+      onError: () => {
+        toast({
+          title: "Erro",
+          description:
+            "Houve um erro ao gerar o gráfico de pacientes por sexo!",
+          variant: "destructive",
+        });
       },
-    );
+    },
+  );
 
   return (
     <Card {...props} className="p-2">
