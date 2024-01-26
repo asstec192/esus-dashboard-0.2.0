@@ -45,6 +45,11 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
+ENV LANG pt_BR.UTF-8
+ENV LANGUAGE pt_BR:pt
+ENV LC_ALL pt_BR.UTF-8
+ENV LC_TIME pt_BR.UTF-8
+ENV TZ America/Fortaleza
 
 # ENV NEXT_TELEMETRY_DISABLED 1
 

@@ -22,7 +22,11 @@ export const MontitoramentoOcorrencias = ({
   return (
     <DataTableProvider
       data={data}
-      columns={ocorrenciaTableColumns as ColumnDef<OcorrenciaEmAndamento>[]}
+      columns={
+        ocorrenciaTableColumns as ColumnDef<
+          Omit<Ocorrencia, "data" | "pacientes">
+        >[]
+      }
     >
       <Card className="flex flex-grow flex-col overflow-hidden bg-background">
         <p className="bg-slate-100 p-2 text-center font-semibold dark:bg-card">

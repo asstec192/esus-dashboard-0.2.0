@@ -21,7 +21,7 @@ export const veiculosRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input.dateRange);
-
+      console.log(from, to);
       //obtem o veiculo com suas respectivas ocorrencias
       const veiculo = await db.veiculos.findUnique({
         where: { VeiculoID: input.veiculoId },
@@ -92,8 +92,17 @@ export const veiculosRouter = createTRPCRouter({
         input.dateRange,
         input.turn,
       );
-
-      const veiculos = await db.$queryRaw<RelatorioVeiculo[]>`
+      const rawVeiculos = await db.$queryRaw<
+        {
+          id: number;
+          nome: string | null;
+          QTYQUS: number | null;
+          QUSQUY: number | null;
+          QUYQUU: number | null;
+          totalOcorrencias: number;
+          pacientes: string;
+        }[]
+      >`
         SELECT
             V.VeiculoID AS id,
             V.VeiculoDS AS nome,
@@ -121,9 +130,12 @@ export const veiculosRouter = createTRPCRouter({
         ORDER BY
             V.VeiculoDS`;
 
-      return veiculos.map((veiculo) => ({
+      return rawVeiculos.map((veiculo) => ({
         ...veiculo,
-        pacientes: JSON.parse(veiculo.pacientes) as PacientesVeiculo[],
+        pacientes: JSON.parse(veiculo.pacientes) as {
+          ocorrenciaId: bigint;
+          nome: string | null;
+        }[],
       }));
     }),
 });

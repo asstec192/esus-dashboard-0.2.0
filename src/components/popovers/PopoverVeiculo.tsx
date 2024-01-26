@@ -15,10 +15,10 @@ export function PopoverVeiculo({ veiculo }: { veiculo: Veiculo }) {
           {veiculo.RetornoDestinoDT ? (
             <CheckCircle2
               size="0.9rem"
-              className="text-muted-foreground mr-2"
+              className="mr-2 text-muted-foreground"
             />
           ) : (
-            <Timer size="1rem" className="text-muted-foreground mr-2" />
+            <Timer size="1rem" className="mr-2 text-muted-foreground" />
           )}
           {veiculo.nome}
         </Badge>
@@ -26,7 +26,8 @@ export function PopoverVeiculo({ veiculo }: { veiculo: Veiculo }) {
       <PopoverContent className="flex w-max flex-col gap-1">
         <TypographySmall className="flex justify-between gap-4">
           <b>Contato com equipe:</b>
-          {new Date(veiculo.EnvioEquipeDT).toLocaleString()}
+          {veiculo.EnvioEquipeDT &&
+            new Date(veiculo.EnvioEquipeDT).toLocaleString()}
         </TypographySmall>
         <TypographySmall className="flex flex-nowrap justify-between gap-4">
           <b>Saída da base: </b>

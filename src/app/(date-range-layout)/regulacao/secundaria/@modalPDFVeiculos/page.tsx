@@ -152,7 +152,7 @@ export default function PDFRelatorioVeiculo() {
                     </View>
 
                     {veiculo.pacientes.map((paciente, i) => (
-                      <View style={styles.row} key={paciente.nome + i}>
+                      <View style={styles.row} key={`${paciente.nome}-${i}`}>
                         <Text style={styles.text}>
                           #{paciente.ocorrenciaId.toString().slice(2)}
                         </Text>

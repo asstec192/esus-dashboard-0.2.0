@@ -153,7 +153,7 @@ export const usersRouter = createTRPCRouter({
   getOcorrencias: protectedProcedure
     .input(z.object({ esusId: z.string() }))
     .query(async ({ input }) => {
-      const data = await db.$queryRaw<[]>`
+      const data = await db.$queryRaw<OcorrenciaRaw[]>`
         SELECT 
           o.OcorrenciaID as id,
           o.DtHr as data,
@@ -199,13 +199,12 @@ export const usersRouter = createTRPCRouter({
         `;
 
       // Fazendo o parse apenas dos campos veiculos e vitimas que são JSON
-      return data.map((ocorrencia?: any) => ({
+      return data.map((ocorrencia) => ({
         id: ocorrencia.id.toString(),
         data: ocorrencia.data,
         bairro: ocorrencia.bairro || "",
         risco: ocorrencia.risco,
         riscoColorClass: getColorByRisk(ocorrencia.risco),
-        desfecho: ocorrencia.desfecho,
         operador: ocorrencia.operador || "",
         motivo: ocorrencia.motivo?.replace(/\*/g, "") || "NÃO PREENCHIDO",
         veiculos: ocorrencia.veiculos ? JSON.parse(ocorrencia.veiculos) : [],

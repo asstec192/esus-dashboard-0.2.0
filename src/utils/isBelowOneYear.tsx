@@ -3,5 +3,5 @@
  * @param paciente
  */
 export const isBelowOneYear = (paciente: Paciente) => {
-  return paciente.idadeTipo === "Dia(s)" || paciente.idadeTipo === "MES(es)";
+  return paciente.idadeTipo === "DIA(s)" || paciente.idadeTipo === "MES(es)";
 };

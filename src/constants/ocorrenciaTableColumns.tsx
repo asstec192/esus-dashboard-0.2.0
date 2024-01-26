@@ -87,7 +87,7 @@ export const ocorrenciaTableColumns: ColumnDef<
     cell: "",
     filterFn: (row, id, value: string[]) => {
       const risco = row.original.risco;
-      return value.includes(risco.toString());
+      return risco ? value.includes(risco.toString()) : false;
     },
     meta: { className: "hidden" },
   },
@@ -129,7 +129,11 @@ export const ocorrenciaTableColumns: ColumnDef<
           //retorna os pacientes menores de 1 um ano quando seleciona o filtro menor de 13 anos
           if (max === 12 && isBelowOneYear(paciente)) return true;
           //demais filtros
-          return paciente.idade! >= min && paciente.idade! <= max;
+          return (
+            paciente.idade! >= min &&
+            paciente.idade! <= max &&
+            !isBelowOneYear(paciente)
+          );
         });
       });
     },
@@ -141,6 +145,7 @@ export const ocorrenciaTableColumns: ColumnDef<
     cell: "",
     meta: { className: "hidden" },
     filterFn: (row, id, selectedWeekDays: string[]) => {
+      if (!row.original.data) return false;
       const timeZoneOffset = row.original.data.getTimezoneOffset() / 60;
       const date = addHours(row.original.data, timeZoneOffset);
       const weekDay = getDay(date).toString();
@@ -155,10 +160,10 @@ export const ocorrenciaTableColumns: ColumnDef<
     meta: { className: "hidden" },
     filterFn: (row, id, selectedHours: string[]) => {
       const veiculos = row.original.veiculos;
-      if (veiculos.length === 0) {
+      if (!veiculos[0] || !veiculos[0].EnvioEquipeDT) {
         return false;
       }
-      const primeiroEnvio = new Date(veiculos[0]!.EnvioEquipeDT);
+      const primeiroEnvio = new Date(veiculos[0].EnvioEquipeDT);
       return selectedHours.some((hourRange) => {
         const startHour = (JSON.parse(hourRange) as NumberRange).min;
         const endHour = (JSON.parse(hourRange) as NumberRange).max;

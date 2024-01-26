@@ -1,9 +1,8 @@
 import { DateRange } from "@/hooks/useGlobalDateFilterStore";
-import { subHours } from "date-fns";
 
 export const formatServerDateRange = (dateRange: DateRange) => {
   const timeZoneOffset = dateRange.from.getTimezoneOffset() / 60; //converte pra horas
-  const from = subHours(dateRange.from, timeZoneOffset);
-  const to = subHours(dateRange.to, timeZoneOffset);
+  const from = new Date(dateRange.from.setHours(-timeZoneOffset, 0, 0, 0));
+  const to = new Date(dateRange.to.setHours(-timeZoneOffset, 0, 0, 0));
   return { from, to } as DateRange;
 };

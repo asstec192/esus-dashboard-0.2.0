@@ -22,6 +22,7 @@ import { formatClientDateToLocaleString } from "@/utils/formatClientDateToLocale
 import { getServerAuthSession } from "@/server/auth";
 import { api } from "@/trpc/server";
 import { formatProperName } from "@/utils/formatProperName";
+import { cn } from "@/lib/utils";
 
 export const revalidate = 0; //nunca cacheia o resultado
 
@@ -57,7 +58,7 @@ export default async function ModalOcorrencia({
     <ParallelDialog open={!!searchParams.ocorrenciaId}>
       <DialogContent className="sm:px sm:max-w-4xl">
         <DialogHeader className="p">
-          <DialogTitle className={ocorrencia.riscoColorClass.text}>
+          <DialogTitle className={cn(ocorrencia.riscoColorClass.text)}>
             #{ocorrencia.OcorrenciaID.toString()}
           </DialogTitle>
           <TypographySmall>

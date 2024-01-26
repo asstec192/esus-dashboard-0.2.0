@@ -22,7 +22,7 @@ const fillClass: Record<number, string> = {
  */
 export function getColorByRisk(risk?: number | null) {
   return {
-    text: risk ? textClass[risk] : "text-foreground",
-    fill: risk ? fillClass[risk] : "fill-foreground",
+    text: (risk ? textClass[risk] : "text-foreground") ?? "text-foreground",
+    fill: (risk ? fillClass[risk] : "fill-foreground") ?? "fill-foreground",
   };
 }

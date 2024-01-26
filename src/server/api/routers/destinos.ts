@@ -83,7 +83,14 @@ export const destinosRouter = createTRPCRouter({
     .input(z.object({ dateRange: dateRangeSchema, turn: turnoSchema }))
     .query(async ({ input }) => {
       const filter = getTurnFilterQuery("O.DtHr", input.dateRange, input.turn);
-      return await db.$queryRaw<TempoRespostaDestino[]>`
+      return await db.$queryRaw<
+        {
+          id: string;
+          nome: string | null;
+          totalOcorrencias: number;
+          tempo: number;
+        }[]
+      >`
         SELECT
             UD.UnidadeCOD AS id,
             UD.UnidadeDS AS nome,

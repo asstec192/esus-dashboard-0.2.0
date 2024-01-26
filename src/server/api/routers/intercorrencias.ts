@@ -7,12 +7,6 @@ import { addHours } from "date-fns";
 import { dateRangeSchema, turnoSchema } from "@/constants/zod-schemas";
 import { isWithinHour } from "@/utils/isWithinTurn";
 
-export type IntercorrenciaCount = {
-  description: string;
-  id: number;
-  count: number;
-};
-
 export const intercorrenciaRouter = createTRPCRouter({
   getOcorrencias: protectedProcedure
     .input(
@@ -75,7 +69,9 @@ export const intercorrenciaRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const filter = getTurnFilterQuery("O.DtHr", input.dateRange, input.turn);
 
-      return await db.$queryRaw<IntercorrenciaCount[]>`
+      return await db.$queryRaw<
+        { description: string; id: number; count: number }[]
+      >`
         SELECT 
           I.IntercorrenciaDS as description, 
           I.IntercorrenciaID as id, 

@@ -1,34 +1,43 @@
+type OcorrenciaRaw = {
+  id: bigint;
+  data: Date | null;
+  bairro: string | null;
+  risco: number | null;
+  motivo: string | null;
+  operador: string | null;
+  vitimas: string;
+  veiculos: string;
+};
+
 type Ocorrencia = {
   id: string;
-  data: Date;
+  data: Date | null;
   bairro: string;
-  risco: number;
+  risco: number | null;
+  motivo: string | null;
   riscoColorClass: {
     text: string;
     fill: string;
   };
-  operador: string | null;
-  motivo?: string;
-  veiculos: Veiculo[];
+  operador: string;
   pacientes: Paciente[];
-};
-
-type OcorrenciaEmAndamento = Omit<Ocorrencia, "data" | "pacientes">;
-
-type Veiculo = {
-  EnvioEquipeDT: Date;
-  SaidaBaseDT?: Date;
-  nome: string;
-  ChegadaLocalDT?: Date;
-  RetornoDestinoDT?: Date;
-  SaidaLocalDT?: Date;
-  ChegadaDestinoDT?: Date;
-  ChegadaBaseDT?: Date;
+  veiculos: Veiculo[];
 };
 
 type Paciente = {
-  nome: string;
-  sexo?: string; // é a string de um numero
-  idade?: number;
-  idadeTipo?: string;
+  nome: string | null;
+  sexo: "1" | "2";
+  idade: number | null;
+  idadeTipo: "DIA(s)" | "MES(es)" | "ANO(s)";
+};
+
+type Veiculo = {
+  EnvioEquipeDT: string | null;
+  ChegadaBaseDT: string | null;
+  ChegadaDestinoDT: string | null;
+  ChegadaLocalDT: string | null;
+  SaidaBaseDT: string | null;
+  RetornoDestinoDT: string | null;
+  SaidaLocalDT: string | null;
+  nome: string | null;
 };

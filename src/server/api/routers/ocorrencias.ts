@@ -127,7 +127,8 @@ export const ocorrenciaRouter = createTRPCRouter({
 
   getAll: protectedProcedure.input(dateRangeSchema).query(async ({ input }) => {
     const { from, to } = formatServerDateRange(input);
-    const data = await db.$queryRaw<[]>`
+    console.log(from, to);
+    const rawData = await db.$queryRaw<OcorrenciaRaw[]>`
       SELECT 
         o.OcorrenciaID as id,
         o.DtHr as data,
@@ -165,24 +166,25 @@ export const ocorrenciaRouter = createTRPCRouter({
       ORDER BY
         o.OcorrenciaID DESC`;
 
-    return data.map((ocorrencia?: any) => ({
+    const ocorrencias: Ocorrencia[] = rawData.map((ocorrencia) => ({
       id: ocorrencia.id.toString(),
       data: ocorrencia.data,
-      bairro: ocorrencia.bairro || "",
+      bairro: ocorrencia.bairro ?? "",
       risco: ocorrencia.risco,
       riscoColorClass: getColorByRisk(ocorrencia.risco),
-      desfecho: ocorrencia.desfecho,
-      operador: ocorrencia.operador || "",
+      operador: ocorrencia.operador ?? "",
       motivo: ocorrencia.motivo?.replace(/\*/g, "") || "NÃO PREENCHIDO",
       veiculos: ocorrencia.veiculos ? JSON.parse(ocorrencia.veiculos) : [],
       pacientes: ocorrencia.vitimas ? JSON.parse(ocorrencia.vitimas) : [],
-    })) as Ocorrencia[];
+    }));
+
+    return ocorrencias;
   }),
 
   getAllInProgress: protectedProcedure.query(async () => {
-    //tirando 3 horas para ficar com fuso compativel
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 10000);
-    const data = await db.$queryRaw<[]>`
+    // tirando 3 horas para ficar com fuso compativel
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
+    const data = await db.$queryRaw<OcorrenciaRaw[]>`
     SELECT
       DISTINCT
       o.DtHr,
@@ -222,20 +224,24 @@ export const ocorrenciaRouter = createTRPCRouter({
     ORDER BY
       o.DtHr DESC
     `;
-    //@ts-ignore Fazendo o parse apenas dos campos veiculos e vitimas que são JSON
-    return data.map((ocorrencia: any) => ({
-      id: ocorrencia.id.toString(),
-      bairro: ocorrencia.bairro,
-      risco: ocorrencia.risco,
-      riscoColorClass: getColorByRisk(ocorrencia.risco),
-      operador: ocorrencia.operador,
-      motivo: ocorrencia.motivo?.replace(/\*/g, "") || "NÃO PREENCHIDO",
-      veiculos: ocorrencia.veiculos ? JSON.parse(ocorrencia.veiculos) : [],
-    })) as OcorrenciaEmAndamento[];
+
+    const ocorrencias: Omit<Ocorrencia, "data" | "pacientes">[] = data.map(
+      (ocorrencia) => ({
+        id: ocorrencia.id.toString(),
+        bairro: ocorrencia.bairro ?? "",
+        risco: ocorrencia.risco,
+        riscoColorClass: getColorByRisk(ocorrencia.risco),
+        operador: ocorrencia.operador ?? "",
+        motivo: ocorrencia.motivo?.replace(/\*/g, "") || "NÃO PREENCHIDO",
+        veiculos: ocorrencia.veiculos ? JSON.parse(ocorrencia.veiculos) : [],
+      }),
+    );
+
+    return ocorrencias;
   }),
 
   countByRisco: protectedProcedure.query(async () => {
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 10000);
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
 
     //obtendo dados brutos dos riscos com contagens de ocorrencias
     const rawData = await db.cLASSIFICACAO_RISCO.findMany({
@@ -275,7 +281,7 @@ export const ocorrenciaRouter = createTRPCRouter({
 
   countByTipoLigacao: protectedProcedure.query(async () => {
     //inicio do dia
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 10000);
+    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
 
     //obtendos os dados crus da contagem de ocorrencias por ligacao
     const rawData = await db.ligacaoTP.findMany({

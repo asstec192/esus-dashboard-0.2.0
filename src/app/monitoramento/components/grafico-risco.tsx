@@ -26,12 +26,9 @@ export const ChartRisk = ({
           innerRadius="30%"
           outerRadius="100%"
         >
-          {riscos.map((risco) => {
-            console.log(risco);
-            return (
-              <Cell key={risco.label} className={cn(risco.colorClass.fill)} />
-            );
-          })}
+          {riscos.map((risco) => (
+            <Cell key={risco.label} className={cn(risco.colorClass.fill)} />
+          ))}
         </Pie>
 
         <Tooltip
