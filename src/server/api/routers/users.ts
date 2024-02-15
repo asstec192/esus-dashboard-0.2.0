@@ -150,10 +150,9 @@ export const usersRouter = createTRPCRouter({
       return "Senha alterada com sucesso";
     }),
 
-  getOcorrencias: protectedProcedure
-    .input(z.object({ esusId: z.string() }))
-    .query(async ({ input }) => {
-      const data = await db.$queryRaw<OcorrenciaRaw[]>`
+  getOcorrencias: protectedProcedure.query(async ({ ctx }) => {
+    const esusUserId = ctx.session.user.esusId;
+    const data = await db.$queryRaw<OcorrenciaRaw[]>`
         SELECT 
           o.OcorrenciaID as id,
           o.DtHr as data,
@@ -192,23 +191,23 @@ export const usersRouter = createTRPCRouter({
             SELECT 1
             FROM OCORRENCIA_AVALIACAO_INICIAL oa
             WHERE oa.OcorrenciaID = o.OcorrenciaID
-            AND oa.OperadorID = ${input.esusId}
+            AND oa.OperadorID = ${esusUserId}
           )
         ORDER BY
           o.OcorrenciaID DESC
         `;
 
-      // Fazendo o parse apenas dos campos veiculos e vitimas que são JSON
-      return data.map((ocorrencia) => ({
-        id: ocorrencia.id.toString(),
-        data: ocorrencia.data,
-        bairro: ocorrencia.bairro || "",
-        risco: ocorrencia.risco,
-        riscoColorClass: getColorByRisk(ocorrencia.risco),
-        operador: ocorrencia.operador || "",
-        motivo: ocorrencia.motivo?.replace(/\*/g, "") || "NÃO PREENCHIDO",
-        veiculos: ocorrencia.veiculos ? JSON.parse(ocorrencia.veiculos) : [],
-        pacientes: ocorrencia.vitimas ? JSON.parse(ocorrencia.vitimas) : [],
-      })) as Ocorrencia[];
-    }),
+    // Fazendo o parse apenas dos campos veiculos e vitimas que são JSON
+    return data.map((ocorrencia) => ({
+      id: ocorrencia.id.toString(),
+      data: ocorrencia.data,
+      bairro: ocorrencia.bairro || "",
+      risco: ocorrencia.risco,
+      riscoColorClass: getColorByRisk(ocorrencia.risco),
+      operador: ocorrencia.operador || "",
+      motivo: ocorrencia.motivo?.replace(/\*/g, "") || "NÃO PREENCHIDO",
+      veiculos: ocorrencia.veiculos ? JSON.parse(ocorrencia.veiculos) : [],
+      pacientes: ocorrencia.vitimas ? JSON.parse(ocorrencia.vitimas) : [],
+    })) as Ocorrencia[];
+  }),
 });

@@ -1,3 +1,5 @@
+"use client";
+
 import { BsFiletypePdf } from "react-icons/bs";
 import { buttonVariants } from "@/components/ui/button";
 import { BlobProvider } from "@react-pdf/renderer";

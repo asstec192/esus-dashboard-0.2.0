@@ -12,7 +12,7 @@ const config = {
       test: /\.worker\.js$/,
       use: { loader: "worker-loader" },
     });
-    return config;
+     return config;
   },
   eslint: {
     // Warning: This allows production builds to successfully complete even if

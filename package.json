@@ -61,6 +61,7 @@
     "react-day-picker": "^8.10.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.49.2",
+    "react-hooks-worker": "^1.0.4",
     "react-icons": "^4.12.0",
     "react-refresh": "^0.14.0",
     "react-use": "^17.4.2",

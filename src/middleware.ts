@@ -29,7 +29,7 @@ export const config = {
     "/epidemiologia",
     "/monitoramento",
     "/admin",
-    "/usuarios/:path*",
+    "/perfil",
     "/gerenciamento-rede",
   ],
 };

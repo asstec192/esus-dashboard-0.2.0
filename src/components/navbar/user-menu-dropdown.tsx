@@ -37,7 +37,7 @@ export const DropdownUserMenu = () => {
             : "Minha conta"}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <Link href={`/usuarios/${sessionData.user.esusId}`}>
+        <Link href="/perfil">
           <DropdownMenuItem>Perfil</DropdownMenuItem>
         </Link>
         <DropdownMenuItem disabled>Relatórios</DropdownMenuItem>

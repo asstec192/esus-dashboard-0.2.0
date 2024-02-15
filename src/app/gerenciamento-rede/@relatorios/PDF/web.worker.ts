@@ -1,5 +1,6 @@
 import { expose } from "comlink";
-import { PDFProps } from "./PDF";
+import { PDFRelatorioRedeProps } from "./Document";
+import { createElement } from "react";
 let log = console.info;
 
 /* This prevents live reload problems during development
@@ -11,10 +12,15 @@ if (process.env.NODE_ENV != "production") {
   global.$RefreshSig$ = () => () => {};
 }
 
-const renderPDFInWorker = async (props: PDFProps) => {
+const renderPDFInWorker = async (props: PDFRelatorioRedeProps) => {
   try {
-    const { renderPDF } = await import("./renderPDF");
-    return URL.createObjectURL(await renderPDF(props));
+    const { pdf } = await import("@react-pdf/renderer");
+    const { GerenciamentoRedePDFRelatorios } = await import("./Document");
+
+    return URL.createObjectURL(
+      // @ts-ignore
+      await pdf(createElement(GerenciamentoRedePDFRelatorios, props)).toBlob(),
+    );
   } catch (error) {
     log(error);
     throw error;

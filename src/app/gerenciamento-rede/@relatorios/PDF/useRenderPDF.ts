@@ -10,17 +10,18 @@ import Worker from "worker-loader!./web.worker.ts";
 export const pdfWorker = wrap<WorkerType>(new Worker());
 pdfWorker.onProgress(proxy((info: any) => console.log(info)));
 
-export const useRenderPDF = ({
-  text,
-}: Parameters<WorkerType["renderPDFInWorker"]>[0]) => {
+export function useRenderPDF({
+  date,
+  pdfData,
+}: Parameters<WorkerType["renderPDFInWorker"]>[0]) {
   const {
     value: url,
     loading,
     error,
   } = useAsync(async () => {
-    return pdfWorker.renderPDFInWorker({ text });
-  }, [text]);
+    return pdfWorker.renderPDFInWorker({ date, pdfData });
+  }, [date, pdfData]);
 
   useEffect(() => (url ? () => URL.revokeObjectURL(url) : undefined), [url]);
   return { url, loading, error };
-};
+}

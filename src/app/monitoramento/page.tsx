@@ -24,13 +24,11 @@ export default async function Monitoramento() {
 
   return (
     <div className="grid min-h-nav-offset grid-cols-12 gap-2 py-4 sm:p-4">
+      <MonitoramentoEstatisticasGerais initialData={estatisticas} />
       <div className="col-span-full flex lg:col-span-8 2xl:col-span-9">
         <MontitoramentoOcorrencias initialData={ocorrencias} />
       </div>
       <div className="col-span-full grid grid-cols-2 items-stretch gap-2 lg:col-span-4 2xl:col-span-3">
-        <div className="col-span-full grid grid-cols-3 gap-2">
-          <MonitoramentoEstatisticasGerais initialData={estatisticas} />
-        </div>
         <Card className="col-span-full min-h-[300px] sm:max-lg:col-span-1">
           <CardHeader>
             <CardTitle className="text-base font-medium">Ligações</CardTitle>

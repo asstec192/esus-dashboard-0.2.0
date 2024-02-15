@@ -181,13 +181,13 @@ export const hospitalManagerRouter = createTRPCRouter({
     .input(formSchemaRelatorioHospital)
     .mutation(async ({ input, ctx }) => {
       const dataAtual = new Date();
-      const dataDesejada = input.createdAt.setHours(
+      const dataEditada = input.createdAt.setHours(
         dataAtual.getHours(),
         dataAtual.getMinutes(),
         dataAtual.getSeconds(),
         dataAtual.getMilliseconds(),
       );
-      const createdAt = new Date(dataDesejada);
+      const createdAt = new Date(dataEditada);
 
       return db.unidadeRelatorio.create({
         data: {

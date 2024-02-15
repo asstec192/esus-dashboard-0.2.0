@@ -433,12 +433,39 @@ export const ocorrenciaRouter = createTRPCRouter({
       WHERE O.DtHr >= ${date}
       `;
 
-    return {
-      tempoGeral,
-      QTYQUS,
-      QUSQUY,
-      QUYQUU,
-      totalLigacoes,
-    };
+    const tempoMedico = await db.$queryRaw<{ MediaGeral: number }[]>`
+      SELECT
+          AVG(DATEDIFF(MINUTE, TempoPorOcorrencia.EnvioOcorrenciaDT, TempoPorOcorrencia.SolicitacaoVeiculoDT)) MediaGeral
+      FROM
+          (SELECT 
+              SV.OcorrenciaID,
+              OP.OperadorNM,
+              Min(PO.OrigemDTHR) as EnvioOcorrenciaDT,
+              SV.RegistroDT as SolicitacaoVeiculoDT
+          FROM FORMEQUIPE_SolicitacaoVeiculo SV
+          JOIN PosicaoOcorrencias PO On PO.OcorrenciaID = SV.OcorrenciaID 
+          JOIN OperadoresDados OP ON OP.OperadorID = SV.OperadorID
+          JOIN Ocorrencia O ON O.OcorrenciaID = SV.OcorrenciaID
+          WHERE O.DtHr >= ${date} AND
+              SV.VeiculoSEQ = 1
+          GROUP BY 
+              SV.OcorrenciaID,
+              SV.RegistroDT,
+              OP.OperadorNM 
+          ) as TempoPorOcorrencia
+      `;
+    const estatisticas = [
+      { label: "Ligações", value: totalLigacoes.toString() },
+      { label: "Tempo Geral", value: `${tempoGeral ?? ""} min` },
+      {
+        label: "Tempo Médico",
+        value: `${tempoMedico[0]?.MediaGeral ?? ""} min`,
+      },
+      { label: "Chegada ao local", value: `${QTYQUS ?? ""} min` },
+      { label: "Atendimento no local", value: `${QUSQUY ?? ""} min` },
+      { label: "Chegada ao destino", value: `${QUYQUU ?? ""} min` },
+    ];
+
+    return estatisticas;
   }),
 });

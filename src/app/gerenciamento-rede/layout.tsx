@@ -11,7 +11,7 @@ export default function GerenciamentoRedeLayout(props: {
   return (
     <div className="flex min-h-nav-offset flex-col p-4">
       <Tabs defaultValue="relatorios">
-        <TabsList className="mb-4">
+        <TabsList>
           <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
           <TabsTrigger value="hospitais">Hospitais</TabsTrigger>
           <TabsTrigger value="equipamentos">Equipamentos</TabsTrigger>

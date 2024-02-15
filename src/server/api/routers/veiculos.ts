@@ -21,7 +21,6 @@ export const veiculosRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input.dateRange);
-      console.log(from, to);
       //obtem o veiculo com suas respectivas ocorrencias
       const veiculo = await db.veiculos.findUnique({
         where: { VeiculoID: input.veiculoId },

@@ -7,7 +7,7 @@ import { DataTable } from "@/components/table/DataTable";
 import { Card } from "@/components/ui/card";
 import { DataTablePagination } from "@/components/table/DataTablePagination";
 import { ocorrenciaTableColumns } from "@/constants/ocorrenciaTableColumns";
-import { RegulacaoPrimariaTableToolbar } from "../../(date-range-layout)/regulacao/primaria/table-tool-bar";
+import { RegulacaoPrimariaTableToolbar } from "../(date-range-layout)/regulacao/primaria/table-tool-bar";
 
 export const UserIncidents = ({ data }: { data: Ocorrencia[] }) => {
   return (

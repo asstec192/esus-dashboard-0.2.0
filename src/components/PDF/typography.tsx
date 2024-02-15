@@ -9,7 +9,6 @@ export function PDFHeader(props: { children: ReactNode }) {
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 20,
-        gap: 20,
       }}
     >
       {props.children}
@@ -32,6 +31,7 @@ export function PDFTitle(props: { children: ReactNode }) {
         fontSize: 18,
         fontWeight: "semibold",
         fontFamily: "Open Sans",
+        marginBottom: 10,
       }}
     >
       {props.children}
@@ -46,6 +46,7 @@ export function PDFSubTitle(props: { children: ReactNode }) {
         fontSize: 14,
         fontWeight: "semibold",
         fontFamily: "Open Sans",
+        marginTop: 10,
       }}
     >
       {props.children}

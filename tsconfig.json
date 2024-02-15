@@ -37,7 +37,9 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.js",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "src/components/PDF/renderPDF.tsx",
+    "src/components/PDF/renderPDF.ts"
   ],
   "exclude": ["node_modules"]
 }

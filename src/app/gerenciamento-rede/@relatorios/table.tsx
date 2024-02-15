@@ -14,6 +14,7 @@ import { DataTablePagination } from "@/components/table/DataTablePagination";
 import { DatePicker } from "@/components/date-pickers/date-picker";
 import { DataTableProvider } from "@/components/table/DataTableProvider";
 import Link from "next/link";
+import { GerenciamentoRedeRelatorioPDFLink } from "./PDF/Link";
 
 export function Relatorios({
   initialData,
@@ -79,13 +80,16 @@ export function Relatorios({
 
   return (
     <DataTableProvider columns={columns} data={relatorios || []}>
-      <div className="mb-2 flex items-end gap-2">
+      <div className="-mt-2 mb-2 flex items-end gap-2">
         <DataTableSearch />
         <DatePicker
           date={date}
           className="h-8"
           onSelect={(value) => value && setDate(value)}
         />
+
+        <GerenciamentoRedeRelatorioPDFLink />
+
         <Button asChild className="ml-auto h-8 w-16">
           <Link href={{ query: { isRelatorioOpen: true } }} scroll={false}>
             <Plus />
