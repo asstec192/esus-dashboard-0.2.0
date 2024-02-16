@@ -2,8 +2,6 @@ import { PrismaClient } from "@prisma/client";
 
 import { env } from "@/env.mjs";
 import { getColorByRisk } from "@/utils/getColorByRisk";
-import { isWithinHour } from "@/utils/isWithinTurn";
-import { addHours } from "date-fns";
 
 const prismaClientSingleton = () => {
   return new PrismaClient({
@@ -40,6 +38,7 @@ const prismaClientSingleton = () => {
             if (veiculo.VeiculoDS?.includes("MOT")) return "MOT";
             if (veiculo.VeiculoDS?.includes("BIK")) return "BIK";
             if (veiculo.VeiculoDS?.includes("USI")) return "USI";
+            if (veiculo.VeiculoDS?.includes("USA MED")) return "REM";
             if (veiculo.VeiculoDS?.includes("USA")) return "USA";
             return null;
           },

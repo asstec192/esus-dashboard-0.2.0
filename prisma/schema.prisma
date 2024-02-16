@@ -1775,10 +1775,10 @@ model UnidadeRelatorio {
     editadoPorId                   Int
     turno                          String                           @db.VarChar(2)
     contato                        String                           @db.VarChar(14)
-    nomeContato                    String                           @db.NVarChar(50)
+    nomeContato                    String                           @db.NVarChar(100)
     horaContato                    String                           @db.VarChar(5)
-    chefeEquipe                    String                           @db.NVarChar(50)
-    observacao                     String?                          @db.NVarChar(500)
+    chefeEquipe                    String                           @db.NVarChar(200)
+    observacao                     String?
     createdAt                      DateTime                         @default(now())
     updatedAt                      DateTime                         @updatedAt
     unidade                        UnidadesDestino                  @relation(fields: [unidadeId], references: [UnidadeCOD])

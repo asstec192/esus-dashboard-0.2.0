@@ -137,4 +137,147 @@ export const veiculosRouter = createTRPCRouter({
         }[],
       }));
     }),
+
+  /**Obtem a proproção de veiculos ocupados/total */
+  situacaoDaFrota: protectedProcedure.query(async () => {
+    const veiculosOcupados = await db.veiculos.findMany({
+      select: {
+        tipo: true,
+        Status: true,
+      },
+      where: {
+        RegAtivo: {
+          equals: "1",
+        },
+        Status: "O",
+      },
+    });
+
+    const totalVeiculos = await db.unidadeRelatorioEquipamentos.findMany({
+      select: {
+        quantidade: true,
+        equipamentoId: true,
+      },
+      where: {
+        equipamentoId: {
+          in: [11, 12, 13, 14, 15, 16],
+        },
+        relatorio: {
+          unidadeId: 208,
+        },
+      },
+    });
+
+    const data = [
+      {
+        veiculo: "USB",
+        totalOcupado: veiculosOcupados.filter((v) => v.tipo === "USB").length,
+        total:
+          totalVeiculos.find((v) => v.equipamentoId === 11)?.quantidade ?? 0,
+      },
+      {
+        veiculo: "USA",
+        totalOcupado: veiculosOcupados.filter((v) => v.tipo === "USA").length,
+        total:
+          totalVeiculos.find((v) => v.equipamentoId === 12)?.quantidade ?? 0,
+      },
+      {
+        veiculo: "USI",
+        totalOcupado: veiculosOcupados.filter((v) => v.tipo === "USI").length,
+        total:
+          totalVeiculos.find((v) => v.equipamentoId === 13)?.quantidade ?? 0,
+      },
+      {
+        veiculo: "MOT",
+        totalOcupado: veiculosOcupados.filter((v) => v.tipo === "MOT").length,
+        total:
+          totalVeiculos.find((v) => v.equipamentoId === 14)?.quantidade ?? 0,
+      },
+      {
+        veiculo: "BIK",
+        totalOcupado: veiculosOcupados.filter((v) => v.tipo === "BIK").length,
+        total:
+          totalVeiculos.find((v) => v.equipamentoId === 15)?.quantidade ?? 0,
+      },
+      {
+        veiculo: "REM",
+        totalOcupado: veiculosOcupados.filter((v) => v.tipo === "REM").length,
+        total:
+          totalVeiculos.find((v) => v.equipamentoId === 16)?.quantidade ?? 0,
+      },
+    ];
+
+    return data.map((v) => ({
+      veiculo: v.veiculo,
+      totalOcupado: v.totalOcupado,
+      totalLivre: v.total - v.totalOcupado,
+    }));
+  }),
+
+  situacaoSolicitacoes: protectedProcedure.query(async () => {
+    const count = await db.fORMEQUIPE_SolicitacaoVeiculo.groupBy({
+      by: ["VeiculoTP"],
+      _count: {
+        VeiculoTP: true,
+      },
+      where: {
+        StatusEnvio: {
+          in: ["0", "4"],
+        },
+        VeiculoTP: {
+          notIn: ["avi"],
+        },
+      },
+    });
+
+    const map = {
+      USA: "usa",
+      MOT: "mot",
+      HEL: "hel",
+      VTI: "vti",
+      BIK: "lan",
+      USB: "usb",
+      USI: "vir",
+    } as const;
+
+    const data = [
+      {
+        veiculo: "USB",
+        totalPendente:
+          count.find((c) => c.VeiculoTP === map.USB)?._count.VeiculoTP ?? 0,
+      },
+      {
+        veiculo: "USA",
+        totalPendente:
+          count.find((c) => c.VeiculoTP === map.USA)?._count.VeiculoTP ?? 0,
+      },
+      {
+        veiculo: "USI",
+        totalPendente:
+          count.find((c) => c.VeiculoTP === map.USI)?._count.VeiculoTP ?? 0,
+      },
+      {
+        veiculo: "MOT",
+        totalPendente:
+          count.find((c) => c.VeiculoTP === map.MOT)?._count.VeiculoTP ?? 0,
+      },
+      {
+        veiculo: "BIK",
+        totalPendente:
+          count.find((c) => c.VeiculoTP === map.BIK)?._count.VeiculoTP ?? 0,
+      },
+      {
+        veiculo: "REM",
+        totalPendente:
+          count.find((c) => c.VeiculoTP === map.VTI)?._count.VeiculoTP ?? 0,
+      },
+      {
+        veiculo: "HEL",
+        totalPendente:
+          count.find((c) => c.VeiculoTP === map.HEL)?._count.VeiculoTP ?? 0,
+      },
+    ];
+
+    return data;
+  }),
 });

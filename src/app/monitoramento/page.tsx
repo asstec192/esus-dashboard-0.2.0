@@ -11,6 +11,8 @@ import { MontitoramentoOcorrencias } from "./components/ocorrencias";
 import { MonitoramentoEstatisticasGerais } from "./components/estatisticas-gerais";
 import { api } from "@/trpc/server";
 import { format, startOfDay } from "date-fns";
+import { ChartSituacaoFrota } from "./components/grafico-situacao-frota";
+import { ChartSolocitacoesPendentes } from "./components/grafico-solicitacoes-pendentes";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +21,8 @@ export default async function Monitoramento() {
   const estatisticas = await api.ocorrencias.getDailyInfo.query();
   const contagemDeRisco = await api.ocorrencias.countByRisco.query();
   const contagemDeLigacoes = await api.ocorrencias.countByTipoLigacao.query();
-
+  const situacaoFrota = await api.veiculos.situacaoDaFrota.query();
+  const solicitacoesPendentes = await api.veiculos.situacaoSolicitacoes.query();
   const inicioDoDia = format(startOfDay(new Date()), "dd/MM/yyyy, HH:mm:ss");
 
   return (
@@ -29,6 +32,30 @@ export default async function Monitoramento() {
         <MontitoramentoOcorrencias initialData={ocorrencias} />
       </div>
       <div className="col-span-full grid grid-cols-2 items-stretch gap-2 lg:col-span-4 2xl:col-span-3">
+        <Card className="col-span-full sm:max-lg:col-span-1">
+          <CardHeader>
+            <CardTitle className="text-base font-medium">
+              Ocupação da Frota
+            </CardTitle>
+            <CardDescription>Proporção de veículos ocupados</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartSituacaoFrota initialData={situacaoFrota} />
+          </CardContent>
+        </Card>
+        <Card className="col-span-full sm:max-lg:col-span-1">
+          <CardHeader>
+            <CardTitle className="text-base font-medium">
+              Solicitações Pendentes
+            </CardTitle>
+            <CardDescription>
+              Quantidade de solicitações de frota pendentes
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartSolocitacoesPendentes initialData={solicitacoesPendentes} />
+          </CardContent>
+        </Card>
         <Card className="col-span-full min-h-[300px] sm:max-lg:col-span-1">
           <CardHeader>
             <CardTitle className="text-base font-medium">Ligações</CardTitle>
@@ -40,7 +67,7 @@ export default async function Monitoramento() {
             <ChartCalls initialData={contagemDeLigacoes} />
           </CardContent>
         </Card>
-        <Card className="col-span-full sm:max-lg:col-span-1 sm:max-lg:self-start">
+        <Card className="col-span-full sm:max-lg:col-span-1">
           <CardHeader>
             <CardTitle className="text-base font-medium">Risco</CardTitle>
             <CardDescription>

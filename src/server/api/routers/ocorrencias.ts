@@ -127,7 +127,7 @@ export const ocorrenciaRouter = createTRPCRouter({
 
   getAll: protectedProcedure.input(dateRangeSchema).query(async ({ input }) => {
     const { from, to } = formatServerDateRange(input);
-    console.log(from, to);
+
     const rawData = await db.$queryRaw<OcorrenciaRaw[]>`
       SELECT 
         o.OcorrenciaID as id,
@@ -399,7 +399,7 @@ export const ocorrenciaRouter = createTRPCRouter({
 
           return acc;
         },
-        [] as { tipo: TipoVeiculo; count: number }[],
+        [] as { tipo: (typeof veiculos)[0]["tipo"]; count: number }[],
       );
 
       // resposta final ao client
