@@ -1,1 +1,1 @@
-type TipoVeiculo = "USB" | "MOT" | "BIK" | "USI" | "USA" | null;
+type TipoVeiculo = "USB" | "MOT" | "BIK" | "USI" | "USA" | "REM";

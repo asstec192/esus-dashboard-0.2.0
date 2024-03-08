@@ -35,6 +35,7 @@ export function ChartSolocitacoesPendentes({
 }) {
   const { data } = api.veiculos.situacaoSolicitacoes.useQuery(undefined, {
     initialData,
+    refetchInterval: 5000,
   });
 
   return (
@@ -65,7 +66,11 @@ export function ChartSolocitacoesPendentes({
             return null;
           }}
         />
-        <Bar dataKey="totalPendente" className="fill-primary" />
+        <Bar
+          dataKey="totalPendente"
+          className="fill-primary"
+          radius={[4, 4, 0, 0]}
+        />
       </BarChart>
     </ResponsiveContainer>
   );

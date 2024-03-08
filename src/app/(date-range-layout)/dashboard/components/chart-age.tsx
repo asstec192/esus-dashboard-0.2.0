@@ -1,12 +1,20 @@
 "use client";
 
-import { type HTMLAttributes } from "react";
+import { HTMLAttributes } from "react";
 import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
-import { Card } from "@/components/ui/card";
-import { useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
-import { TypographySmall } from "@/components/typography/TypographySmall";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  DateRange,
+  useGlogalDateFilterStore,
+} from "@/hooks/useGlobalDateFilterStore";
 import { api } from "@/trpc/react";
-
 import {
   Bar,
   BarChart,
@@ -15,21 +23,29 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { endOfDay, startOfDay, subDays } from "date-fns";
 
-export const ChartHour = (props: HTMLAttributes<HTMLDivElement>) => {
-  const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
-  const { data, isLoading, isError } =
-    api.ocorrencias.countByHoraDeEnvioDoVeiculo.useQuery({
-      from: dateRange.from!,
-      to: dateRange.to!,
-    });
+export const ChartAge = (props: HTMLAttributes<HTMLDivElement>) => {
+  const dateRange = useGlogalDateFilterStore(
+    (state) => state.dateRange,
+  ) as DateRange;
+
+  const { data, isLoading } = api.pacientes.countByAgeRange.useQuery({
+    from: dateRange.from,
+    to: dateRange.to,
+  });
+
+  if (isLoading) return <SkeletonChart />;
 
   return (
     <Card {...props} className="p-2">
-      <TypographySmall>Ocorrências X Horário de Deslocamento</TypographySmall>
-      {isLoading || isError ? (
-        <SkeletonChart />
-      ) : (
+      <CardHeader>
+        <CardTitle className="text-base font-medium">
+          Pacientes X Faixa Etária
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart
             data={data}
@@ -38,14 +54,14 @@ export const ChartHour = (props: HTMLAttributes<HTMLDivElement>) => {
             margin={{ top: 20 }}
           >
             <XAxis
-              dataKey="contagem"
+              dataKey="count"
               type="number"
               fontSize={12}
               axisLine={false}
             />
             <YAxis
               width={100}
-              dataKey="intervalo"
+              dataKey="ageRange"
               type="category"
               fontSize={12}
               tickLine={false}
@@ -71,13 +87,20 @@ export const ChartHour = (props: HTMLAttributes<HTMLDivElement>) => {
               }}
             />
             <Bar
-              dataKey="contagem"
+              dataKey="count"
               className="fill-primary"
               radius={[0, 4, 4, 0]}
             />
           </BarChart>
         </ResponsiveContainer>
-      )}
+      </CardContent>
+      <CardFooter>
+        <CardDescription>
+          Dados referentes ao período de{" "}
+          {startOfDay(dateRange.from).toLocaleString()} a{" "}
+          {endOfDay(subDays(dateRange.to, 1)).toLocaleString()}
+        </CardDescription>
+      </CardFooter>
     </Card>
   );
 };

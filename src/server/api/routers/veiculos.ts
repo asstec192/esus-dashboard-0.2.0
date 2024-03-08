@@ -3,7 +3,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import * as z from "zod";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { getTurnFilterQuery } from "@/utils/getTurnQuery";
-import { addHours } from "date-fns";
+import { addHours, endOfDay, startOfDay, subHours } from "date-fns";
 import { dateRangeSchema, turnoSchema } from "@/constants/zod-schemas";
 import { isWithinHour } from "@/utils/isWithinTurn";
 
@@ -105,9 +105,9 @@ export const veiculosRouter = createTRPCRouter({
         SELECT
             V.VeiculoID AS id,
             V.VeiculoDS AS nome,
-            AVG(DATEDIFF(MINUTE, OM.EnvioEquipeDT, OM.ChegadaLocalDT)) AS QTYQUS,
-            AVG(DATEDIFF(MINUTE, OM.SaidaLocalDT, OM.ChegadaDestinoDT)) AS  QUSQUY,
-            AVG(DATEDIFF(MINUTE, OM.ChegadaDestinoDT, OM.RetornoDestinoDT)) AS QUYQUU,
+            AVG(DATEDIFF(minute, EnvioEquipeDT, ChegadaLocalDT)) AS QTYQUS,
+            AVG(DATEDIFF(minute, ChegadaLocalDT, SaidaLocalDT)) AS QUSQUY,
+            AVG(DATEDIFF(minute, SaidaLocalDT, ChegadaDestinoDT)) AS QUYQUU,
             COUNT(DISTINCT OM.OcorrenciaID) AS totalOcorrencias,
             (
                 SELECT
@@ -140,6 +140,7 @@ export const veiculosRouter = createTRPCRouter({
 
   /**Obtem a proproção de veiculos ocupados/total */
   situacaoDaFrota: protectedProcedure.query(async () => {
+    // obtem todos os veiculos com status ocupado
     const veiculosOcupados = await db.veiculos.findMany({
       select: {
         tipo: true,
@@ -153,57 +154,61 @@ export const veiculosRouter = createTRPCRouter({
       },
     });
 
-    const totalVeiculos = await db.unidadeRelatorioEquipamentos.findMany({
+    // obtem o relatorio com a quantidade disponivel de cada tipo de veiculo
+    const relatorio = await db.unidadeRelatorio.findFirst({
       select: {
-        quantidade: true,
-        equipamentoId: true,
+        UnidadeRelatorioEquipamentos: {
+          select: {
+            equipamentoId: true,
+            quantidade: true,
+          },
+          where: {
+            equipamentoId: {
+              in: [11, 12, 13, 14, 15, 16], // equipamentos referentes aos veículos
+            },
+          },
+        },
       },
       where: {
-        equipamentoId: {
-          in: [11, 12, 13, 14, 15, 16],
-        },
-        relatorio: {
-          unidadeId: 208,
-        },
+        unidadeId: 208, // unidade referente ao SAMU
+      },
+      orderBy: {
+        id: "desc",
       },
     });
+
+    const veiculos = relatorio?.UnidadeRelatorioEquipamentos;
 
     const data = [
       {
         veiculo: "USB",
         totalOcupado: veiculosOcupados.filter((v) => v.tipo === "USB").length,
-        total:
-          totalVeiculos.find((v) => v.equipamentoId === 11)?.quantidade ?? 0,
+        total: veiculos?.find((v) => v.equipamentoId === 11)?.quantidade ?? 0,
       },
       {
         veiculo: "USA",
         totalOcupado: veiculosOcupados.filter((v) => v.tipo === "USA").length,
-        total:
-          totalVeiculos.find((v) => v.equipamentoId === 12)?.quantidade ?? 0,
+        total: veiculos?.find((v) => v.equipamentoId === 12)?.quantidade ?? 0,
       },
       {
         veiculo: "USI",
         totalOcupado: veiculosOcupados.filter((v) => v.tipo === "USI").length,
-        total:
-          totalVeiculos.find((v) => v.equipamentoId === 13)?.quantidade ?? 0,
+        total: veiculos?.find((v) => v.equipamentoId === 13)?.quantidade ?? 0,
       },
       {
         veiculo: "MOT",
         totalOcupado: veiculosOcupados.filter((v) => v.tipo === "MOT").length,
-        total:
-          totalVeiculos.find((v) => v.equipamentoId === 14)?.quantidade ?? 0,
+        total: veiculos?.find((v) => v.equipamentoId === 14)?.quantidade ?? 0,
       },
       {
         veiculo: "BIK",
         totalOcupado: veiculosOcupados.filter((v) => v.tipo === "BIK").length,
-        total:
-          totalVeiculos.find((v) => v.equipamentoId === 15)?.quantidade ?? 0,
+        total: veiculos?.find((v) => v.equipamentoId === 15)?.quantidade ?? 0,
       },
       {
         veiculo: "REM",
         totalOcupado: veiculosOcupados.filter((v) => v.tipo === "REM").length,
-        total:
-          totalVeiculos.find((v) => v.equipamentoId === 16)?.quantidade ?? 0,
+        total: veiculos?.find((v) => v.equipamentoId === 16)?.quantidade ?? 0,
       },
     ];
 
@@ -234,7 +239,7 @@ export const veiculosRouter = createTRPCRouter({
       USA: "usa",
       MOT: "mot",
       HEL: "hel",
-      VTI: "vti",
+      REM: "vti",
       BIK: "lan",
       USB: "usb",
       USI: "vir",
@@ -269,7 +274,7 @@ export const veiculosRouter = createTRPCRouter({
       {
         veiculo: "REM",
         totalPendente:
-          count.find((c) => c.VeiculoTP === map.VTI)?._count.VeiculoTP ?? 0,
+          count.find((c) => c.VeiculoTP === map.REM)?._count.VeiculoTP ?? 0,
       },
       {
         veiculo: "HEL",
@@ -280,4 +285,76 @@ export const veiculosRouter = createTRPCRouter({
 
     return data;
   }),
+
+  logSituacaoDaFrota: protectedProcedure
+    .input(z.object({ date: z.date() }))
+    .query(({ input }) =>
+      db.dashboardLogSituacaoFrota.findMany({
+        where: {
+          createdAt: {
+            gte: subHours(startOfDay(input.date), 3),
+            lte: subHours(endOfDay(input.date), 3),
+          },
+        },
+      }),
+    ),
+
+  /** Obtém o percentual de solicitações de veículos pendentes ao longo do tempo*/
+  logSolicitacoesPendentes: protectedProcedure
+    .input(z.object({ date: z.date() }))
+    .query(async ({ input }) => {
+      const solicitacoes = await db.dashboardLogSolicitacoesPendentes.findMany({
+        where: {
+          createdAt: {
+            gte: subHours(startOfDay(input.date), 3),
+            lte: subHours(endOfDay(input.date), 3),
+          },
+        },
+      });
+
+      const veiculos = await db.dashboardLogSituacaoFrota.findMany({
+        where: {
+          createdAt: {
+            gte: subHours(startOfDay(input.date), 3),
+            lte: subHours(endOfDay(input.date), 3),
+          },
+        },
+      });
+
+      const mergedData = solicitacoes.map((solicitacao, i) => ({
+        USB_pendentes: solicitacao.USB,
+        USB_disponiveis: veiculos[i]?.USB_total,
+        USB_percentual: Math.ceil(
+          (solicitacao.USB / (veiculos[i]?.USB_total ?? 0)) * 100,
+        ),
+        USA_pendentes: solicitacao.USA,
+        USA_disponiveis: veiculos[i]?.USA_total,
+        USA_percentual: Math.ceil(
+          (solicitacao.USA / (veiculos[i]?.USA_total ?? 0)) * 100,
+        ),
+        USI_pendentes: solicitacao.USI,
+        USI_disponiveis: veiculos[i]?.USI_total,
+        USI_percentual: Math.ceil(
+          (solicitacao.USI / (veiculos[i]?.USI_total ?? 0)) * 100,
+        ),
+        MOT_pendentes: solicitacao.MOT,
+        MOT_disponiveis: veiculos[i]?.MOT_total,
+        MOT_percentual: Math.ceil(
+          (solicitacao.MOT / (veiculos[i]?.MOT_total ?? 0)) * 100,
+        ),
+        BIK_pendentes: solicitacao.BIK,
+        BIK_disponiveis: veiculos[i]?.BIK_total,
+        BIK_percentual: Math.ceil(
+          (solicitacao.BIK / (veiculos[i]?.BIK_total ?? 0)) * 100,
+        ),
+        REM_pendentes: solicitacao.REM,
+        REM_disponiveis: veiculos[i]?.REM_total,
+        REM_percentual: Math.ceil(
+          (solicitacao.REM / (veiculos[i]?.REM_total ?? 0)) * 100,
+        ),
+        createdAt: solicitacao.createdAt,
+      }));
+
+      return mergedData;
+    }),
 });

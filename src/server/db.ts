@@ -44,6 +44,69 @@ const prismaClientSingleton = () => {
           },
         },
       },
+
+      dashboardLogSituacaoFrota: {
+        percentualUSB: {
+          needs: { USB_ocupadas: true, USB_total: true },
+          compute: (log) => {
+            let result = 0;
+            result = Math.ceil(
+              ((log.USB_ocupadas ?? 0) / (log.USB_total ?? 0)) * 100,
+            );
+            return isNaN(result) ? 0 : !isFinite(result) ? 100 : result;
+          },
+        },
+        percentualMOT: {
+          needs: { MOT_ocupadas: true, MOT_total: true },
+          compute: (log) => {
+            let result = 0;
+            result = Math.ceil(
+              ((log.MOT_ocupadas ?? 0) / (log.MOT_total ?? 0)) * 100,
+            );
+            return isNaN(result) ? 0 : !isFinite(result) ? 100 : result;
+          },
+        },
+        percentualBIK: {
+          needs: { BIK_ocupadas: true, BIK_total: true },
+          compute: (log) => {
+            let result = 0;
+            result = Math.ceil(
+              ((log.BIK_ocupadas ?? 0) / (log.BIK_total ?? 0)) * 100,
+            );
+            return isNaN(result) ? 0 : !isFinite(result) ? 100 : result;
+          },
+        },
+        percentualREM: {
+          needs: { REM_ocupadas: true, REM_total: true },
+          compute: (log) => {
+            let result = 0;
+            result = Math.ceil(
+              ((log.REM_ocupadas ?? 0) / (log.REM_total ?? 0)) * 100,
+            );
+            return isNaN(result) ? 0 : !isFinite(result) ? 100 : result;
+          },
+        },
+        percentualUSA: {
+          needs: { USA_ocupadas: true, USA_total: true },
+          compute: (log) => {
+            let result = 0;
+            result = Math.ceil(
+              ((log.USA_ocupadas ?? 0) / (log.USA_total ?? 0)) * 100,
+            );
+            return isNaN(result) ? 0 : !isFinite(result) ? 100 : result;
+          },
+        },
+        percentualUSI: {
+          needs: { USI_ocupadas: true, USI_total: true },
+          compute: (log) => {
+            let result = 0;
+            result = Math.ceil(
+              ((log.USI_ocupadas ?? 0) / (log.USI_total ?? 0)) * 100,
+            );
+            return isNaN(result) ? 0 : !isFinite(result) ? 100 : result;
+          },
+        },
+      },
     },
   });
 };

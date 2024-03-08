@@ -8,17 +8,22 @@ import {
 } from "@/components/ui/popover";
 
 export function PopoverVeiculo({ veiculo }: { veiculo: Veiculo }) {
+  const veiculoOcupado = veiculo.status === "O" && !veiculo.RetornoDestinoDT;
+  const veiculoLivre =
+    veiculo.status !== "O" ||
+    (veiculo.status === "O" && !!veiculo.RetornoDestinoDT);
   return (
     <Popover>
       <PopoverTrigger>
         <Badge variant="outline" className="w-max py-1">
-          {veiculo.RetornoDestinoDT ? (
+          {veiculoOcupado && (
+            <Timer size="1rem" className="mr-2 text-primary" />
+          )}
+          {veiculoLivre && (
             <CheckCircle2
               size="0.9rem"
               className="mr-2 text-muted-foreground"
             />
-          ) : (
-            <Timer size="1rem" className="mr-2 text-muted-foreground" />
           )}
           {veiculo.nome}
         </Badge>

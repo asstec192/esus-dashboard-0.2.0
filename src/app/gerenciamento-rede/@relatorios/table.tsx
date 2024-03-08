@@ -7,7 +7,7 @@ import { RouterOutputs } from "@/trpc/shared";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { DataTableSearch } from "@/components/table/DataTableSearch";
-import { Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { DataTable } from "@/components/table/DataTable";
 import { Card } from "@/components/ui/card";
 import { DataTablePagination } from "@/components/table/DataTablePagination";
@@ -15,6 +15,7 @@ import { DatePicker } from "@/components/date-pickers/date-picker";
 import { DataTableProvider } from "@/components/table/DataTableProvider";
 import Link from "next/link";
 import { GerenciamentoRedeRelatorioPDFLink } from "./PDF/Link";
+import { RelatorioDeleteModal } from "./relatorio-delete-modal";
 
 export function Relatorios({
   initialData,
@@ -39,23 +40,6 @@ export function Relatorios({
       {
         accessorKey: "id",
         header: "#",
-        cell: ({ row }) => (
-          <Button
-            asChild
-            variant="ghost"
-            className="absolute left-0 top-0 h-full w-full justify-start hover:bg-transparent"
-            onClick={() => setRelatorio(row.original)}
-          >
-            <Link
-              href={{
-                query: { isRelatorioOpen: true, relatorioId: row.original.id },
-              }}
-              scroll={false}
-            >
-              {row.original.id}
-            </Link>
-          </Button>
-        ),
       },
       {
         accessorKey: "unidade.UnidadeDS",
@@ -73,6 +57,55 @@ export function Relatorios({
         accessorKey: "createdAt",
         header: "Data",
         cell: ({ row }) => row.original.createdAt.toLocaleString(),
+      },
+      {
+        accessorKey: "actions",
+        header: "Ações",
+        cell: ({ row }) => (
+          <div className="flex gap-2">
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              onClick={() => setRelatorio(row.original)}
+            >
+              <Link
+                href={{
+                  query: {
+                    isRelatorioOpen: true,
+                    relatorioId: row.original.id,
+                  },
+                }}
+                prefetch={false}
+                scroll={false}
+              >
+                <Pencil className="text-muted-foreground" />
+              </Link>
+            </Button>
+            <RelatorioDeleteModal relatorio={row.original} />
+          </div>
+        ),
+      },
+      // ---------- Colunas Ocultas , somente para filtragem --------------- //
+      {
+        id: "equipamentos",
+        accessorFn: ({ UnidadeRelatorioEquipamentos }) =>
+          UnidadeRelatorioEquipamentos.map(
+            (eqp) => eqp.equipamento.descricao,
+          ).toString(),
+        header: "",
+        cell: "",
+        meta: { className: "hidden" },
+      },
+      {
+        id: "especialidades",
+        accessorFn: ({ UnidadeRelatorioEspecialidades }) =>
+          UnidadeRelatorioEspecialidades.map(
+            (esp) => esp.especialidade.descricao,
+          ).toString(),
+        header: "",
+        cell: "",
+        meta: { className: "hidden" },
       },
     ],
     [],

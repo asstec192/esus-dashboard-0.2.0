@@ -2,9 +2,8 @@
 
 import { type HTMLAttributes } from "react";
 import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
-import { Card } from "@/components/ui/card";
-import { useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
-import { TypographySmall } from "@/components/typography/TypographySmall";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { DateRange, useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
 import { api } from "@/trpc/react";
 
 import {
@@ -15,40 +14,48 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { endOfDay, startOfDay, subDays } from "date-fns";
 
-export const ChartVehicles = (props: HTMLAttributes<HTMLDivElement>) => {
-  const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
+export const ChartHour = (props: HTMLAttributes<HTMLDivElement>) => {
+  const dateRange = useGlogalDateFilterStore((state) => state.dateRange) as DateRange;
+  const { data, isLoading } =
+    api.ocorrencias.countByHoraDeEnvioDoVeiculo.useQuery({
+      from: dateRange.from,
+      to: dateRange.to,
+    });
 
-  const { data, isLoading } = api.ocorrencias.countByTipoDeVeiculo.useQuery({
-    from: dateRange.from!,
-    to: dateRange.to!,
-  });
+  if (isLoading) {
+    return <SkeletonChart />;
+  }
 
   return (
     <Card {...props} className="p-2">
-      <TypographySmall>Ocorrências X Tipo de Veìculo</TypographySmall>
-      {isLoading ? (
-        <SkeletonChart />
-      ) : (
+      <CardHeader>
+        <CardTitle className="text-base font-medium">
+          Ocorrências X Horário de Deslocamento
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart
             data={data}
             barCategoryGap={2}
-            margin={{
-              top: 20,
-            }}
+            layout="vertical"
+            margin={{ top: 20 }}
           >
             <XAxis
-              dataKey="tipo"
-              type="category"
+              dataKey="contagem"
+              type="number"
               fontSize={12}
-              tickLine={false}
               axisLine={false}
             />
             <YAxis
-              dataKey="count"
-              type="number"
+              width={100}
+              dataKey="intervalo"
+              type="category"
               fontSize={12}
+              tickLine={false}
               axisLine={false}
               label={{ position: "center" }}
               interval={0}
@@ -71,13 +78,20 @@ export const ChartVehicles = (props: HTMLAttributes<HTMLDivElement>) => {
               }}
             />
             <Bar
-              dataKey="count"
+              dataKey="contagem"
               className="fill-primary"
-              radius={[4, 4, 0, 0]}
+              radius={[0, 4, 4, 0]}
             />
           </BarChart>
         </ResponsiveContainer>
-      )}
+      </CardContent>
+      <CardFooter>
+        <CardDescription>
+          Dados referentes ao período de{" "}
+          {startOfDay(dateRange.from).toLocaleString()} a{" "}
+          {endOfDay(subDays(dateRange.to, 1)).toLocaleString()}
+        </CardDescription>
+      </CardFooter>
     </Card>
   );
 };

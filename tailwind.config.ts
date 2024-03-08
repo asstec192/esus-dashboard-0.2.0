@@ -19,10 +19,10 @@ const config = {
     },
     extend: {
       spacing: {
-        "nav-offset": "calc(100vh - 56px)",
+        "nav-offset": "calc(100vh - 66px)",
       },
       minHeight: {
-        "nav-offset": "calc(100vh - 56px)",
+        "nav-offset": "calc(100vh - 66px)",
       },
       colors: {
         border: "hsl(var(--border))",

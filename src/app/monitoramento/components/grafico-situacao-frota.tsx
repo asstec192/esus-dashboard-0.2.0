@@ -18,6 +18,7 @@ export function ChartSituacaoFrota({
 }) {
   const { data } = api.veiculos.situacaoDaFrota.useQuery(undefined, {
     initialData,
+    refetchInterval: 5000,
   });
 
   return (

@@ -69,6 +69,7 @@ export const useFormRelatorioUnidade = (
     onSuccess: () => {
       toast({ description: "Relatório salvo com sucesso" });
       utils.hospitalManager.obterRelatorios.invalidate();
+      utils.hospitalManager.obterRelatoriosAgrupadosPorHospitais.invalidate();
       form.reset();
     },
     onError: (error) =>
@@ -78,9 +79,13 @@ export const useFormRelatorioUnidade = (
   //requisicao de edicao de relatorio
   const { mutate: editar } = api.hospitalManager.atualizarRelatorio.useMutation(
     {
-      onSuccess: () => {
+      onSuccess: (data) => {
         toast({ description: "Relatório salvo com sucesso" });
         utils.hospitalManager.obterRelatorios.invalidate();
+        utils.hospitalManager.obterRelatoriosAgrupadosPorHospitais.invalidate();
+        utils.hospitalManager.obterRelatorio.invalidate({
+          relatorioId: data[0].id,
+        });
       },
       onError: (error) =>
         toast({ description: error.message, variant: "destructive" }),

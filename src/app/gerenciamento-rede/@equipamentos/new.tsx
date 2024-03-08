@@ -1,15 +1,13 @@
-import { withRoles } from "@/components/HOCs/withRoles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
-import { UserRole } from "@/types/UserRole";
 import { Plus } from "lucide-react";
 import { useRef, useState } from "react";
 
-export const GerenciamentoRedeAddEquipamento = withRoles(() => {
+export const GerenciamentoRedeAddEquipamento = () => {
   const [openInput, setOpenInput] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const divRef = useClickOutside<HTMLDivElement>(() => setOpenInput(false));
@@ -60,4 +58,4 @@ export const GerenciamentoRedeAddEquipamento = withRoles(() => {
       </Button>
     </div>
   );
-}, [UserRole.admin]);
+};

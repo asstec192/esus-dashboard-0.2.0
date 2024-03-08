@@ -94,18 +94,18 @@ export default async function ModalOcorrencia({
         <ScrollArea className="h-[60vh] sm:h-max">
           <Carousel className="mx-auto w-full">
             <CarouselContent>
-              {ocorrencia.OcorrenciaMovimentacao.length > 0 && (
-                <CarouselItem>
-                  <ModalOcorrenciaVeiculos
-                    movimentacoes={ocorrencia.OcorrenciaMovimentacao}
-                    hasPrivilege={hasPermissions}
-                  />
-                </CarouselItem>
-              )}
               {ocorrencia.Vitimas.length > 0 && (
                 <CarouselItem>
                   <ModalOcorrenciaVitimas
                     vitimas={ocorrencia.Vitimas}
+                    hasPrivilege={hasPermissions}
+                  />
+                </CarouselItem>
+              )}
+              {ocorrencia.OcorrenciaMovimentacao.length > 0 && (
+                <CarouselItem>
+                  <ModalOcorrenciaVeiculos
+                    movimentacoes={ocorrencia.OcorrenciaMovimentacao}
                     hasPrivilege={hasPermissions}
                   />
                 </CarouselItem>

@@ -1793,7 +1793,7 @@ model UnidadeRelatorioEspecialidades {
     especialidadeId Int
     quantidade      Int
     especialidade   Especialidades   @relation(fields: [especialidadeId], references: [id])
-    relatorio       UnidadeRelatorio @relation(fields: [relatorioId], references: [id])
+    relatorio       UnidadeRelatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
 
     @@id([relatorioId, especialidadeId])
 }
@@ -1803,7 +1803,7 @@ model UnidadeRelatorioEquipamentos {
     equipamentoId Int
     quantidade    Int
     equipamento   Equipamentos     @relation(fields: [equipamentoId], references: [id])
-    relatorio     UnidadeRelatorio @relation(fields: [relatorioId], references: [id])
+    relatorio     UnidadeRelatorio @relation(fields: [relatorioId], references: [id], onDelete: Cascade)
 
     @@id([relatorioId, equipamentoId])
 }
@@ -1813,4 +1813,33 @@ model PerfisDashboard {
     descricao        String             @db.NVarChar(50)
     sigla            String             @db.VarChar(10)
     UsuarioDashboard UsuarioDashboard[]
+}
+
+model DashboardLogSituacaoFrota {
+    id           Int      @id @default(autoincrement())
+    BIK_ocupadas Int?
+    MOT_ocupadas Int?
+    REM_ocupadas Int?
+    USA_ocupadas Int?
+    USB_ocupadas Int?
+    USI_ocupadas Int?
+    BIK_total    Int?
+    MOT_total    Int?
+    REM_total    Int?
+    USA_total    Int?
+    USB_total    Int?
+    USI_total    Int?
+    createdAt    DateTime @default(now())
+}
+
+model DashboardLogSolicitacoesPendentes {
+    id        Int      @id @default(autoincrement())
+    USB       Int
+    USA       Int
+    USI       Int
+    MOT       Int
+    BIK       Int
+    REM       Int
+    HEL       Int
+    createdAt DateTime @default(now())
 }

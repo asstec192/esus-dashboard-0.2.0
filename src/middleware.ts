@@ -26,7 +26,7 @@ export default withAuth(
 export const config = {
   matcher: [
     "/regulacao/:path*",
-    "/epidemiologia",
+    "/dashboard",
     "/monitoramento",
     "/admin",
     "/perfil",

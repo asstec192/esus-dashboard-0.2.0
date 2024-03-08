@@ -7,16 +7,18 @@ export default async function Home() {
   const session = await getServerAuthSession();
 
   return (
-    <div className="min-h-nav-offset flex flex-col justify-center">
+    <div className="flex min-h-nav-offset flex-col justify-center">
       <div className="container flex items-center justify-center gap-4 px-4 py-16 ">
         <div className="flex flex-col items-center justify-center gap-4">
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            <span className="text-primary">SAMU</span>Dashboard
+            <span className="text-primary">SGRU</span>Dashboard
           </h1>
 
-          <h3 className="max-w-xl text-center  text-xl font-bold">
-            Uma visão abrangente e em tempo real das principais operações de
-            atendimento do SAMU.
+          <h3 className="max-w-xl text-center text-xl font-bold">
+            Sistema de Governança e Regulação das Urgências <br />
+            <span className="font-medium">
+              Central de Regulação das Urgências de Fortaleza
+            </span>
           </h3>
 
           <div className="flex flex-col items-center gap-2">

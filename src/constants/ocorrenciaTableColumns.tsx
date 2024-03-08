@@ -32,6 +32,7 @@ export const ocorrenciaTableColumns: ColumnDef<
           <Link
             href={{ query: { ocorrenciaId: row.original.id } }}
             scroll={false}
+            prefetch={false}
           >
             #{row.original.id}
           </Link>
@@ -51,7 +52,7 @@ export const ocorrenciaTableColumns: ColumnDef<
   },
   {
     accessorKey: "operador",
-    header: "Operador",
+    header: "Médico Regulador",
     cell: ({ row }) => formatProperName(row.original.operador),
     meta: { className: "hidden md:table-cell" },
   },
@@ -67,7 +68,7 @@ export const ocorrenciaTableColumns: ColumnDef<
     cell: ({ row }) => (
       <div className="flex flex-wrap gap-1">
         {row.original.veiculos.map((v) => (
-          <PopoverVeiculo veiculo={v} key={`pop-veiculo-${v.nome}`} />
+          <PopoverVeiculo veiculo={v} key={`${v.nome}-${v.EnvioEquipeDT}`} />
         ))}
       </div>
     ),

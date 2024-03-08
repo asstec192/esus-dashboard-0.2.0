@@ -7,7 +7,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { api } from "@/trpc/server";
 import { GerenciamentoRedeFormRelatorioUnidade } from "./components/form";
 
-export const revalidate = 0; //não cacheia a consulta
+// desabilita o cache
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function ModalRelatorioPage({
   searchParams,
@@ -30,22 +32,13 @@ export default async function ModalRelatorioPage({
 
   return (
     <ParallelDialog defaultOpen>
-      <DialogContent className="max-w-screen-xl">
-        <ScrollArea className="h-[80vh] md:h-max ">
+      <DialogContent className="max-w-screen-xl" >
+        <ScrollArea className="h-[80vh] pr-4">
           <GerenciamentoRedeFormRelatorioUnidade
             initialData={relatorioInicial}
             hospitais={hospitais}
           />
         </ScrollArea>
-        {relatorioInicial && (
-          <DialogDescription className="absolute bottom-0 p-6">
-            Criado por {relatorioInicial.criadoPor.operador?.OperadorNM} em{" "}
-            {relatorioInicial.createdAt.toLocaleString()}. <br />
-            Editado pela última vez por{" "}
-            {relatorioInicial.editadoPor.operador?.OperadorNM} em{" "}
-            {relatorioInicial.updatedAt.toLocaleString()}.
-          </DialogDescription>
-        )}
       </DialogContent>
     </ParallelDialog>
   );

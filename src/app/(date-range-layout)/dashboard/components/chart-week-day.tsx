@@ -2,38 +2,55 @@
 
 import { type HTMLAttributes } from "react";
 import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
-import { Card } from "@/components/ui/card";
-import { useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
-import { TypographySmall } from "@/components/typography/TypographySmall";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  DateRange,
+  useGlogalDateFilterStore,
+} from "@/hooks/useGlobalDateFilterStore";
 import { api } from "@/trpc/react";
 import {
   Bar,
   BarChart,
-  Cell,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import { cn } from "@/lib/utils";
+import { endOfDay, startOfDay, subDays } from "date-fns";
 
-export const ChartGender = (props: HTMLAttributes<HTMLDivElement>) => {
-  const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
-  const { data, isLoading, isError } = api.pacientes.countByGender.useQuery({
-    from: dateRange.from!,
-    to: dateRange.to!,
+export const ChartWeekDay = (props: HTMLAttributes<HTMLDivElement>) => {
+  const dateRange = useGlogalDateFilterStore(
+    (state) => state.dateRange,
+  ) as DateRange;
+  const { data, isLoading } = api.pacientes.countByWeekDay.useQuery({
+    from: dateRange.from,
+    to: dateRange.to,
   });
+
+  if (isLoading) {
+    return <SkeletonChart />;
+  }
 
   return (
     <Card {...props} className="p-2">
-      <TypographySmall>Pacientes X Sexo</TypographySmall>
-      {isLoading || isError ? (
-        <SkeletonChart />
-      ) : (
+      <CardHeader>
+        <CardTitle className="text-base font-medium">
+          Pacientes X Dia da Semana
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data} width={300} height={300} margin={{ top: 20 }}>
+          <BarChart data={data} margin={{ top: 20 }}>
             <XAxis
-              dataKey="sexo"
+              dataKey="weekDay"
               type="category"
               axisLine={false}
               tickLine={false}
@@ -62,22 +79,21 @@ export const ChartGender = (props: HTMLAttributes<HTMLDivElement>) => {
                 return null;
               }}
             />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-              {data.map((item) => (
-                <Cell
-                  className={cn(
-                    item.sexo === "Masculino"
-                      ? "fill-[#ce5d13]"
-                      : item.sexo === "Feminino"
-                        ? "fill-primary"
-                        : "fill-muted-foreground",
-                  )}
-                />
-              ))}
-            </Bar>
+            <Bar
+              dataKey="count"
+              className="fill-primary"
+              radius={[4, 4, 0, 0]}
+            />
           </BarChart>
         </ResponsiveContainer>
-      )}
+      </CardContent>
+      <CardFooter>
+        <CardDescription>
+          Dados referentes ao período de{" "}
+          {startOfDay(dateRange.from).toLocaleString()} a{" "}
+          {endOfDay(subDays(dateRange.to, 1)).toLocaleString()}
+        </CardDescription>
+      </CardFooter>
     </Card>
   );
 };

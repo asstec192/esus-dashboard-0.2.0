@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  PDFFooterText,
   PDFHeader,
   PDFLegend,
   PDFParagraph,
@@ -11,17 +10,15 @@ import {
 import { RouterOutputs } from "@/trpc/shared";
 import {
   Page,
-  Text,
   View,
   Document,
   StyleSheet,
   Font,
-  Image,
+  Text,
 } from "@react-pdf/renderer";
-import logoMinisterioDaSauda from "public/images/logo-sus.png";
-import logoSamu from "public/images/logo-samu-horizontal.png";
 import { format } from "date-fns";
 import { PMFTimbrado } from "@/components/PDF/PMFTimbrado";
+import { PDFFooter } from "@/components/PDF/PDFooter";
 
 // Register font
 Font.register({
@@ -70,10 +67,17 @@ export function GerenciamentoRedePDFRelatorios({
           <PDFSubTitle>
             Central de Regulação das Urgências de Fotaleza
           </PDFSubTitle>
-          <PDFSubTitle>
+          <Text
+            style={{
+              fontSize: 13,
+              fontWeight: "semibold",
+              fontFamily: "Open Sans",
+              marginTop: 10,
+            }}
+          >
             Diagnóstico Situacional da Rede de Urgência e Emergência
-          </PDFSubTitle>
-          <PDFSubTitle>{format(date, "dd/MM/yyyy")}</PDFSubTitle>
+          </Text>
+          <PDFSmall>{format(date, "dd/MM/yyyy")}</PDFSmall>
         </PDFHeader>
         <View style={styles.body}>
           {pdfData &&
@@ -139,54 +143,4 @@ function UnidadeHospitalar({
       </View>
     </View>
   ));
-}
-
-function PDFFooter() {
-  return (
-    <View
-      fixed
-      style={{
-        marginTop: "auto",
-      }}
-    >
-      <View
-        style={{
-          width: "100%",
-          height: 2,
-          backgroundColor: "#fbb912",
-          marginVertical: 5,
-        }}
-      />
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: 5,
-          backgroundColor: "#fbb912",
-        }}
-      >
-        <Image src={logoMinisterioDaSauda.src} style={{ width: 70 }} />
-
-        <View style={{ alignItems: "center" }}>
-          <PDFFooterText>
-            Copyright © 2010 — SAMU 192 Fortaleza. Todos os direitos
-            reservados.
-          </PDFFooterText>
-          <PDFFooterText>Rua Pe. Guerra, 1350 Parquelândia</PDFFooterText>
-          <PDFFooterText>Telefone (85) 98439-4256 Ouvidoria</PDFFooterText>
-          <PDFFooterText>
-            diretoria.clinica@samu.fortaleza.ce.gov.br
-          </PDFFooterText>
-        </View>
-
-        <Image src={logoSamu.src} style={{ width: 70 }} />
-      </View>
-
-      <Text
-        style={{ fontSize: 10, fontFamily: "Open Sans", textAlign: "right" }}
-        render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
-      />
-    </View>
-  );
 }

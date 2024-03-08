@@ -151,7 +151,7 @@ export const ocorrenciaRouter = createTRPCRouter({
         (
           SELECT om.EnvioEquipeDT, om.ChegadaBaseDT, om.ChegadaDestinoDT,
                 om.ChegadaLocalDT, om.SaidaBaseDT, om.RetornoDestinoDT,
-                om.SaidaLocalDT, ve.VeiculoDS as nome
+                om.SaidaLocalDT, ve.VeiculoDS as nome, ve.Status as status
           FROM OcorrenciaMovimentacao om
           JOIN Veiculos ve ON om.VeiculoID = ve.VeiculoID
           WHERE o.OcorrenciaID = om.OcorrenciaID
@@ -182,48 +182,47 @@ export const ocorrenciaRouter = createTRPCRouter({
   }),
 
   getAllInProgress: protectedProcedure.query(async () => {
-    // tirando 3 horas para ficar com fuso compativel
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
     const data = await db.$queryRaw<OcorrenciaRaw[]>`
-    SELECT
-      DISTINCT
-      o.DtHr,
-      o.OcorrenciaID as id,
-      o.Bairro as bairro,
-      o.RISCOCOD as risco,
-      m.MotivoDS AS motivo,
-       -- Seleciona o operador que enviou o primeiro veículo (VeiculoSEQ = 1) para cada ocorrência
-      (
-        SELECT TOP 1 od.OperadorNM as nome_operador
-        FROM FORMEQUIPE_SolicitacaoVeiculo sv
-        JOIN OperadoresDados od ON sv.OperadorID = od.OperadorID
-        WHERE sv.OcorrenciaID = o.OcorrenciaID AND sv.VeiculoSEQ = 1
-      ) AS operador,
-      --Seleciona os veiculos movimentados de cada ocorrencia
-      (
-        SELECT om.EnvioEquipeDT, om.ChegadaBaseDT, om.ChegadaDestinoDT,
-              om.ChegadaLocalDT, om.SaidaBaseDT, om.RetornoDestinoDT,
-              om.SaidaLocalDT, ve.VeiculoDS as nome
-        FROM OcorrenciaMovimentacao om
-        JOIN Veiculos ve ON om.VeiculoID = ve.VeiculoID
-        WHERE o.OcorrenciaID = om.OcorrenciaID
-        ORDER BY  om.EnvioEquipeDT ASC
-        FOR JSON PATH
-      ) AS veiculos
-    FROM
-      Ocorrencia o
-    LEFT JOIN Motivo m ON o.MotivoID = m.MotivoID
-	  JOIN OcorrenciaMovimentacao om ON o.OcorrenciaID = om.OcorrenciaID
-	  JOIN Veiculos v ON om.VeiculoID = v.VeiculoID
-    WHERE
-      o.RISCOCOD NOT IN (0, 90)
-      AND o.DtHr >= ${date}
-      AND v.status = 'O'
-      AND o.OcorrenciaFinalDT IS NULL
-      AND om.RetornoDestinoDT IS NULL
-    ORDER BY
-      o.DtHr DESC
-    `;
+          WITH MovimentacoesNumeradas AS (
+              SELECT *,
+                    ROW_NUMBER() OVER (PARTITION BY VeiculoID ORDER BY EnvioEquipeDT DESC) AS rn
+              FROM OcorrenciaMovimentacao
+          )
+
+          SELECT 
+              O.OcorrenciaID as id,
+              O.Bairro as bairro,
+              O.RISCOCOD as risco,
+              M.MotivoDS AS motivo,
+          -- Seleciona o operador que enviou o primeiro veículo (VeiculoSEQ = 1) para cada ocorrência
+              (
+                  SELECT TOP 1 od.OperadorNM as nome_operador
+                  FROM FORMEQUIPE_SolicitacaoVeiculo sv
+                  JOIN OperadoresDados od ON sv.OperadorID = od.OperadorID
+                  WHERE sv.OcorrenciaID = o.OcorrenciaID AND sv.VeiculoSEQ = 1
+              ) AS operador,
+              --Seleciona os veiculos movimentados de cada ocorrencia
+              (
+                  SELECT 
+                      om.EnvioEquipeDT, om.ChegadaBaseDT, om.ChegadaDestinoDT,
+                      om.ChegadaLocalDT, om.SaidaBaseDT, om.RetornoDestinoDT,
+                      om.SaidaLocalDT, ve.VeiculoDS as nome, ve.Status as status
+                  FROM OcorrenciaMovimentacao om
+                  JOIN Veiculos ve ON om.VeiculoID = ve.VeiculoID
+                  WHERE o.OcorrenciaID = om.OcorrenciaID
+                  ORDER BY  om.EnvioEquipeDT ASC
+                  FOR JSON PATH
+              ) AS veiculos
+          FROM Ocorrencia O
+          LEFT JOIN Motivo M ON o.MotivoID = M.MotivoID
+          WHERE O.OcorrenciaID IN 
+              (
+              SELECT DISTINCT OM.OcorrenciaID as ocorrenciaID
+              FROM Veiculos V
+              JOIN MovimentacoesNumeradas OM ON V.VeiculoID = OM.VeiculoID
+              WHERE V.Status = 'O' AND OM.rn = 1
+              )
+          ORDER BY O.DtHr DESC`;
 
     const ocorrencias: Omit<Ocorrencia, "data" | "pacientes">[] = data.map(
       (ocorrencia) => ({
@@ -240,78 +239,97 @@ export const ocorrenciaRouter = createTRPCRouter({
     return ocorrencias;
   }),
 
-  countByRisco: protectedProcedure.query(async () => {
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
+  countByRisco: protectedProcedure
+    .input(dateRangeSchema)
+    .query(async ({ input }) => {
+      const { from, to } = formatServerDateRange(input);
 
-    //obtendo dados brutos dos riscos com contagens de ocorrencias
-    const rawData = await db.cLASSIFICACAO_RISCO.findMany({
-      select: {
-        RISCODS: true,
-        riscoColorClass: true,
-        _count: {
-          select: {
-            Ocorrencia: {
-              where: {
-                //somente ocorrencias apos a data
-                DtHr: {
-                  gte: date,
+      //obtendo dados brutos dos riscos com contagens de ocorrencias
+      const rawData = await db.cLASSIFICACAO_RISCO.findMany({
+        select: {
+          RISCODS: true,
+          riscoColorClass: true,
+          _count: {
+            select: {
+              Ocorrencia: {
+                where: {
+                  //somente ocorrencias apos a data
+                  DtHr: {
+                    gte: from,
+                    lt: to,
+                  },
                 },
               },
             },
           },
         },
-      },
-      //somente riscos de 1 a 4
-      where: {
-        RISCOCOD: { in: [1, 2, 3, 4] },
-      },
-      orderBy: { RISCOCOD: "asc" },
-    });
+        //somente riscos de 1 a 4
+        where: {
+          RISCOCOD: { in: [1, 2, 3, 4] },
+        },
+        orderBy: { RISCOCOD: "asc" },
+      });
 
-    //tratando os dados
-    const riscoCount = rawData.map((r) => ({
-      label: r.RISCODS,
-      colorClass: r.riscoColorClass,
-      count: r._count.Ocorrencia,
-    }));
+      //tratando os dados
+      const riscoCount = rawData.map((r) => ({
+        label: r.RISCODS,
+        colorClass: r.riscoColorClass,
+        count: r._count.Ocorrencia,
+      }));
 
-    //reposta para o client
-    return riscoCount;
-  }),
+      //reposta para o client
+      return riscoCount;
+    }),
 
-  countByTipoLigacao: protectedProcedure.query(async () => {
-    //inicio do dia
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
+  // Contagem de ocorrencias por tipo de ocorrencia
+  countByTipo: protectedProcedure
+    .input(dateRangeSchema)
+    .query(async ({ input }) => {
+      const { from, to } = formatServerDateRange(input);
+      return await db.$queryRaw<{ tipo: string; count: number }[]>`
+        SELECT 
+          T.TipoDS as tipo,
+          COUNT (T.TipoID) AS count
+        FROM Tipo T
+        JOIN Ocorrencia O ON O.TipoID = T.TipoID
+        WHERE O.DtHr BETWEEN ${from} AND ${to}
+        GROUP BY T.TipoDS`;
+    }),
 
-    //obtendos os dados crus da contagem de ocorrencias por ligacao
-    const rawData = await db.ligacaoTP.findMany({
-      select: {
-        LigacaoTPDS: true,
-        _count: {
-          select: {
-            Ocorrencia: {
-              where: {
-                DtHr: { gte: date },
+  countByTipoLigacao: protectedProcedure
+    .input(dateRangeSchema)
+    .query(async ({ input }) => {
+      const { from, to } = formatServerDateRange(input);
+
+      //obtendos os dados crus da contagem de ocorrencias por ligacao
+      const rawData = await db.ligacaoTP.findMany({
+        select: {
+          LigacaoTPDS: true,
+          _count: {
+            select: {
+              Ocorrencia: {
+                where: {
+                  DtHr: { gte: from, lt: to },
+                },
               },
             },
           },
         },
-      },
-    });
+      });
 
-    //trata os dados
-    const ligacoes = rawData
-      .filter((l) => l._count.Ocorrencia > 0) //filtra somente as ligacoes com mais de 0 ocorrencias
-      .map((l) => ({
-        //remapea o array para nova estrutura
-        label: l.LigacaoTPDS,
-        count: l._count.Ocorrencia,
-      }))
-      .sort((a, b) => a.count - b.count); //poe em ordem crescente de contagem
+      //trata os dados
+      const ligacoes = rawData
+        .filter((l) => l._count.Ocorrencia > 0) //filtra somente as ligacoes com mais de 0 ocorrencias
+        .map((l) => ({
+          //remapea o array para nova estrutura
+          label: l.LigacaoTPDS,
+          count: l._count.Ocorrencia,
+        }))
+        .sort((a, b) => a.count - b.count); //poe em ordem crescente de contagem
 
-    //resposta para o client
-    return ligacoes;
-  }),
+      //resposta para o client
+      return ligacoes;
+    }),
 
   countByHoraDeEnvioDoVeiculo: protectedProcedure
     .input(dateRangeSchema)
@@ -405,67 +423,4 @@ export const ocorrenciaRouter = createTRPCRouter({
       // resposta final ao client
       return tiposDeVeiculos.filter((v) => v.tipo !== null);
     }),
-
-  getDailyInfo: protectedProcedure.query(async () => {
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
-
-    const [{ totalLigacoes }]: [{ totalLigacoes: number }] = await db.$queryRaw`
-      SELECT COUNT(*) AS totalLigacoes                 
-      FROM TEMPO_RESPOSTA
-      WHERE DT_INICIO >= ${date}
-      `;
-
-    const [{ tempoGeral }] = await db.$queryRaw<[{ tempoGeral: number }]>`
-      SELECT AVG(DATEDIFF(minute, DT_INICIO, DT_FIM)) AS tempoGeral
-      FROM TEMPO_RESPOSTA
-      WHERE DT_INICIO >= ${date}
-      `;
-
-    const [{ QTYQUS, QUSQUY, QUYQUU }]: [
-      { QTYQUS: number; QUSQUY: number; QUYQUU: number },
-    ] = await db.$queryRaw`
-      SELECT 
-        AVG(DATEDIFF(minute, EnvioEquipeDT, ChegadaLocalDT)) AS QTYQUS,
-        AVG(DATEDIFF(minute, SaidaLocalDT, ChegadaDestinoDT)) AS QUSQUY,
-        AVG(DATEDIFF(minute, ChegadaDestinoDT, RetornoDestinoDT)) AS QUYQUU
-      FROM OcorrenciaMovimentacao OM
-      JOIN Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID
-      WHERE O.DtHr >= ${date}
-      `;
-
-    const tempoMedico = await db.$queryRaw<{ MediaGeral: number }[]>`
-      SELECT
-          AVG(DATEDIFF(MINUTE, TempoPorOcorrencia.EnvioOcorrenciaDT, TempoPorOcorrencia.SolicitacaoVeiculoDT)) MediaGeral
-      FROM
-          (SELECT 
-              SV.OcorrenciaID,
-              OP.OperadorNM,
-              Min(PO.OrigemDTHR) as EnvioOcorrenciaDT,
-              SV.RegistroDT as SolicitacaoVeiculoDT
-          FROM FORMEQUIPE_SolicitacaoVeiculo SV
-          JOIN PosicaoOcorrencias PO On PO.OcorrenciaID = SV.OcorrenciaID 
-          JOIN OperadoresDados OP ON OP.OperadorID = SV.OperadorID
-          JOIN Ocorrencia O ON O.OcorrenciaID = SV.OcorrenciaID
-          WHERE O.DtHr >= ${date} AND
-              SV.VeiculoSEQ = 1
-          GROUP BY 
-              SV.OcorrenciaID,
-              SV.RegistroDT,
-              OP.OperadorNM 
-          ) as TempoPorOcorrencia
-      `;
-    const estatisticas = [
-      { label: "Ligações", value: totalLigacoes.toString() },
-      { label: "Tempo Geral", value: `${tempoGeral ?? ""} min` },
-      {
-        label: "Tempo Médico",
-        value: `${tempoMedico[0]?.MediaGeral ?? ""} min`,
-      },
-      { label: "Chegada ao local", value: `${QTYQUS ?? ""} min` },
-      { label: "Atendimento no local", value: `${QUSQUY ?? ""} min` },
-      { label: "Chegada ao destino", value: `${QUYQUU ?? ""} min` },
-    ];
-
-    return estatisticas;
-  }),
 });

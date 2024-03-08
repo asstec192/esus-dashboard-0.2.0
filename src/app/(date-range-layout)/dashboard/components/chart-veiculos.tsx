@@ -2,10 +2,21 @@
 
 import { type HTMLAttributes } from "react";
 import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
-import { Card } from "@/components/ui/card";
-import { useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  DateRange,
+  useGlogalDateFilterStore,
+} from "@/hooks/useGlobalDateFilterStore";
 import { TypographySmall } from "@/components/typography/TypographySmall";
 import { api } from "@/trpc/react";
+
 import {
   Bar,
   BarChart,
@@ -14,33 +25,52 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-export const ChartWeekDay = (props: HTMLAttributes<HTMLDivElement>) => {
-  const dateRange = useGlogalDateFilterStore((state) => state.dateRange);
-  const { data, isLoading, isError } = api.pacientes.countByWeekDay.useQuery({
-    from: dateRange.from!,
-    to: dateRange.to!,
+import { endOfDay, startOfDay, subDays } from "date-fns";
+
+export const ChartVehicles = (props: HTMLAttributes<HTMLDivElement>) => {
+  const dateRange = useGlogalDateFilterStore(
+    (state) => state.dateRange,
+  ) as DateRange;
+
+  const { data, isLoading } = api.ocorrencias.countByTipoDeVeiculo.useQuery({
+    from: dateRange.from,
+    to: dateRange.to,
   });
+
+  if (isLoading) {
+    return <SkeletonChart />;
+  }
 
   return (
     <Card {...props} className="p-2">
-      <TypographySmall>Pacientes X Dia da Semana</TypographySmall>
-      {isLoading || isError ? (
-        <SkeletonChart />
-      ) : (
+      <CardHeader>
+        <CardTitle className="text-base font-medium">
+          Ocorrências X Tipo de Veìculo
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data} margin={{ top: 20 }}>
+          <BarChart
+            data={data}
+            barCategoryGap={2}
+            margin={{
+              top: 20,
+            }}
+          >
             <XAxis
-              dataKey="weekDay"
+              dataKey="tipo"
               type="category"
-              axisLine={false}
-              tickLine={false}
               fontSize={12}
+              tickLine={false}
+              axisLine={false}
             />
             <YAxis
               dataKey="count"
               type="number"
-              axisLine={false}
               fontSize={12}
+              axisLine={false}
+              label={{ position: "center" }}
+              interval={0}
             />
             <Tooltip
               content={({ active, payload, label }) => {
@@ -66,7 +96,14 @@ export const ChartWeekDay = (props: HTMLAttributes<HTMLDivElement>) => {
             />
           </BarChart>
         </ResponsiveContainer>
-      )}
+      </CardContent>
+      <CardFooter>
+        <CardDescription>
+          Dados referentes ao período de{" "}
+          {startOfDay(dateRange.from).toLocaleString()} a{" "}
+          {endOfDay(subDays(dateRange.to, 1)).toLocaleString()}
+        </CardDescription>
+      </CardFooter>
     </Card>
   );
 };

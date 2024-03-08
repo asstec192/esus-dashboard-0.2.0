@@ -13,57 +13,53 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 import { getStringScoreMatches } from "@/utils/getStringScoreMatch";
 
-type TransferEspecialidadesProps = {
+type TransferEquipamentosProps = {
   form: UseFormReturn<z.infer<typeof formSchemaRelatorioHospital>>;
 };
 
-export const TransferEspecialidades = ({
-  form,
-}: TransferEspecialidadesProps) => {
-  const { data: especialidades } =
-    api.hospitalManager.getEspecialidades.useQuery();
-
+export const TransferEquipamentos = ({ form }: TransferEquipamentosProps) => {
+  const { data: equipamentos } = api.hospitalManager.getEquipamentos.useQuery();
   const [search, setSearch] = useState("");
 
-  const sourceList = especialidades?.filter(
-    (esp) =>
-      getStringScoreMatches(esp.descricao, search) > 0 &&
-      !form.watch("especialidades").some((item) => item.itemId === esp.id),
+  const sourceList = equipamentos?.filter(
+    (eqp) =>
+      getStringScoreMatches(eqp.descricao, search) > 0 &&
+      !form.watch("equipamentos").some((item) => item.itemId === eqp.id),
   );
 
   return (
     <FormField
       control={form.control}
-      name="especialidades"
+      name="equipamentos"
       render={({ field }) => (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {/*  ------------ LISTA FONTE --------------- */}
           <Card className="flex h-[300px] flex-col space-y-2 p-2">
-            <Label className="my-2">Selecione as especialidades</Label>
+            <Label className="my-2">Selecione os equipamentos</Label>
             <Input
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar..."
             />
             <ScrollArea className="flex-grow">
               <div className="flex flex-col gap-1">
-                {sourceList?.map((esp) => (
+                {sourceList?.map((eqp) => (
                   <Button
                     type="button"
-                    key={esp.id}
+                    key={eqp.id}
                     variant="outline"
-                    // Adiciona uma especialidade
+                    // Adiciona um equipamento
                     onClick={() =>
-                      form.setValue("especialidades", [
+                      form.setValue("equipamentos", [
                         ...field.value,
                         {
                           itemCount: "1",
-                          itemDescription: esp.descricao,
-                          itemId: esp.id,
+                          itemDescription: eqp.descricao,
+                          itemId: eqp.id,
                         },
                       ])
                     }
                   >
-                    {esp.descricao}
+                    {eqp.descricao}
                     <ChevronsRight className="ml-2 w-4" />
                   </Button>
                 ))}
@@ -72,45 +68,44 @@ export const TransferEspecialidades = ({
           </Card>
           {/*  -------------- LISTA DE DESTINO --------------- */}
           <Card className="flex h-[300px] flex-col gap-2 p-2">
-            <Label className="my-2">Especialidades selecionadas</Label>
+            <Label className="my-2">Equipamentos selecionados</Label>
             <ScrollArea className="flex-grow">
               <div className="flex flex-col gap-1">
-                {form.watch("especialidades").map((esp) => (
-                  <div key={esp.itemId} className="grid grid-cols-5 gap-1">
+                {form.watch("equipamentos").map((eqp) => (
+                  <div key={eqp.itemId} className="grid grid-cols-5 gap-1">
                     <Button
-                    type="button"
+                      type="button"
                       variant="outline"
                       className="col-span-4"
-                      // Remove uma especialidade
+                      // Remove um equipamento
                       onClick={() =>
                         form.setValue(
-                          "especialidades",
+                          "equipamentos",
                           field.value.filter(
-                            (item) => item.itemId !== esp.itemId,
+                            (item) => item.itemId !== eqp.itemId,
                           ),
                         )
                       }
                     >
                       <ChevronsLeft className="mr-2 w-4" />
-                      {esp.itemDescription}
+                      {eqp.itemDescription}
                     </Button>
                     <Input
                       type="number"
                       placeholder="qtd"
                       min={1}
                       value={
-                        field.value.find((item) => item.itemId === esp.itemId)
+                        field.value.find((item) => item.itemId === eqp.itemId)
                           ?.itemCount
                       }
-                      // Altera a quantidade de uma especialidade
                       onChange={(e) => {
                         const newValue = e.target.value;
                         const updatedValues = field.value.map((item) =>
-                          item.itemId === esp.itemId
+                          item.itemId === eqp.itemId
                             ? { ...item, itemCount: newValue }
                             : item,
                         );
-                        form.setValue("especialidades", updatedValues);
+                        form.setValue("equipamentos", updatedValues);
                       }}
                     />
                   </div>

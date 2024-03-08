@@ -47,6 +47,7 @@ export function RegulacaoSecundariaOcorrencias({
                       ocorrenciaId: ocorrencia.OcorrenciaID.toString(),
                     },
                   }}
+                  prefetch={false}
                   legacyBehavior
                 >
                   <TableRow role="button">

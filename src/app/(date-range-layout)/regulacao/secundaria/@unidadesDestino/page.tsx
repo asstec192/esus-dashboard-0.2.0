@@ -25,11 +25,11 @@ export default function RegulacaoSecundariaUnidadesDestino() {
 
   return (
     <div className="grid h-full grid-cols-5 gap-4">
-      <ScrollArea className="col-span-full h-[calc(100vh-9rem)] rounded-md border lg:col-span-3">
-        <Table className="min-h-[calc(100vh-9.1rem)]">
+      <ScrollArea className="col-span-full h-[calc(100vh-9rem)] rounded border lg:col-span-3">
+        <Table>
           <TableHeader className="sticky top-0 bg-slate-100 dark:bg-card">
             <TableRow>
-              <TableHead className="text-start ">Unidade de destino</TableHead>
+              <TableHead className="text-start">Unidade de destino</TableHead>
               <TableHead className="text-end">Tempo resposta</TableHead>
               <TableHead className="text-end">N° de Ocorrências</TableHead>
             </TableRow>
@@ -41,6 +41,7 @@ export default function RegulacaoSecundariaUnidadesDestino() {
               unidades.map((unidade) => (
                 <Link key={unidade.id} href="#ocorrencias" legacyBehavior>
                   <TableRow
+                    className="flex-grow-0"
                     key={unidade.nome}
                     role="button"
                     onClick={() => setUnidadeSelecionada(unidade)}

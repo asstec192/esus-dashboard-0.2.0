@@ -20,6 +20,9 @@ import {
 import { useRegulacaoSecundariaStore } from "../stores";
 import { api } from "@/trpc/react";
 import { PDFModal } from "@/components/PDF/modal";
+import { PMFTimbrado } from "@/components/PDF/PMFTimbrado";
+import { PDFSmall, PDFSubTitle, PDFTitle } from "@/components/PDF/typography";
+import { PDFFooter } from "@/components/PDF/PDFooter";
 
 // Register font
 Font.register({
@@ -118,28 +121,33 @@ export default function PDFRelatorioVeiculo() {
       <Document>
         <Page size="A4" style={styles.page}>
           <View style={styles.header}>
-            <Image
-              src={logo.src}
-              style={{ width: "150px", marginBottom: "10px" }}
-            />
-            <Text style={styles.title}>
-              RELATÓRIO DE ATENDIMENTO DE VEÍCULOS
+            <PMFTimbrado />
+            <PDFSubTitle>
+              Central de Regulação das Urgências de Fortaleza
+            </PDFSubTitle>
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: "semibold",
+                fontFamily: "Open Sans",
+                marginTop: 10,
+              }}
+            >
+              Relatório de Atendimento de Veículos
             </Text>
-            <Text style={styles.title}>
+
+            <PDFSmall>
               {`De ${format(dateRange.from!, "dd/MM/yyyy")} à ${format(
                 dateRange.to!,
                 "dd/MM/yyyy",
               )}`}
-            </Text>
-            <Text style={styles.title}>{`Período: ${turn.label}`}</Text>
-            <Text style={styles.title}>
-              Data de emissâo: {new Date().toLocaleString()}
-            </Text>
+            </PDFSmall>
+            <PDFSmall>{`Período: ${turn.label}`}</PDFSmall>
           </View>
           <View style={styles.body}>
             {data.map((veiculo) => (
-              <View key={veiculo.id}>
-                <Text style={styles.decoratedText}>{veiculo.nome}</Text>
+              <View key={veiculo.id} wrap={false}>
+                <PDFSubTitle>{veiculo.nome?.toUpperCase()}</PDFSubTitle>
                 <View style={styles.row}>
                   <View style={{ ...styles.col, flex: 4, padding: 4 }}>
                     <View style={styles.row}>
@@ -190,6 +198,7 @@ export default function PDFRelatorioVeiculo() {
               </View>
             ))}
           </View>
+          <PDFFooter />
         </Page>
       </Document>
     </PDFModal>

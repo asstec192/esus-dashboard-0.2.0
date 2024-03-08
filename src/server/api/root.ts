@@ -6,8 +6,10 @@ import { usersRouter } from "./routers/users";
 import { veiculosRouter } from "./routers/veiculos";
 import { intercorrenciaRouter } from "./routers/intercorrencias";
 import { destinosRouter } from "./routers/destinos";
-import { hospitalManagerRouter } from "./routers/hospitalManager";
+import { hospitalManagerRouter } from "./routers/gerenciamento-rede";
 import { roleRouter } from "./routers/roles";
+import { tempoRespostaRouter } from "./routers/tempo-resposta";
+import { ligacoesRouter } from "./routers/ligacoes";
 
 /**
  * This is the primary router for your server.
@@ -24,6 +26,8 @@ export const appRouter = createTRPCRouter({
   intercorrencia: intercorrenciaRouter,
   hospitalManager: hospitalManagerRouter,
   roles: roleRouter,
+  tempoResposta: tempoRespostaRouter,
+  ligacoes: ligacoesRouter,
 });
 
 // export type definition of API

@@ -35,7 +35,7 @@ export default function Login() {
 
   const onSubmit = async (values: LoginCredentials) => {
     await signIn("credentials", {
-      callbackUrl: "/monitoramento",
+      callbackUrl: "/dashboard",
       ...values,
     });
   };

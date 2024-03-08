@@ -40,4 +40,5 @@ type Veiculo = {
   RetornoDestinoDT: string | null;
   SaidaLocalDT: string | null;
   nome: string | null;
+  status: "O" | "P" | "L";
 };

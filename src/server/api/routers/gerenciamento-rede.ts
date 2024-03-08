@@ -303,4 +303,14 @@ export const hospitalManagerRouter = createTRPCRouter({
         }),
       ]),
     ),
+
+  deleteRelatorio: protectedProcedure
+    .input(z.object({ relatorioId: z.number() }))
+    .mutation(({ input }) =>
+      db.unidadeRelatorio.delete({
+        where: {
+          id: input.relatorioId,
+        },
+      }),
+    ),
 });

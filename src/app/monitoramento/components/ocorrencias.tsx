@@ -8,6 +8,7 @@ import { api } from "@/trpc/react";
 import { ocorrenciaTableColumns } from "@/constants/ocorrenciaTableColumns";
 import { ColumnDef } from "@tanstack/react-table";
 import { RouterOutputs } from "@/trpc/shared";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const MontitoramentoOcorrencias = ({
   initialData,
@@ -32,7 +33,9 @@ export const MontitoramentoOcorrencias = ({
         <p className="bg-slate-100 p-2 text-center font-semibold dark:bg-card">
           Ocorrências em Atendimento
         </p>
-        <DataTable />
+        <ScrollArea className="flex-grow">
+          <DataTable />
+        </ScrollArea>
         <div className="mt-auto border border-transparent border-t-border p-3">
           <DataTablePagination />
         </div>
