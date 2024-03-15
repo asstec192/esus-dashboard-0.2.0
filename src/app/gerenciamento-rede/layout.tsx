@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getServerAuthSession } from "@/server/auth";
 import { UserRole } from "@/types/UserRole";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export default async function GerenciamentoRedeLayout(props: {
   hospitais: ReactNode;
@@ -13,7 +13,7 @@ export default async function GerenciamentoRedeLayout(props: {
   const session = await getServerAuthSession();
   const userRole = session?.user.role;
   return (
-    <div className="flex min-h-nav-offset flex-col p-4">
+    <div className="flex min-h-nav-offset flex-col">
       <Tabs defaultValue="relatorios">
         <TabsList>
           <TabsTrigger value="relatorios">Relatórios</TabsTrigger>

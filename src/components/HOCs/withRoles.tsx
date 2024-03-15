@@ -3,12 +3,12 @@
 import type { UserRole } from "@/types/UserRole";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ComponentType } from "react";
+import type { ComponentType } from "react";
 
 export function withRoles<T = {}>(
   Component: ComponentType<T>,
   permissions: UserRole[],
-  shouldRedirect = false,
+  //shouldRedirect = false,
 ) {
   return function WithRolesWrapper(props: T) {
     const router = useRouter();

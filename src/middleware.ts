@@ -25,11 +25,11 @@ export default withAuth(
 //rotas onde o middlware acima sera executado
 export const config = {
   matcher: [
-    "/regulacao/:path*",
+    "/regulacao",
     "/dashboard",
-    "/monitoramento",
     "/admin",
     "/perfil",
     "/gerenciamento-rede",
+    "/samufor",
   ],
 };

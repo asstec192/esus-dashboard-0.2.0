@@ -3,14 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
-import { formSchemaChangeOwnPassword } from "@/constants/zod-schemas";
+import { SchemaAlteracaoDeSenha } from "@/validators";
 import { api } from "@/trpc/react";
 
-type FormData = z.infer<typeof formSchemaChangeOwnPassword>;
+type FormData = z.infer<typeof SchemaAlteracaoDeSenha>;
 
 export const useFormChangeOwnPassword = () => {
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchemaChangeOwnPassword),
+    resolver: zodResolver(SchemaAlteracaoDeSenha),
     defaultValues: {
       password: "",
       newPassword: "",

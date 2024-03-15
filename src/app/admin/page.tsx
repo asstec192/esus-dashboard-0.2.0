@@ -1,46 +1,30 @@
-"use client";
-
+import { getServerAuthSession } from "@/server/auth";
+import { AdminUserTable } from "./_components/table-user";
 import { UserRole } from "@/types/UserRole";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { formatProperName } from "@/utils/formatProperName";
-import { useManageUsersStore } from "./hooks/useManageUsersStore";
-import { AdminDialogCreateUser } from "./components/dialog-create-user";
-import { AdminUserTable } from "./components/table-user";
-import { AdminFormChangeOtherUserPassword } from "./components/form-change-other-user-password";
-import { withRoles } from "@/components/HOCs/withRoles";
+import { redirect } from "next/navigation";
+import { TypographyH3 } from "@/components/typography/TypographyH3";
 
-function Admin() {
-  const selectedUser = useManageUsersStore((state) => state.selectedUser);
-  const setSelectedUser = useManageUsersStore((state) => state.setSelectedUser);
+export default async function AdminPage() {
+  const session = await getServerAuthSession();
+
+  if (!session) {
+    redirect("/"); // redireciona para pagina de login
+  }
+
+  if (session.user.role !== UserRole.admin) {
+    return (
+      <main className="w-scree flex min-h-screen flex-col items-center justify-center">
+        <TypographyH3>
+          Olá espertinho, você não tem as permissões necessárias para acessar
+          esta página!
+        </TypographyH3>
+      </main>
+    );
+  }
+
   return (
-    <div className="flex min-h-nav-offset flex-col p-4">
-      <div className="mb-4 flex justify-end">
-        <AdminDialogCreateUser />
-      </div>
+    <main className="flex min-h-nav-offset flex-col">
       <AdminUserTable />
-      <Dialog
-        open={!!selectedUser}
-        onOpenChange={() => setSelectedUser(undefined)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              Alterar senha de{" "}
-              {formatProperName(selectedUser?.operador?.OperadorNM)}
-            </DialogTitle>
-          </DialogHeader>
-          <AdminFormChangeOtherUserPassword />
-        </DialogContent>
-      </Dialog>
-    </div>
+    </main>
   );
 }
-
-const Page = withRoles(Admin, [UserRole.admin], true);
-
-export default Page;

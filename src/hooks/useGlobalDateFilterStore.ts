@@ -1,10 +1,11 @@
-import { addDays, isSameDay } from "date-fns";
+import type { DateRange as ReactDateRange } from "react-day-picker";
+import type { z } from "zod";
+import { addDays, endOfDay, isSameDay, startOfDay } from "date-fns";
 import { create } from "zustand";
-import * as z from "zod";
-import { DateRange as ReactDateRange } from "react-day-picker";
-import { dateRangeSchema } from "@/constants/zod-schemas";
 
-export type DateRange = z.infer<typeof dateRangeSchema>;
+import type { SchemaDateRange } from "@/validators";
+
+export type DateRange = z.infer<typeof SchemaDateRange>;
 
 type GlobalDateFilterStore = {
   dateRange: ReactDateRange;
@@ -14,8 +15,8 @@ type GlobalDateFilterStore = {
 };
 
 const initialDateRange: ReactDateRange = {
-  from: new Date(),
-  to: addDays(new Date(), 1),
+  from: startOfDay(new Date()),
+  to: endOfDay(new Date()),
 };
 
 export const useGlogalDateFilterStore = create<GlobalDateFilterStore>()(
@@ -25,15 +26,23 @@ export const useGlogalDateFilterStore = create<GlobalDateFilterStore>()(
     setDateRange: () =>
       set((state) => {
         //Importante para garantir que nenhuma das datas no date range senha undefined, para evitar erro no backend
-        if (
-          !state.tempDateRange.to ||
-          (state.tempDateRange.from &&
-            state.tempDateRange.to &&
-            isSameDay(state.tempDateRange.from, state.tempDateRange.to))
-        ) {
+        const isOnlyStartDateSelected = !state.tempDateRange.to;
+
+        const isStartAndEndDateTheSameDay =
+          state.tempDateRange.to &&
+          state.tempDateRange.from &&
+          isSameDay(state.tempDateRange.from, state.tempDateRange.to);
+
+        if (isOnlyStartDateSelected || isStartAndEndDateTheSameDay) {
           state.tempDateRange.to = addDays(state.tempDateRange.from!, 1);
         }
-        return { dateRange: state.tempDateRange };
+
+        return {
+          dateRange: {
+            from: startOfDay(state.tempDateRange.from!),
+            to: startOfDay(state.tempDateRange.to!),
+          },
+        };
       }),
     setTempDateRange: (dateRange) => set(() => ({ tempDateRange: dateRange })),
   }),

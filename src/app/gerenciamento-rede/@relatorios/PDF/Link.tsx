@@ -9,7 +9,7 @@ import { api } from "@/trpc/react";
 import { useGerenciamentoRedeRelatorioStore } from "../../stores";
 import { toast } from "@/components/ui/use-toast";
 
-export const GerenciamentoRedeRelatorioPDFLink = () => {
+export const PDFRelatorioRede = () => {
   const date = useGerenciamentoRedeRelatorioStore((state) => state.date);
   const { data: pdfData, isLoading: isLoadingData } =
     api.hospitalManager.obterRelatoriosAgrupadosPorHospitais.useQuery(date, {

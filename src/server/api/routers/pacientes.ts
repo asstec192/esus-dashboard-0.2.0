@@ -1,89 +1,132 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
-import { db } from "../../db";
-import { dateRangeSchema } from "@/constants/zod-schemas";
+import { SchemaDateRange } from "@/validators";
 import { range } from "lodash";
+import { z } from "zod";
+import type { Sexo } from "@/types/Sexo";
 
 export const pacientesRouter = createTRPCRouter({
   countByAgeRange: protectedProcedure
-    .input(dateRangeSchema)
-    .query(async ({ input }) => {
-      const { from, to } = formatServerDateRange(input);
-      const counts = await db.$queryRaw<{ ageRange: string; count: number }[]>`
-      SELECT
-        CASE
-          WHEN Idade >= 0 AND Idade < 13 THEN '<13'
-          WHEN Idade >= 13 AND Idade < 19 THEN '13-18'
-          WHEN Idade >= 19 AND Idade < 30 THEN '19-29'
-          WHEN Idade >= 30 AND Idade < 40 THEN '30-39'
-          WHEN Idade >= 40 AND Idade < 50 THEN '40-49'
-          WHEN Idade >= 50 AND Idade < 60 THEN '50-59'
-          WHEN Idade >= 60  THEN '>59'
-          -- Adicione outras faixas de idade conforme necessário
-          ELSE 'Não informado'
-          END AS ageRange,
-          COUNT(*) AS count
-      FROM
-        Vitimas V
-      JOIN Ocorrencia O ON O.OcorrenciaID = V.OcorrenciaID
-      WHERE O.DtHr BETWEEN ${from} AND ${to} 
-        AND O.RISCOCOD NOT IN (0, 90)
-      GROUP BY
-        CASE
-          WHEN Idade >= 0 AND Idade < 13 THEN '<13'
-          WHEN Idade >= 13 AND Idade < 19 THEN '13-18'
-          WHEN Idade >= 19 AND Idade < 30 THEN '19-29'
-          WHEN Idade >= 30 AND Idade < 40 THEN '30-39'
-          WHEN Idade >= 40 AND Idade < 50 THEN '40-49'
-          WHEN Idade >= 50 AND Idade < 60 THEN '50-59'
-          WHEN Idade >= 60  THEN '>59'
-          -- Adicione outras faixas de idade conforme necessário
-          ELSE 'Não informado'
-        END`;
+    .input(
+      z.object({
+        dateRange: SchemaDateRange,
+        somenteComEnvioDeVeiculo: z.boolean(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { from, to } = formatServerDateRange(input.dateRange);
 
-      // Define a ordem desejada das faixas etárias
-      const ageRangeOrder = [
-        "<13",
-        "13-18",
-        "19-29",
-        "30-39",
-        "40-49",
-        "50-59",
-        ">59",
-        "Não informado",
+      const vitimas = await ctx.db.vitimas.findMany({
+        where: {
+          Ocorrencia: {
+            DtHr: {
+              gte: from,
+              lt: to,
+            },
+            RISCOCOD: { notIn: [0, 90] },
+            ...(input.somenteComEnvioDeVeiculo && {
+              OcorrenciaMovimentacao: { some: {} },
+            }),
+          },
+        },
+        select: {
+          faixaEtaria: true,
+        },
+      });
+
+      const counts = [
+        {
+          faixa: "< 1",
+          count: vitimas.filter((v) => v.faixaEtaria === "<1").length ?? 0,
+        },
+        {
+          faixa: "1-12",
+          count: vitimas.filter((v) => v.faixaEtaria === "1-12").length ?? 0,
+        },
+        {
+          faixa: "13-18",
+          count: vitimas.filter((v) => v.faixaEtaria === "13-18").length ?? 0,
+        },
+        {
+          faixa: "19-29",
+          count: vitimas.filter((v) => v.faixaEtaria === "19-29").length ?? 0,
+        },
+        {
+          faixa: "30-39",
+          count: vitimas.filter((v) => v.faixaEtaria === "30-39").length ?? 0,
+        },
+        {
+          faixa: "40-49",
+          count: vitimas.filter((v) => v.faixaEtaria === "40-49").length ?? 0,
+        },
+        {
+          faixa: "50-59",
+          count: vitimas.filter((v) => v.faixaEtaria === "50-59").length ?? 0,
+        },
+        {
+          faixa: ">59",
+          count: vitimas.filter((v) => v.faixaEtaria === ">59").length ?? 0,
+        },
+        {
+          faixa: "Não informado",
+          count:
+            vitimas.filter((v) => v.faixaEtaria === "Não informado").length ??
+            0,
+        },
       ];
 
-      // Ordena o array de resultados de acordo com a ordem desejada
-      return counts.sort(
-        (a, b) =>
-          ageRangeOrder.indexOf(a.ageRange) - ageRangeOrder.indexOf(b.ageRange),
-      );
+      return counts;
     }),
 
   countByGender: protectedProcedure
-    .input(dateRangeSchema)
-    .query(async ({ input }) => {
-      const { from, to } = formatServerDateRange(input);
-      return await db.$queryRaw<{ sexo: string; count: number }[]>`
-      SELECT 
-        CASE 
-          WHEN V.Sexo IS NULL THEN 'Não informado'
-          WHEN V.Sexo = '1' THEN 'Masculino'
-          WHEN V.Sexo = '2' THEN 'Feminino'
-        END AS sexo,
-        COUNT(*) AS count
-      FROM Vitimas V
-      JOIN Ocorrencia O ON O.OcorrenciaID = V.OcorrenciaID
-      WHERE O.DtHr BETWEEN ${from} AND ${to} 
-        AND o.RISCOCOD NOT IN (0, 90)
-      GROUP BY V.Sexo`;
+    .input(
+      z.object({
+        dateRange: SchemaDateRange,
+        somenteComEnvioDeVeiculo: z.boolean(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { from, to } = formatServerDateRange(input.dateRange);
+
+      const contagemPorGenero = await ctx.db.vitimas.groupBy({
+        by: ["Sexo"], // por algum motivo selecionar a coluna "Sexo" tambem ira selecionar o valor computado "sexo"
+        _count: {
+          _all: true,
+        },
+        where: {
+          Ocorrencia: {
+            DtHr: {
+              gte: from,
+              lt: to,
+            },
+            ...(input.somenteComEnvioDeVeiculo
+              ? {
+                  OcorrenciaMovimentacao: {
+                    some: {}, // apenas verifica se houve envio de veiculos
+                  },
+                }
+              : {
+                  RISCOCOD: {
+                    notIn: [0, 90],
+                  },
+                }),
+          },
+        },
+      });
+
+      return contagemPorGenero.map((item) => ({
+        //@ts-expect-error a propriedade sexo exis
+        sexo: item.sexo as Sexo,
+        count: item._count._all,
+      }));
     }),
 
   countByWeekDay: protectedProcedure
-    .input(dateRangeSchema)
-    .query(async ({ input }) => {
+    .input(SchemaDateRange)
+    .query(async ({ input, ctx }) => {
       const { from, to } = formatServerDateRange(input);
-      const data = await db.$queryRaw<
+
+      const data = await ctx.db.$queryRaw<
         {
           weekDay: number;
           count: number;

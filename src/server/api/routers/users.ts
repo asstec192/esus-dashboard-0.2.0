@@ -4,51 +4,16 @@ import bcrypt from "bcrypt";
 import { TRPCError } from "@trpc/server";
 import { UserRole } from "@/types/UserRole";
 import {
-  formSchemaCadastroDeUsuario,
-  formSchemaChangeOtherUserPassword,
-  formSchemaChangeOwnPassword,
-} from "@/constants/zod-schemas";
-import { z } from "zod";
+  SchemaCadastroDeUsuario,
+  SchemaAlteracaoDeSenhaPeloAdmin,
+  SchemaAlteracaoDeSenha,
+  SchemaAleracaoDeRole,
+} from "@/validators";
 import { getColorByRisk } from "@/utils/getColorByRisk";
 
 export const usersRouter = createTRPCRouter({
-  create: protectedProcedure
-    .input(formSchemaCadastroDeUsuario)
-    .mutation(async ({ input }) => {
-      const esusUser = await db.operadoresDados.findFirst({
-        where: { OperadorApelido: input.username },
-      });
-
-      if (!esusUser) {
-        throw new TRPCError({
-          code: "PRECONDITION_FAILED",
-          message: "O usuário informado não existe na plataforma e-SUS SAMU!",
-        });
-      }
-
-      const dashBoardUser = await db.usuarioDashboard.findUnique({
-        where: {
-          operadorID: esusUser.OperadorID,
-        },
-      });
-
-      if (!!dashBoardUser) {
-        throw new TRPCError({
-          code: "PRECONDITION_FAILED",
-          message: "Usuário já cadastrado.",
-        });
-      }
-
-      return await db.usuarioDashboard.create({
-        data: {
-          operadorID: esusUser.OperadorID,
-          role: Number(input.role),
-          senha: bcrypt.hashSync(input.password, 10),
-        },
-      });
-    }),
-
-  getAll: protectedProcedure.query(({ ctx }) =>
+  /**Obtém todos os usuários exceto o usuário da sessão ativa */
+  all: protectedProcedure.query(({ ctx }) =>
     db.usuarioDashboard.findMany({
       include: {
         perfil: true,
@@ -67,8 +32,62 @@ export const usersRouter = createTRPCRouter({
     }),
   ),
 
+  /**Cadastra novos usuários */
+  create: protectedProcedure
+    .input(SchemaCadastroDeUsuario)
+    .mutation(async ({ input }) => {
+      // verifica se o usuário esus existe
+      const esusUser = await db.operadoresDados.findFirst({
+        where: { OperadorApelido: input.username },
+      });
+
+      if (!esusUser) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "O usuário informado não existe na plataforma e-SUS SAMU!",
+        });
+      }
+
+      // verifica se o usuário do esus ja esta cadastrado na dashboard
+      const dashBoardUser = await db.usuarioDashboard.findUnique({
+        where: {
+          operadorID: esusUser.OperadorID,
+        },
+      });
+
+      if (!!dashBoardUser) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Usuário já cadastrado.",
+        });
+      }
+
+      // cadastra o usuario
+      return await db.usuarioDashboard.create({
+        data: {
+          operadorID: esusUser.OperadorID,
+          role: input.roleId,
+          senha: bcrypt.hashSync(input.password, 10),
+        },
+      });
+    }),
+
+  /**Por enquanto atualiza apenas a role do usuário */
+  update: protectedProcedure
+    .input(SchemaAleracaoDeRole)
+    .mutation(({ ctx, input }) =>
+      ctx.db.usuarioDashboard.update({
+        where: { id: input.userId },
+        data: {
+          role: input.roleId,
+          updatedAt: new Date(),
+        },
+      }),
+    ),
+
+  /**Troca a senha do usuário da sessâo ativa */
   changeOwnPassword: protectedProcedure
-    .input(formSchemaChangeOwnPassword)
+    .input(SchemaAlteracaoDeSenha)
     .mutation(async ({ ctx, input }) => {
       const loggedUser = await db.usuarioDashboard.findUnique({
         select: {
@@ -112,8 +131,9 @@ export const usersRouter = createTRPCRouter({
       return "Senha alterada com sucesso";
     }),
 
+  /**Troca a senha de outro usuário. Esse procedimento deve ser feito pelo Admin */
   changeOtherUserPassword: protectedProcedure
-    .input(formSchemaChangeOtherUserPassword)
+    .input(SchemaAlteracaoDeSenhaPeloAdmin)
     .mutation(async ({ ctx, input }) => {
       if (ctx.session.user.role !== UserRole.admin)
         throw new TRPCError({
@@ -127,7 +147,7 @@ export const usersRouter = createTRPCRouter({
           senha: true,
         },
         where: {
-          id: input.selectedUserId,
+          id: input.userId,
         },
       });
 
@@ -138,15 +158,17 @@ export const usersRouter = createTRPCRouter({
         });
 
       const newPassword = bcrypt.hashSync(input.newPassword, 10);
+
       await db.usuarioDashboard.update({
         data: {
           senha: newPassword,
           updatedAt: new Date(),
         },
         where: {
-          id: input.selectedUserId,
+          id: input.userId,
         },
       });
+
       return "Senha alterada com sucesso";
     }),
 

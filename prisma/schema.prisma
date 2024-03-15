@@ -453,6 +453,7 @@ model Motivo {
     AtivacaoDT     DateTime?    @db.SmallDateTime
     InativacaoDT   DateTime?    @db.SmallDateTime
     Ocorrencia     Ocorrencia[]
+    Tipo           Tipo         @relation(fields: [TipoID], references: [TipoID])
 
     @@id([TipoID, MotivoID], map: "PK_Motivo")
 }
@@ -529,7 +530,7 @@ model Ocorrencia {
     FORMEQUIPE_SolicitacaoVeiculo     FORMEQUIPE_SolicitacaoVeiculo[]
     HISTORICO_DECISAO_GESTORA         HISTORICO_DECISAO_GESTORA[]
     PosicaoOcorrencias                PosicaoOcorrencias[]
-    Tipo                              Tipo?                               @relation(fields: [TipoID], references: [TipoID])
+    Tipo                              Tipo?                               @relation(fields: [TipoID], references: [TipoID], onDelete: NoAction, onUpdate: NoAction)
     Municipio                         TBS_Municipios_IBGE?                @relation(fields: [MunicipioID], references: [Cod_Municipio])
     Logradouro_                       TBS_TP_Logradouro?                  @relation(fields: [LogradouroTP], references: [Cod])
     Solicitante                       Solicitante?                        @relation(fields: [OcorrenciaID], references: [OcorrenciaID])
@@ -1634,6 +1635,7 @@ model Tipo {
     AtivacaoDT   DateTime?    @db.SmallDateTime
     InativacaoDT DateTime?    @db.SmallDateTime
     Ocorrencia   Ocorrencia[]
+    Motivo       Motivo[]
 }
 
 model TransporteDS {

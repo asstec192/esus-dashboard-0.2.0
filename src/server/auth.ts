@@ -7,8 +7,8 @@ import {
 } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "@/server/db";
-import { UserRole } from "@/types/UserRole";
-import { PrismaClient } from "@prisma/client";
+import type { UserRole } from "@/types/UserRole";
+
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -77,6 +77,7 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.username || !credentials.password) {
           return null;
         }
+
         const dbUser = await db.usuarioDashboard.findFirst({
           include: {
             perfil: true,
@@ -94,12 +95,15 @@ export const authOptions: NextAuthOptions = {
             },
           },
         });
+
         if (!dbUser) return null;
         const validPassword = bcrypt.compareSync(
           credentials.password,
           dbUser.senha,
         );
+
         if (!validPassword) return null;
+        
         return {
           id: dbUser.id.toString(),
           username: dbUser.operador!.OperadorApelido!,

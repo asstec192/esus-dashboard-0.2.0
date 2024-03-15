@@ -1,9 +1,6 @@
 import { useGerenciamentoRedeRelatorioStore } from "@/app/gerenciamento-rede/stores";
 import { toast } from "@/components/ui/use-toast";
-import {
-  HospitalItem,
-  formSchemaRelatorioHospital,
-} from "@/constants/zod-schemas";
+import { HospitalItem, formSchemaRelatorioHospital } from "@/validators";
 import { api } from "@/trpc/react";
 import { RouterOutputs } from "@/trpc/shared";
 import { zodResolver } from "@hookform/resolvers/zod";

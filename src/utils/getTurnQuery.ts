@@ -1,15 +1,15 @@
-import { turnoSchema } from "@/constants/zod-schemas";
-import { DateRange } from "@/hooks/useGlobalDateFilterStore";
+import type { SchemaTurno } from "@/validators";
+import type { DateRange } from "@/hooks/useGlobalDateFilterStore";
 import { Prisma } from "@prisma/client";
 import { differenceInDays, format } from "date-fns";
-import { z } from "zod";
+import type { z } from "zod";
 
 // !!!!!!!!!! NÃO MEXA A NAO SER QUE SAIBA O QUE ESTA FAZENDO
 
 // Constantes
 const DATE_FORMAT = "yyyy-MM-dd";
 type SourceTable = "O.DtHr" | "OM.EnvioEquipeDT";
-type Turno = z.infer<typeof turnoSchema>;
+type Turno = z.infer<typeof SchemaTurno>;
 
 /**
  * Obtem a query de filtro para os horarios dos turnos nos intervalos de dias selecionados

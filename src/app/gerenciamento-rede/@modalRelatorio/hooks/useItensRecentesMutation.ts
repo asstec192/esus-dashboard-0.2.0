@@ -1,4 +1,4 @@
-import { SchemaRelatorioHospital } from "@/constants/zod-schemas";
+import { SchemaRelatorioHospital } from "@/validators";
 import { api } from "@/trpc/react";
 import { UseFormReturn } from "react-hook-form";
 

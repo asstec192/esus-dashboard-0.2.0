@@ -4,7 +4,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { getTurnFilterQuery } from "@/utils/getTurnQuery";
 import { addHours } from "date-fns";
-import { dateRangeSchema, turnoSchema } from "@/constants/zod-schemas";
+import { SchemaDateRange, SchemaTurno } from "@/validators";
 import { isWithinHour } from "@/utils/isWithinTurn";
 
 export const destinosRouter = createTRPCRouter({
@@ -23,8 +23,8 @@ export const destinosRouter = createTRPCRouter({
     .input(
       z.object({
         destinoId: z.number(),
-        dateRange: dateRangeSchema,
-        turn: turnoSchema,
+        dateRange: SchemaDateRange,
+        turn: SchemaTurno,
       }),
     )
     .query(async ({ input }) => {
@@ -68,7 +68,7 @@ export const destinosRouter = createTRPCRouter({
         },
       });
 
-      //responde com as ocorrencias filtradas pelo turno selecionado
+      //filtra as ocorrencias pelo turno selecionado
       return (
         ocorrencias.filter(
           (o) =>
@@ -80,7 +80,7 @@ export const destinosRouter = createTRPCRouter({
 
   /**Obtém o relatório de tempo resposta da unidade de destino. Recebe como input um date range e um turno */
   getTempoResposta: protectedProcedure
-    .input(z.object({ dateRange: dateRangeSchema, turn: turnoSchema }))
+    .input(z.object({ dateRange: SchemaDateRange, turn: SchemaTurno }))
     .query(async ({ input }) => {
       const filter = getTurnFilterQuery("O.DtHr", input.dateRange, input.turn);
       return await db.$queryRaw<

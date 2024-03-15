@@ -7,7 +7,7 @@ import { NextAuthProvider } from "@/providers/NextAuthProvider";
 import { NextQueryParamProvider } from "@/providers/NextQueryParamProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/navbar";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/providers/NextThemeProvider";
 
@@ -82,7 +82,7 @@ export default function RootLayout({
               >
                 <Navbar />
                 <Toaster />
-                {children}
+                <div className="px-1 py-4 sm:p-4">{children}</div>
                 {modalOcorrencia}
               </ThemeProvider>
             </NextQueryParamProvider>

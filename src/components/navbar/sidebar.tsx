@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Columns } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { UserRole } from "@/types/UserRole";
-import { navComponents } from ".";
+import { navLinks } from ".";
 import { usePathname } from "next/navigation";
 import { Navlink } from "./nav-link";
 import { DashboardLogo } from "./dahsboard-logo";
@@ -22,14 +22,14 @@ export const SideBar = () => {
           <div className="ml-4">
             <DashboardLogo />
           </div>
-          {navComponents.map((component) => (
+          {navLinks.map((link) => (
             <Navlink
-              key={component.href}
-              href={component.href}
-              active={pathname === component.href}
+              key={link.href}
+              href={link.href}
+              active={pathname === link.href}
               className="justify-start"
             >
-              {component.label}
+              {link.label}
             </Navlink>
           ))}
           {session.data?.user.role === UserRole.admin ? (

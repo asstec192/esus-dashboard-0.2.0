@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { formSchemaLogin } from "@/constants/zod-schemas";
+import { formSchemaLogin } from "@/validators";
 import { TypographyH3 } from "@/components/typography/TypographyH3";
 import { useSearchParams } from "next/navigation";
 

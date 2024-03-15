@@ -4,7 +4,7 @@ import * as z from "zod";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { getTurnFilterQuery } from "@/utils/getTurnQuery";
 import { addHours, endOfDay, startOfDay, subHours } from "date-fns";
-import { dateRangeSchema, turnoSchema } from "@/constants/zod-schemas";
+import { SchemaDateRange, SchemaTurno } from "@/validators";
 import { isWithinHour } from "@/utils/isWithinTurn";
 
 export const veiculosRouter = createTRPCRouter({
@@ -15,12 +15,13 @@ export const veiculosRouter = createTRPCRouter({
     .input(
       z.object({
         veiculoId: z.number(),
-        dateRange: dateRangeSchema,
-        turn: turnoSchema,
+        dateRange: SchemaDateRange,
+        turn: SchemaTurno,
       }),
     )
     .query(async ({ input }) => {
       const { from, to } = formatServerDateRange(input.dateRange);
+
       //obtem o veiculo com suas respectivas ocorrencias
       const veiculo = await db.veiculos.findUnique({
         where: { VeiculoID: input.veiculoId },
@@ -71,7 +72,7 @@ export const veiculosRouter = createTRPCRouter({
               input.turn.from,
               input.turn.to,
             ),
-        ).map((mov) => mov.Ocorrencia) || [];
+        ).map((mov) => mov.Ocorrencia) ?? [];
 
       //resposta final com o nome do veiculo e suas ocorrencias filtradas
       return {
@@ -80,17 +81,47 @@ export const veiculosRouter = createTRPCRouter({
       };
     }),
 
+  countAtendimentos: protectedProcedure
+    .input(SchemaDateRange)
+    .query(async ({ ctx, input }) => {
+      const { from, to } = formatServerDateRange(input);
+
+      const atendimentos = await ctx.db.$queryRaw<
+        {
+          id: number;
+          nome: string;
+          totalOcorrencias: number;
+          totalPacientes: number;
+        }[]
+      >`
+      SELECT
+          V.VeiculoID AS id,
+          V.VeiculoDS AS nome,
+          COUNT(DISTINCT OM.OcorrenciaID) AS totalOcorrencias,
+          COUNT(DISTINCT P.VitimaId) AS totalPacientes
+      FROM Veiculos V
+      JOIN OcorrenciaMovimentacao OM ON V.VeiculoID = OM.VeiculoID
+      JOIN Vitimas P ON P.OcorrenciaID = OM.OcorrenciaID
+      WHERE OM.EnvioEquipeDT BETWEEN ${from} AND ${to}
+      GROUP BY V.VeiculoID, V.VeiculoDS
+      ORDER BY V.VeiculoDS
+    `;
+
+      return atendimentos;
+    }),
+
   /**
    * Obtém o relatório de tempo resposta de todos os veículos, recebe como input um date range e um turno
    */
   getTempoResposta: protectedProcedure
-    .input(z.object({ dateRange: dateRangeSchema, turn: turnoSchema }))
+    .input(z.object({ dateRange: SchemaDateRange, turn: SchemaTurno }))
     .query(async ({ input }) => {
       const filter = getTurnFilterQuery(
         "OM.EnvioEquipeDT",
         input.dateRange,
         input.turn,
       );
+
       const rawVeiculos = await db.$queryRaw<
         {
           id: number;
@@ -119,15 +150,11 @@ export const veiculosRouter = createTRPCRouter({
                 WHERE V.VeiculoID = OM.VeiculoID AND ${filter}
                 FOR JSON PATH
             ) AS pacientes
-        FROM
-            Veiculos V
-        LEFT JOIN
-            OcorrenciaMovimentacao OM ON V.VeiculoID = OM.VeiculoID
+        FROM Veiculos V
+        LEFT JOIN OcorrenciaMovimentacao OM ON V.VeiculoID = OM.VeiculoID
         WHERE ${filter}
-        GROUP BY
-            V.VeiculoID, V.VeiculoDS
-        ORDER BY
-            V.VeiculoDS`;
+        GROUP BY V.VeiculoID, V.VeiculoDS
+        ORDER BY V.VeiculoDS`;
 
       return rawVeiculos.map((veiculo) => ({
         ...veiculo,

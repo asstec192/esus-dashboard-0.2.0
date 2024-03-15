@@ -1,10 +1,11 @@
-import { subHours } from "date-fns";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { startOfDay, subHours } from "date-fns";
+
 import { db } from "@/server/db";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const ligacoesRouter = createTRPCRouter({
   liveCount: protectedProcedure.query(async () => {
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
+    const date = subHours(startOfDay(new Date()), 3);
 
     const [{ totalLigacoes }]: [{ totalLigacoes: number }] = await db.$queryRaw`
           SELECT COUNT(*) AS totalLigacoes                 

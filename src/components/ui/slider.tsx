@@ -66,7 +66,7 @@ const Slider = React.forwardRef(
                 top: `10px`,
               }}
             >
-              <span className="text-sm">
+              <span className="text-center text-sm">
                 {formatLabel ? formatLabel(value) : value}
               </span>
             </div>

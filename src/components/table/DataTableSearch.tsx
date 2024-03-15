@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLAttributes, useEffect, useMemo, useState } from "react";
+import { type HTMLAttributes, useEffect, useMemo, useState } from "react";
 import debounce from "lodash.debounce";
 import { Input } from "../ui/input";
 import { useDataTable } from "./DataTableProvider";

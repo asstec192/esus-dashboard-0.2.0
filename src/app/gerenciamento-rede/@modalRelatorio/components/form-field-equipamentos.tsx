@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formSchemaRelatorioHospital } from "@/constants/zod-schemas";
+import { formSchemaRelatorioHospital } from "@/validators";
 import { api } from "@/trpc/react";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";

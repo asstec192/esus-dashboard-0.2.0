@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { db } from "@/server/db";
 import { endOfDay, startOfDay } from "date-fns";
-import { formSchemaRelatorioHospital } from "@/constants/zod-schemas";
+import { formSchemaRelatorioHospital } from "@/validators";
 
 export const hospitalManagerRouter = createTRPCRouter({
   getEspecialidades: protectedProcedure.query(() =>

@@ -26,6 +26,57 @@ const prismaClientSingleton = () => {
         },
       },
 
+      vitimas: {
+        // Decobri acidentalmente um hack,
+        // pasando o mesmo nome da coluna original porem em case diferente, neste caso "sexo" e "Sexo",
+        // permitira selecionar o valor computado em funcoes de agregacao como o groupBy
+        // o tipo nao sera inferido mas o valor de "sexo" estará no resultado junto com o valor do "Sexo"
+        // veja o exemplo de uso em src/server/api/routers/pacientes.ts
+        sexo: {
+          needs: { Sexo: true },
+          compute: (vitima) =>
+            vitima.Sexo === 1
+              ? "Masculino"
+              : vitima.Sexo === 2
+                ? "Feminino"
+                : "Não informado",
+        },
+        tipoIdade: {
+          needs: { IdadeTP: true },
+          compute: (vitima) =>
+            vitima.IdadeTP === 1
+              ? "DIA(s)"
+              : vitima.IdadeTP === 2
+                ? "MES(es)"
+                : "ANO(s)",
+        },
+        faixaEtaria: {
+          needs: { Idade: true, IdadeTP: true },
+          compute: (vitima) => {
+            const idadeTP = vitima.IdadeTP;
+            const idade = vitima.Idade;
+            if (!idade || !idadeTP) return "Não informado";
+            const idadeEmAnos = idadeTP === 3;
+
+            return !idadeEmAnos
+              ? "<1"
+              : idade <= 12
+                ? "1-12"
+                : idade <= 18
+                  ? "13-18"
+                  : idade <= 29
+                    ? "19-29"
+                    : idade <= 39
+                      ? "30-39"
+                      : idade <= 49
+                        ? "40-49"
+                        : idade <= 59
+                          ? "50-59"
+                          : ">59";
+          },
+        },
+      },
+
       veiculos: {
         tipo: {
           needs: { VeiculoDS: true },

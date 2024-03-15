@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formSchemaRelatorioHospital } from "@/constants/zod-schemas";
+import { formSchemaRelatorioHospital } from "@/validators";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
@@ -78,7 +78,7 @@ export const TransferEspecialidades = ({
                 {form.watch("especialidades").map((esp) => (
                   <div key={esp.itemId} className="grid grid-cols-5 gap-1">
                     <Button
-                    type="button"
+                      type="button"
                       variant="outline"
                       className="col-span-4"
                       // Remove uma especialidade

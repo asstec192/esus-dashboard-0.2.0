@@ -1,11 +1,13 @@
 import { startOfDay, subHours } from "date-fns";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { db } from "@/server/db";
+import { tzOffset } from "@/constants/timezone-offset";
+
+// TODAS AS DATAS ESTAO OK
 
 export const tempoRespostaRouter = createTRPCRouter({
   tarm: protectedProcedure.query(async () => {
-    // inicio do dia menos fuso horario
-    const date = subHours(startOfDay(new Date()), 3);
+    const date = subHours(startOfDay(new Date()), tzOffset);
 
     const tempoTarm = await db.$queryRaw<
       { operador: string; countOcorrencia: number; tempo: number }[]
@@ -37,7 +39,7 @@ export const tempoRespostaRouter = createTRPCRouter({
   }),
 
   medico: protectedProcedure.query(async () => {
-    const date = subHours(startOfDay(new Date()), 3);
+    const date = subHours(startOfDay(new Date()), tzOffset);
 
     const tempoMedico = await db.$queryRaw<
       { operador: string; countOcorrencia: number; tempo: number }[]
@@ -71,24 +73,37 @@ export const tempoRespostaRouter = createTRPCRouter({
   }),
 
   movimentacoes: protectedProcedure.query(async () => {
-    const date = subHours(new Date().setHours(0, 0, 0, 0), 3);
+    const date = subHours(startOfDay(new Date()), tzOffset);
 
-    const [{ QTYQUS, QUSQUY, QUYQUU }]: [
-      { QTYQUS: number; QUSQUY: number; QUYQUU: number },
+    const [tempos]: [
+      {
+        saidaDaBase: number;
+        chegadaAoLocal: number;
+        atendimentoNoLocal: number;
+        chegadaAoDestino: number;
+        retornoDoDestino: number;
+        chegadaBase: number;
+      },
     ] = await db.$queryRaw`
       SELECT 
-        AVG(DATEDIFF(minute, EnvioEquipeDT, ChegadaLocalDT)) AS QTYQUS,
-        AVG(DATEDIFF(minute, ChegadaLocalDT, SaidaLocalDT)) AS QUSQUY,
-        AVG(DATEDIFF(minute, SaidaLocalDT, ChegadaDestinoDT)) AS QUYQUU
+        AVG(DATEDIFF(minute, EnvioEquipeDT, SaidaBaseDT)) AS saidaDaBase,
+        AVG(DATEDIFF(minute, SaidaBaseDT, ChegadaLocalDT)) AS chegadaAoLocal,
+        AVG(DATEDIFF(minute, ChegadaLocalDT, SaidaLocalDT)) AS atendimentoNoLocal, 
+        AVG(DATEDIFF(minute, SaidaLocalDT, ChegadaDestinoDT)) AS chegadaAoDestino,
+        AVG(DATEDIFF(minute, ChegadaDestinoDT, RetornoDestinoDT)) AS retornoDoDestino, 
+        AVG(DATEDIFF(minute, RetornoDestinoDT, ChegadaBaseDT)) AS chegadaBase 
       FROM OcorrenciaMovimentacao OM
       JOIN Ocorrencia O ON O.OcorrenciaID = OM.OcorrenciaID
-      WHERE O.DtHr >= ${date}
+      WHERE OM.EnvioEquipeDT >= ${date}
       `;
 
     return [
-      { label: "Chegada ao local", value: QTYQUS },
-      { label: "Atendimento no local", value: QUSQUY },
-      { label: "Chegada ao destino", value: QUYQUU },
-    ];
+      { label: "Saída da base", value: tempos.saidaDaBase },
+      { label: "Chegada ao local", value: tempos.chegadaAoLocal },
+      { label: "Atendimento no local", value: tempos.atendimentoNoLocal },
+      { label: "Chegada ao destino", value: tempos.chegadaAoDestino },
+      { label: "Retorno do destino", value: tempos.retornoDoDestino },
+      { label: "Chegada à base", value: tempos.chegadaBase },
+    ] as const;
   }),
 });

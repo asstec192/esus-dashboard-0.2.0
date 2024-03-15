@@ -4,7 +4,7 @@ import * as z from "zod";
 import { getTurnFilterQuery } from "@/utils/getTurnQuery";
 import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { addHours } from "date-fns";
-import { dateRangeSchema, turnoSchema } from "@/constants/zod-schemas";
+import { SchemaDateRange, SchemaTurno } from "@/validators";
 import { isWithinHour } from "@/utils/isWithinTurn";
 
 export const intercorrenciaRouter = createTRPCRouter({
@@ -12,8 +12,8 @@ export const intercorrenciaRouter = createTRPCRouter({
     .input(
       z.object({
         intercorrenciaId: z.number(),
-        dateRange: dateRangeSchema,
-        turn: turnoSchema,
+        dateRange: SchemaDateRange,
+        turn: SchemaTurno,
       }),
     )
     .query(async ({ input }) => {
@@ -65,7 +65,7 @@ export const intercorrenciaRouter = createTRPCRouter({
     }),
 
   countOcorrencias: protectedProcedure
-    .input(z.object({ dateRange: dateRangeSchema, turn: turnoSchema }))
+    .input(z.object({ dateRange: SchemaDateRange, turn: SchemaTurno }))
     .query(async ({ input }) => {
       const filter = getTurnFilterQuery("O.DtHr", input.dateRange, input.turn);
 

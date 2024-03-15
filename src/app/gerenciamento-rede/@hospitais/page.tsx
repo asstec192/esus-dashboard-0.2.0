@@ -3,8 +3,8 @@ import { DataTable } from "@/components/table/DataTable";
 import { DataTablePagination } from "@/components/table/DataTablePagination";
 import { DataTableSearch } from "@/components/table/DataTableSearch";
 import { Card } from "@/components/ui/card";
-import { RouterOutputs } from "@/trpc/shared";
-import { ColumnDef } from "@tanstack/react-table";
+import type { RouterOutputs } from "@/trpc/shared";
+import type { ColumnDef } from "@tanstack/react-table";
 import { api } from "@/trpc/server";
 
 type Hospital = RouterOutputs["destinos"]["getAll"][0];
