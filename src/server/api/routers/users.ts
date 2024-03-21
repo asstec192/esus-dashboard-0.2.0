@@ -1,15 +1,16 @@
-import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { db } from "@/server/db";
-import bcrypt from "bcrypt";
 import { TRPCError } from "@trpc/server";
+import bcrypt from "bcrypt";
+
+import { db } from "@/server/db";
 import { UserRole } from "@/types/UserRole";
-import {
-  SchemaCadastroDeUsuario,
-  SchemaAlteracaoDeSenhaPeloAdmin,
-  SchemaAlteracaoDeSenha,
-  SchemaAleracaoDeRole,
-} from "@/validators";
 import { getColorByRisk } from "@/utils/getColorByRisk";
+import {
+  SchemaAleracaoDeRole,
+  SchemaAlteracaoDeSenha,
+  SchemaAlteracaoDeSenhaPeloAdmin,
+  SchemaCadastroDeUsuario,
+} from "@/validators";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const usersRouter = createTRPCRouter({
   /**Obtém todos os usuários exceto o usuário da sessão ativa */
@@ -159,7 +160,7 @@ export const usersRouter = createTRPCRouter({
 
       const newPassword = bcrypt.hashSync(input.newPassword, 10);
 
-      await db.usuarioDashboard.update({
+      return await db.usuarioDashboard.update({
         data: {
           senha: newPassword,
           updatedAt: new Date(),
@@ -168,11 +169,10 @@ export const usersRouter = createTRPCRouter({
           id: input.userId,
         },
       });
-
-      return "Senha alterada com sucesso";
     }),
 
-  getOcorrencias: protectedProcedure.query(async ({ ctx }) => {
+  /**Obtém as ocorrências atendidas pelo usuário da sessão */
+  ocorrencias: protectedProcedure.query(async ({ ctx }) => {
     const esusUserId = ctx.session.user.esusId;
     const data = await db.$queryRaw<OcorrenciaRaw[]>`
         SELECT 

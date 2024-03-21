@@ -1,6 +1,5 @@
 "use client";
 
-import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
 import {
   Bar,
   BarChart,
@@ -9,7 +8,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { RouterOutputs } from "@/trpc/shared";
+
+import type { RouterOutputs } from "@/trpc/shared";
+import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
 
 export const ChartWeekDay = ({
   data,

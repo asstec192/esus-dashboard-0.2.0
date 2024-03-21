@@ -1,6 +1,12 @@
 import type { DateRange as ReactDateRange } from "react-day-picker";
 import type { z } from "zod";
-import { addDays, endOfDay, isSameDay, startOfDay } from "date-fns";
+import {
+  addDays,
+  isSameDay,
+  startOfDay,
+  startOfToday,
+  startOfTomorrow,
+} from "date-fns";
 import { create } from "zustand";
 
 import type { SchemaDateRange } from "@/validators";
@@ -15,8 +21,8 @@ type GlobalDateFilterStore = {
 };
 
 const initialDateRange: ReactDateRange = {
-  from: startOfDay(new Date()),
-  to: endOfDay(new Date()),
+  from: startOfToday(),
+  to: startOfTomorrow(),
 };
 
 export const useGlogalDateFilterStore = create<GlobalDateFilterStore>()(

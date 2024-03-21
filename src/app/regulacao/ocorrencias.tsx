@@ -1,35 +1,37 @@
 "use client";
 
-import { DataTable } from "@/components/table/DataTable";
-import { DataTableProvider } from "@/components/table/DataTableProvider";
-import { DataTablePagination } from "@/components/table/DataTablePagination";
-import { Card } from "@/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-
-import {
-  type DateRange,
-  useGlogalDateFilterStore,
-} from "@/hooks/useGlobalDateFilterStore";
-import { api } from "@/trpc/react";
-
-import { RegulacaoPrimariaTableToolbar } from "./ocorrencias-filters";
-import { ocorrenciaTableColumns } from "@/constants/ocorrenciaTableColumns";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { useState } from "react";
+
+import type { DateRange } from "@/hooks/useGlobalDateFilterStore";
+import { DataTable } from "@/components/table/DataTable";
+import { DataTablePagination } from "@/components/table/DataTablePagination";
+import { DataTableProvider } from "@/components/table/DataTableProvider";
 import { DataTableSearch } from "@/components/table/DataTableSearch";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
+import { ocorrenciaTableColumns } from "@/constants/ocorrenciaTableColumns";
+import { useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
+import { api } from "@/trpc/react";
+import { RegulacaoPrimariaTableToolbar } from "./ocorrencias-filters";
 
 export function RegulacaoOcorrencias() {
-  const [checked, setChecked] = useState(true);
+  const [isChecked, setIsChecked] = useState(true);
 
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
   ) as DateRange;
 
-  const { data, isLoading } = api.ocorrencias.getAll.useQuery({
-    dateRange,
-    emAtendimento: checked,
-  });
+  const { data, isLoading } = api.ocorrencias.getAll.useQuery(
+    {
+      dateRange,
+      emAtendimento: isChecked,
+    },
+    {
+      refetchInterval: isChecked ? 5000 : undefined,
+    },
+  );
 
   return (
     <DataTableProvider data={data ?? []} columns={ocorrenciaTableColumns}>
@@ -41,13 +43,13 @@ export function RegulacaoOcorrencias() {
             Em atendimento
           </Label>
           <Switch
-            checked={checked}
-            onCheckedChange={setChecked}
+            checked={isChecked}
+            onCheckedChange={setIsChecked}
             id="em-atendimento"
           />
         </div>
         <Card className="flex flex-grow flex-col justify-between overflow-hidden bg-background">
-          <ScrollArea className="h-40 flex-grow">
+          <ScrollArea className="h-40 min-h-[70vh] flex-grow">
             <DataTable isLoading={isLoading} />
             <ScrollBar orientation="horizontal" />
           </ScrollArea>

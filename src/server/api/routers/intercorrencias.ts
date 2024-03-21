@@ -1,11 +1,12 @@
-import { db } from "@/server/db";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
-import * as z from "zod";
-import { getTurnFilterQuery } from "@/utils/getTurnQuery";
-import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { addHours } from "date-fns";
-import { SchemaDateRange, SchemaTurno } from "@/validators";
+import * as z from "zod";
+
+import { db } from "@/server/db";
+import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { isWithinHour } from "@/utils/isWithinTurn";
+import { obterFiltroComBaseNoTurno } from "@/utils/obterFiltroComBaseNoTurno";
+import { SchemaDateRange, SchemaTurno } from "@/validators";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const intercorrenciaRouter = createTRPCRouter({
   getOcorrencias: protectedProcedure
@@ -67,7 +68,11 @@ export const intercorrenciaRouter = createTRPCRouter({
   countOcorrencias: protectedProcedure
     .input(z.object({ dateRange: SchemaDateRange, turn: SchemaTurno }))
     .query(async ({ input }) => {
-      const filter = getTurnFilterQuery("O.DtHr", input.dateRange, input.turn);
+      const filter = obterFiltroComBaseNoTurno({
+        sourceDateFilter: "O.DtHr",
+        dateRange: input.dateRange,
+        turno: input.turn,
+      });
 
       return await db.$queryRaw<
         { description: string; id: number; count: number }[]

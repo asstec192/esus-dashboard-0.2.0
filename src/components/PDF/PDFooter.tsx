@@ -1,7 +1,8 @@
 import { Image, Text, View } from "@react-pdf/renderer";
-import { PDFFooterText } from "./typography";
-import logoMinisterioDaSauda from "public/images/logo-sus.png";
 import logoSamu from "public/images/logo-samu-horizontal.png";
+import logoMinisterioDaSauda from "public/images/logo-sus.png";
+
+import { PDFFooterText } from "./typography";
 
 export function PDFFooter() {
   return (
@@ -38,7 +39,7 @@ export function PDFFooter() {
           <PDFFooterText>Rua Pe. Guerra, 1350 Parquelândia</PDFFooterText>
           <PDFFooterText>Telefone (85) 98439-4256 Ouvidoria</PDFFooterText>
           <PDFFooterText>
-            direcao.tecnica@samu.fortaleza.ce.gov.br
+            diretoria.tecnica@samu.fortaleza.ce.gov.br
           </PDFFooterText>
         </View>
 

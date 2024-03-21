@@ -1,11 +1,12 @@
-import * as z from "zod";
-import { db } from "@/server/db";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { formatServerDateRange } from "@/utils/formatServerDateRange";
-import { getTurnFilterQuery } from "@/utils/getTurnQuery";
 import { addHours } from "date-fns";
-import { SchemaDateRange, SchemaTurno } from "@/validators";
+import * as z from "zod";
+
+import { db } from "@/server/db";
+import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { isWithinHour } from "@/utils/isWithinTurn";
+import { obterFiltroComBaseNoTurno } from "@/utils/obterFiltroComBaseNoTurno";
+import { SchemaDateRange, SchemaTurno } from "@/validators";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const destinosRouter = createTRPCRouter({
   /**Obtém a lista de todas as unidades de destino */
@@ -82,35 +83,31 @@ export const destinosRouter = createTRPCRouter({
   getTempoResposta: protectedProcedure
     .input(z.object({ dateRange: SchemaDateRange, turn: SchemaTurno }))
     .query(async ({ input }) => {
-      const filter = getTurnFilterQuery("O.DtHr", input.dateRange, input.turn);
-      return await db.$queryRaw<
-        {
-          id: string;
-          nome: string | null;
-          totalOcorrencias: number;
-          tempo: number;
-        }[]
-      >`
+      const filter = obterFiltroComBaseNoTurno({
+        sourceDateFilter: "O.DtHr",
+        dateRange: input.dateRange,
+        turno: input.turn,
+      });
+
+      type Destino = {
+        id: string;
+        nome: string | null;
+        totalOcorrencias: number;
+        tempo: number;
+      };
+
+      return await db.$queryRaw<Destino[]>`
         SELECT
             UD.UnidadeCOD AS id,
             UD.UnidadeDS AS nome,
             COUNT(DISTINCT OM.OcorrenciaID) AS totalOcorrencias,
-            AVG(
-                DATEDIFF(
-                    MINUTE,
-                    OM.ChegadaDestinoDT,
-                    OM.RetornoDestinoDT
-                )
-            ) AS tempo
+            AVG(DATEDIFF(MINUTE, OM.ChegadaDestinoDT, OM.RetornoDestinoDT)) AS tempo
         FROM UnidadesDestino UD
         INNER JOIN HISTORICO_DECISAO_GESTORA HDG ON UD.UnidadeCOD = HDG.DESTINOID
         LEFT JOIN OcorrenciaMovimentacao OM ON HDG.OCORRENCIAID = OM.OcorrenciaID
         LEFT JOIN Ocorrencia O ON O.OcorrenciaID = HDG.OCORRENCIAID
         WHERE ${filter}
-        GROUP BY
-            UD.UnidadeCOD,
-            UD.UnidadeDS
-        ORDER BY
-            tempo ASC`;
+        GROUP BY UD.UnidadeCOD, UD.UnidadeDS
+        ORDER BY tempo ASC`;
     }),
 });

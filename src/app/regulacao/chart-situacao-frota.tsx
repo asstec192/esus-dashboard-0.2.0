@@ -1,7 +1,5 @@
 "use client";
 
-import { api } from "@/trpc/react";
-import { RouterOutputs } from "@/trpc/shared";
 import {
   Bar,
   BarChart,
@@ -11,19 +9,23 @@ import {
   YAxis,
 } from "recharts";
 
+import type { RouterOutputs } from "@/trpc/shared";
+import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
+
 export function ChartSituacaoFrota({
-  initialData,
+  data,
+  loading,
 }: {
-  initialData: RouterOutputs["veiculos"]["situacaoDaFrota"];
+  data: RouterOutputs["veiculos"]["situacaoDaFrota"];
+  loading?: boolean;
 }) {
-  const { data } = api.veiculos.situacaoDaFrota.useQuery(undefined, {
-    initialData,
-    refetchInterval: 5000,
-  });
+  if (loading) {
+    return <SkeletonChart />;
+  }
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart width={500} height={300} data={data} stackOffset="expand">
+    <ResponsiveContainer width="100%" height={280}>
+      <BarChart data={data} stackOffset="expand">
         <XAxis
           dataKey="veiculo"
           fontSize={12}

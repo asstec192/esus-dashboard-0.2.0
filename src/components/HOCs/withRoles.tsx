@@ -1,9 +1,10 @@
 "use client";
 
-import type { UserRole } from "@/types/UserRole";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import type { ComponentType } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+
+import type { UserRole } from "@/types/UserRole";
 
 export function withRoles<T = {}>(
   Component: ComponentType<T>,

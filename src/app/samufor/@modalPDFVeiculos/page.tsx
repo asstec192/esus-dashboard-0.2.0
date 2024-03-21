@@ -1,28 +1,25 @@
 "use client";
 
-import { differenceInDays, format } from "date-fns";
-import { ReactNode } from "react";
-import { formatProperName } from "@/utils/formatProperName";
-import logo from "public/images/logo-samu.png";
+import type { ReactNode } from "react";
 import {
+  Document,
+  Font,
   Page,
+  StyleSheet,
   Text,
   View,
-  Document,
-  StyleSheet,
-  Font,
-  Image,
 } from "@react-pdf/renderer";
-import {
-  DateRange,
-  useGlogalDateFilterStore,
-} from "@/hooks/useGlobalDateFilterStore";
-import { useTurno } from "../stores";
-import { api } from "@/trpc/react";
+import { differenceInDays, format } from "date-fns";
+
+import type { DateRange } from "@/hooks/useGlobalDateFilterStore";
 import { PDFModal } from "@/components/PDF/modal";
-import { PMFTimbrado } from "@/components/PDF/PMFTimbrado";
-import { PDFSmall, PDFSubTitle, PDFTitle } from "@/components/PDF/typography";
 import { PDFFooter } from "@/components/PDF/PDFooter";
+import { PMFTimbrado } from "@/components/PDF/PMFTimbrado";
+import { PDFSmall, PDFSubTitle } from "@/components/PDF/typography";
+import { useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
+import { api } from "@/trpc/react";
+import { formatProperName } from "@/utils/formatProperName";
+import { useTurno } from "../stores";
 
 // Register font
 Font.register({
@@ -137,8 +134,8 @@ export default function PDFRelatorioVeiculo() {
             </Text>
 
             <PDFSmall>
-              {`De ${format(dateRange.from!, "dd/MM/yyyy")} à ${format(
-                dateRange.to!,
+              {`De ${format(dateRange.from, "dd/MM/yyyy")} à ${format(
+                dateRange.to,
                 "dd/MM/yyyy",
               )}`}
             </PDFSmall>

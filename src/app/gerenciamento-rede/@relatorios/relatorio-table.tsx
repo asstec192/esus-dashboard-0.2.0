@@ -1,21 +1,23 @@
 "use client";
 
-import { api } from "@/trpc/react";
-import { useGerenciamentoRedeRelatorioStore } from "../stores";
 import { useMemo } from "react";
+import Link from "next/link";
+import { Pencil, Plus } from "lucide-react";
+
 import type { RouterOutputs } from "@/trpc/shared";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { DataTableSearch } from "@/components/table/DataTableSearch";
-import { Pencil, Plus } from "lucide-react";
-import { DataTable } from "@/components/table/DataTable";
-import { Card } from "@/components/ui/card";
-import { DataTablePagination } from "@/components/table/DataTablePagination";
 import { DatePicker } from "@/components/date-pickers/date-picker";
+import { DataTable } from "@/components/table/DataTable";
+import { DataTablePagination } from "@/components/table/DataTablePagination";
 import { DataTableProvider } from "@/components/table/DataTableProvider";
-import Link from "next/link";
+import { DataTableSearch } from "@/components/table/DataTableSearch";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { api } from "@/trpc/react";
+import { useGerenciamentoRedeRelatorioStore } from "../stores";
 import { PDFRelatorioRede } from "./PDF/Link";
-import { RelatorioDeleteModal } from "./relatorio-delete-modal";
+import { RelatorioDeleteModal } from "./relatorio-delete";
+import { RelatorioView } from "./relatorio-view";
 
 export function Relatorios({
   initialData,
@@ -61,18 +63,19 @@ export function Relatorios({
       {
         accessorKey: "actions",
         header: "Ações",
-        cell: ({ row }) => (
+        cell: ({ row: { original: relatorio } }) => (
           <div className="flex gap-2">
+            <RelatorioView relatorio={relatorio} />
             <Button
               asChild
               variant="secondary"
-              onClick={() => setRelatorio(row.original)}
+              onClick={() => setRelatorio(relatorio)}
             >
               <Link
                 href={{
                   query: {
                     isRelatorioOpen: true,
-                    relatorioId: row.original.id,
+                    relatorioId: relatorio.id,
                   },
                 }}
                 prefetch={false}
@@ -81,7 +84,7 @@ export function Relatorios({
                 <Pencil className="w-4" />
               </Link>
             </Button>
-            <RelatorioDeleteModal relatorio={row.original} />
+            <RelatorioDeleteModal relatorio={relatorio} />
           </div>
         ),
       },

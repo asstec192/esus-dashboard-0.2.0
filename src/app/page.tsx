@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { getServerAuthSession } from "@/server/auth";
 import { buttonVariants } from "@/components/ui/button";
+import { getServerAuthSession } from "@/server/auth";
 
 export default async function Home() {
   const session = await getServerAuthSession();
@@ -13,7 +13,6 @@ export default async function Home() {
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
             <span className="text-primary">SGRU</span>Dashboard
           </h1>
-
           <h3 className="max-w-xl text-center text-xl font-bold">
             Sistema de Governança e Regulação das Urgências <br />
             <span className="font-medium">

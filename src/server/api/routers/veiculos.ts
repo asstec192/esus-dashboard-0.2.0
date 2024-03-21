@@ -1,16 +1,15 @@
-import { db } from "@/server/db";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
-import * as z from "zod";
-import { formatServerDateRange } from "@/utils/formatServerDateRange";
-import { getTurnFilterQuery } from "@/utils/getTurnQuery";
 import { addHours, endOfDay, startOfDay, subHours } from "date-fns";
-import { SchemaDateRange, SchemaTurno } from "@/validators";
+import * as z from "zod";
+
+import { db } from "@/server/db";
+import { formatServerDateRange } from "@/utils/formatServerDateRange";
 import { isWithinHour } from "@/utils/isWithinTurn";
+import { obterFiltroComBaseNoTurno } from "@/utils/obterFiltroComBaseNoTurno";
+import { SchemaDateRange, SchemaTurno } from "@/validators";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const veiculosRouter = createTRPCRouter({
-  /**
-   * Obtém todas as ocorrências relacioanadas ao veículo, recebe como input um date range
-   */
+  /** Obtém todas as ocorrências relacioanadas ao veículo */
   getOcorrencias: protectedProcedure
     .input(
       z.object({
@@ -81,58 +80,58 @@ export const veiculosRouter = createTRPCRouter({
       };
     }),
 
+  /**Obtém a contagem de ocorrencias e pacientes atendidos por cada veiculo */
   countAtendimentos: protectedProcedure
     .input(SchemaDateRange)
     .query(async ({ ctx, input }) => {
       const { from, to } = formatServerDateRange(input);
 
-      const atendimentos = await ctx.db.$queryRaw<
-        {
-          id: number;
-          nome: string;
-          totalOcorrencias: number;
-          totalPacientes: number;
-        }[]
-      >`
-      SELECT
-          V.VeiculoID AS id,
-          V.VeiculoDS AS nome,
-          COUNT(DISTINCT OM.OcorrenciaID) AS totalOcorrencias,
-          COUNT(DISTINCT P.VitimaId) AS totalPacientes
-      FROM Veiculos V
-      JOIN OcorrenciaMovimentacao OM ON V.VeiculoID = OM.VeiculoID
-      JOIN Vitimas P ON P.OcorrenciaID = OM.OcorrenciaID
-      WHERE OM.EnvioEquipeDT BETWEEN ${from} AND ${to}
-      GROUP BY V.VeiculoID, V.VeiculoDS
-      ORDER BY V.VeiculoDS
-    `;
+      type Atendimento = {
+        id: number;
+        nome: string;
+        totalOcorrencias: number;
+        totalPacientes: number;
+      };
+
+      const atendimentos: Atendimento[] = await ctx.db.$queryRaw`
+        SELECT
+            V.VeiculoID AS id,
+            V.VeiculoDS AS nome,
+            COUNT(DISTINCT OM.OcorrenciaID) AS totalOcorrencias,
+            COUNT(DISTINCT P.VitimaId) AS totalPacientes
+        FROM Veiculos V
+        JOIN OcorrenciaMovimentacao OM ON V.VeiculoID = OM.VeiculoID
+        JOIN Vitimas P ON P.OcorrenciaID = OM.OcorrenciaID
+        WHERE OM.EnvioEquipeDT BETWEEN ${from} AND ${to}
+        GROUP BY V.VeiculoID, V.VeiculoDS
+        ORDER BY V.VeiculoDS
+      `;
 
       return atendimentos;
     }),
 
-  /**
-   * Obtém o relatório de tempo resposta de todos os veículos, recebe como input um date range e um turno
-   */
+  /** Obtém o relatório de tempo resposta de todos os veículos, recebe como input um date range e um turno */
   getTempoResposta: protectedProcedure
     .input(z.object({ dateRange: SchemaDateRange, turn: SchemaTurno }))
     .query(async ({ input }) => {
-      const filter = getTurnFilterQuery(
-        "OM.EnvioEquipeDT",
-        input.dateRange,
-        input.turn,
-      );
+      const filter = obterFiltroComBaseNoTurno({
+        sourceDateFilter: "OM.EnvioEquipeDT",
+        dateRange: input.dateRange,
+        turno: input.turn,
+      });
 
-      const rawVeiculos = await db.$queryRaw<
-        {
-          id: number;
-          nome: string | null;
-          QTYQUS: number | null;
-          QUSQUY: number | null;
-          QUYQUU: number | null;
-          totalOcorrencias: number;
-          pacientes: string;
-        }[]
-      >`
+
+      type RelatorioVeiculo = {
+        id: number;
+        nome: string | null;
+        QTYQUS: number | null;
+        QUSQUY: number | null;
+        QUYQUU: number | null;
+        totalOcorrencias: number;
+        pacientes: string;
+      };
+
+      const rawVeiculos: RelatorioVeiculo[] = await db.$queryRaw`
         SELECT
             V.VeiculoID AS id,
             V.VeiculoDS AS nome,
@@ -181,7 +180,7 @@ export const veiculosRouter = createTRPCRouter({
       },
     });
 
-    // obtem o relatorio com a quantidade disponivel de cada tipo de veiculo
+    // Obtem a proporção de veiculos ocupados/disponiveis agrupada por tipo de veiculo
     const relatorio = await db.unidadeRelatorio.findFirst({
       select: {
         UnidadeRelatorioEquipamentos: {

@@ -1,24 +1,25 @@
 "use client";
 
 import {
+  Document,
+  Font,
+  Page,
+  StyleSheet,
+  Text,
+  View,
+} from "@react-pdf/renderer";
+import { format } from "date-fns";
+
+import type { RouterOutputs } from "@/trpc/shared";
+import { PDFFooter } from "@/components/PDF/PDFooter";
+import { PMFTimbrado } from "@/components/PDF/PMFTimbrado";
+import {
   PDFHeader,
   PDFLegend,
   PDFParagraph,
   PDFSmall,
   PDFSubTitle,
 } from "@/components/PDF/typography";
-import { RouterOutputs } from "@/trpc/shared";
-import {
-  Page,
-  View,
-  Document,
-  StyleSheet,
-  Font,
-  Text,
-} from "@react-pdf/renderer";
-import { format } from "date-fns";
-import { PMFTimbrado } from "@/components/PDF/PMFTimbrado";
-import { PDFFooter } from "@/components/PDF/PDFooter";
 
 // Register font
 Font.register({

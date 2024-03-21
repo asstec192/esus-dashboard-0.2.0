@@ -1,4 +1,4 @@
-import { DateRange } from "@/hooks/useGlobalDateFilterStore";
+import type { DateRange } from "@/hooks/useGlobalDateFilterStore";
 import { addHours, isWithinInterval, startOfDay } from "date-fns";
 
 /**

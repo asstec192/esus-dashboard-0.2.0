@@ -1,24 +1,30 @@
 "use client";
 
+import { useState } from "react";
+import { isToday } from "date-fns";
+
+import type { DateRange } from "@/hooks/useGlobalDateFilterStore";
 import { ChartAge } from "@/components/charts/chart-age";
 import { ChartGender } from "@/components/charts/chart-gender";
 import { ChartHour } from "@/components/charts/chart-hour";
 import { ChartMotivoOcorrencia } from "@/components/charts/chart-motivo-ocorrencia";
 import { ChartTipoOcorrencia } from "@/components/charts/chart-tipo-ocorrencia";
-import { DataTable } from "@/components/table/DataTable";
-import { DataTableProvider } from "@/components/table/DataTableProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  useGlogalDateFilterStore,
-  type DateRange,
-} from "@/hooks/useGlobalDateFilterStore";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useGlogalDateFilterStore } from "@/hooks/useGlobalDateFilterStore";
 import { api } from "@/trpc/react";
-import { isToday } from "date-fns";
-import { useState } from "react";
 
 export function SAMUCharts() {
-  const [tipoId, setTipoId] = useState(17); //inicia com o id do tipo clinico
+  const idTipoClinico = 17;
+  const [tipoId, setTipoId] = useState(idTipoClinico);
 
   const dateRange = useGlogalDateFilterStore(
     (state) => state.dateRange,
@@ -124,24 +130,32 @@ export function SAMUCharts() {
   );
 
   function TabelaOcorrencias() {
-    const { data: atendimentos } = api.veiculos.countAtendimentos.useQuery(
+    const { data: veiculos } = api.veiculos.countAtendimentos.useQuery(
       dateRange,
       { refetchInterval },
     );
 
     return (
-      <DataTableProvider
-        columns={[
-          { accessorKey: "nome", header: "Veículo" },
-          { accessorKey: "totalOcorrencias", header: "Ocorrências" },
-          { accessorKey: "totalPacientes", header: "Pacientes" },
-        ]}
-        data={atendimentos ?? []}
-      >
-        <ScrollArea className="h-1 flex-grow">
-          <DataTable />
-        </ScrollArea>
-      </DataTableProvider>
+      <ScrollArea className="relative h-1 flex-grow">
+        <Table>
+          <TableHeader className="sticky top-0 z-10 bg-card">
+            <TableRow>
+              <TableHead>Veículo</TableHead>
+              <TableHead>Ocorrências</TableHead>
+              <TableHead>Pacientes</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {veiculos?.map((veiculo) => (
+              <TableRow key={veiculo.id}>
+                <TableCell>{veiculo.nome}</TableCell>
+                <TableCell>{veiculo.totalOcorrencias}</TableCell>
+                <TableCell>{veiculo.totalPacientes}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </ScrollArea>
     );
   }
 }

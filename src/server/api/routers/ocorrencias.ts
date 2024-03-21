@@ -1,10 +1,11 @@
-import * as z from "zod";
-import { db } from "@/server/db";
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { formatServerDateRange } from "@/utils/formatServerDateRange";
-import { SchemaDateRange } from "@/validators";
-import { getColorByRisk } from "@/utils/getColorByRisk";
 import { Prisma } from "@prisma/client";
+import * as z from "zod";
+
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { db } from "@/server/db";
+import { formatServerDateRange } from "@/utils/formatServerDateRange";
+import { getColorByRisk } from "@/utils/getColorByRisk";
+import { SchemaDateRange } from "@/validators";
 
 export const ocorrenciaRouter = createTRPCRouter({
   getOne: protectedProcedure
@@ -125,7 +126,6 @@ export const ocorrenciaRouter = createTRPCRouter({
       }),
     ),
 
-  // DATA OK!
   getAll: protectedProcedure
     .input(z.object({ dateRange: SchemaDateRange, emAtendimento: z.boolean() }))
     .query(async ({ input }) => {
@@ -288,10 +288,14 @@ export const ocorrenciaRouter = createTRPCRouter({
       return tipos
         .map((tipo) => ({
           tipoId: tipo.TipoID,
-          tipo: tipo.TipoDS?.replace(/\*/g, ""), // remove asteriscos
+          tipo: tipo.TipoDS?.replace(/\*/g, "") ?? "", // remove asteriscos
           count: tipo._count.Ocorrencia,
         }))
-        .sort((a, b) => a.count - b.count);
+        .sort((a, b) =>
+          a.count === b.count
+            ? a.tipo.localeCompare(b.tipo)
+            : a.count - b.count,
+        );
     }),
 
   countByMotivo: protectedProcedure
@@ -328,12 +332,16 @@ export const ocorrenciaRouter = createTRPCRouter({
 
       return count
         .map((item) => ({
-          motivo: item.MotivoDS?.replace(/\*/g, ""),
+          motivo: item.MotivoDS?.replace(/\*/g, "") ?? "",
           count: item._count.Ocorrencia,
           tipoId: item.TipoID,
         }))
-        .sort((a, b) => a.count - b.count)
-        .filter((item) => item.count > 0);
+        .filter((item) => item.count > 0)
+        .sort((a, b) =>
+          a.count === b.count
+            ? a.motivo.localeCompare(b.motivo)
+            : a.count - b.count,
+        );
     }),
 
   countByTipoLigacao: protectedProcedure
@@ -359,10 +367,14 @@ export const ocorrenciaRouter = createTRPCRouter({
       const ligacoes = rawData
         .filter((l) => l._count.Ocorrencia > 0)
         .map((l) => ({
-          ligacao: l.LigacaoTPDS,
+          ligacao: l.LigacaoTPDS ?? "",
           count: l._count.Ocorrencia,
         }))
-        .sort((a, b) => a.count - b.count);
+        .sort((a, b) =>
+          a.count === b.count
+            ? a.ligacao.localeCompare(b.ligacao)
+            : a.count - b.count,
+        );
 
       return ligacoes;
     }),

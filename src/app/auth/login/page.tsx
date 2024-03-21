@@ -1,10 +1,14 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { signIn } from "next-auth/react";
+import { useForm } from "react-hook-form";
 
+import { TypographyH3 } from "@/components/typography/TypographyH3";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -14,11 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { formSchemaLogin } from "@/validators";
-import { TypographyH3 } from "@/components/typography/TypographyH3";
-import { useSearchParams } from "next/navigation";
 
 type LoginCredentials = z.infer<typeof formSchemaLogin>;
 

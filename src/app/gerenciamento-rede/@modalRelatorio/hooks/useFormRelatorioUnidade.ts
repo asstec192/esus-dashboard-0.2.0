@@ -1,11 +1,13 @@
-import { useGerenciamentoRedeRelatorioStore } from "@/app/gerenciamento-rede/stores";
-import { toast } from "@/components/ui/use-toast";
-import { HospitalItem, formSchemaRelatorioHospital } from "@/validators";
-import { api } from "@/trpc/react";
-import { RouterOutputs } from "@/trpc/shared";
+import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+
+import type { RouterOutputs } from "@/trpc/shared";
+import type { HospitalItem } from "@/validators";
+import { useGerenciamentoRedeRelatorioStore } from "@/app/gerenciamento-rede/stores";
+import { toast } from "@/components/ui/use-toast";
+import { api } from "@/trpc/react";
+import { formSchemaRelatorioHospital } from "@/validators";
 
 export const useFormRelatorioUnidade = (
   /**Os dados iniciais que preencherão o form, caso de atualizacao de relatorio*/
@@ -32,17 +34,17 @@ export const useFormRelatorioUnidade = (
   const form = useForm<z.infer<typeof formSchemaRelatorioHospital>>({
     resolver: zodResolver(formSchemaRelatorioHospital),
     values: {
-      relatorioId: initialData?.id || 0,
-      hospitalId: initialData?.unidadeId || 0,
-      chefeEquipe: initialData?.chefeEquipe || "",
-      foneContato: initialData?.contato || "",
-      horaContato: initialData?.horaContato || "",
-      pessoaContactada: initialData?.nomeContato || "",
-      obervacao: initialData?.observacao || "",
-      turno: initialData?.turno || "",
-      equipamentos: equipamentosIniciais || [],
-      especialidades: especialidadesIniciais || [],
-      createdAt: initialData?.createdAt || date,
+      relatorioId: initialData?.id ?? 0,
+      hospitalId: initialData?.unidadeId ?? 0,
+      chefeEquipe: initialData?.chefeEquipe ?? "",
+      foneContato: initialData?.contato ?? "",
+      horaContato: initialData?.horaContato ?? "",
+      pessoaContactada: initialData?.nomeContato ?? "",
+      obervacao: initialData?.observacao ?? "",
+      turno: initialData?.turno ?? "",
+      equipamentos: equipamentosIniciais ?? [],
+      especialidades: especialidadesIniciais ?? [],
+      createdAt: initialData?.createdAt ?? date,
     },
     defaultValues: {
       relatorioId: 0,

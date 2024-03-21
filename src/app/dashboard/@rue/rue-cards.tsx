@@ -1,8 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { DateRange } from "@/hooks/useGlobalDateFilterStore";
-import { api } from "@/trpc/react";
 import { endOfDay, startOfDay } from "date-fns";
 import { Hourglass, Siren } from "lucide-react";
+
+import type { DateRange } from "@/hooks/useGlobalDateFilterStore";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { api } from "@/trpc/react";
 
 const refetchInterval = 5000;
 const dateRange: DateRange = {
@@ -31,7 +32,6 @@ export function RUECards() {
 
   return (
     <div className="grid grid-cols-6 gap-2">
-      {" "}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 px-2 pb-2 sm:px-6">
           <CardTitle className="text-sm font-medium">Ocorrências</CardTitle>

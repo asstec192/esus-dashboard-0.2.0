@@ -1,6 +1,7 @@
-import { api } from "@/trpc/server";
 import { startOfDay } from "date-fns";
-import { Relatorios } from "./table";
+
+import { api } from "@/trpc/server";
+import { Relatorios } from "./relatorio-table";
 
 //força a rota a ser dinamica, buscando sempre os dados mais recentes quando o usuário atualizar a página
 export const dynamic = "force-dynamic";

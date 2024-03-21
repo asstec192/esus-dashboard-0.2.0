@@ -1,7 +1,5 @@
 "use client";
 
-import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
-import type { RouterOutputs } from "@/trpc/shared";
 import {
   Bar,
   BarChart,
@@ -10,6 +8,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+
+import type { RouterOutputs } from "@/trpc/shared";
+import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
 
 export function ChartMotivoOcorrencia({
   data,
@@ -22,11 +23,15 @@ export function ChartMotivoOcorrencia({
 }) {
   if (loading) return <SkeletonChart />;
 
+  const motivosFiltradosPorTipo = data
+    .filter((motivo) => motivo.tipoId === tipoId)
+    .slice(-20); // limita ao top 20
+
   return (
     <div className="flex flex-col">
       <ResponsiveContainer width="100%" height={300}>
         <BarChart
-          data={data.filter((item) => item.tipoId === tipoId)}
+          data={motivosFiltradosPorTipo}
           barCategoryGap={2}
           layout="vertical"
           margin={{ top: 20 }}
@@ -40,7 +45,7 @@ export function ChartMotivoOcorrencia({
             tickLine={false}
             axisLine={false}
             interval={0}
-            // tickFormatter={(value) => (value as string).toLowerCase()}
+            tickFormatter={(value) => (value as string).toLowerCase()}
           />
           <Tooltip
             content={({ active, payload, label }) => {

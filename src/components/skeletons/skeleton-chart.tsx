@@ -1,23 +1,20 @@
+import type { HtmlHTMLAttributes } from "react";
+
 import { Skeleton } from "@/components/ui/skeleton";
-import { HtmlHTMLAttributes } from "react";
-import { Card } from "../ui/card";
 
 export const SkeletonChart = (props: HtmlHTMLAttributes<HTMLDivElement>) => {
   return (
-    <Card
+    <div
       className={
-        "flex h-full min-h-[300px] w-full flex-col gap-4 p-5 " + props.className
+        "flex h-full min-h-[300px] w-full items-end gap-4 p-5" + props.className
       }
     >
-      <Skeleton className="h-4 w-32" />
-      <div className="flex h-full items-end gap-4">
-        <Skeleton className="h-[10%] flex-grow" />
-        <Skeleton className="h-[40%] flex-grow" />
-        <Skeleton className="h-[25%] flex-grow" />
-        <Skeleton className="h-[70%] flex-grow" />
-        <Skeleton className="h-[100%] flex-grow" />
-        <Skeleton className="h-[20%] flex-grow" />
-      </div>
-    </Card>
+      <Skeleton className="h-20 w-5 flex-grow" />
+      <Skeleton className="h-10 w-5 flex-grow" />
+      <Skeleton className="h-40 w-5 flex-grow" />
+      <Skeleton className="h-56 w-5 flex-grow" />
+      <Skeleton className="h-64 w-5 flex-grow" />
+      <Skeleton className="h-10 w-5 flex-grow" />
+    </div>
   );
 };
