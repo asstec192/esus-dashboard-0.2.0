@@ -7,7 +7,7 @@ export const DashboardLogo = () => {
         <span className="text-primary">SGRU</span>
         Dashboard
       </div>
-      <span className="text-xs font-normal">versão de teste 0.5.0</span>
+      <span className="text-xs font-normal">versão de teste 0.6.0</span>
     </Link>
   );
 };

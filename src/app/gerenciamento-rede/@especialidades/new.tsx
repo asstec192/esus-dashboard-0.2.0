@@ -1,11 +1,12 @@
+import { useRef, useState } from "react";
+import { Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
-import { Plus } from "lucide-react";
-import { useRef, useState } from "react";
 
 export const GerenciamentoRedeAddEspecialidade = () => {
   const [openInput, setOpenInput] = useState(false);
@@ -14,12 +15,12 @@ export const GerenciamentoRedeAddEspecialidade = () => {
   const utils = api.useUtils();
 
   const { mutate } = api.hospitalManager.addEspecialidade.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       if (inputRef.current) {
         inputRef.current.value = "";
         inputRef.current.focus();
       }
-      utils.hospitalManager.getEspecialidades.invalidate();
+      await utils.hospitalManager.getEspecialidades.invalidate();
       toast({ description: "Especialidade adicionada com sucesso!" });
     },
     onError: (error) =>

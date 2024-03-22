@@ -1,16 +1,17 @@
 "use client";
 
-import { useRenderPDF } from "./useRenderPDF";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { BsFiletypePdf } from "react-icons/bs";
 import { Loader2 } from "lucide-react";
-import { api } from "@/trpc/react";
-import { useGerenciamentoRedeRelatorioStore } from "../../stores";
+import { BsFiletypePdf } from "react-icons/bs";
+
+import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { api } from "@/trpc/react";
+import { useRelatoriosDateStore } from "../../_useRelatoriosDateStore";
+import { useRenderPDF } from "./useRenderPDF";
 
 export const PDFRelatorioRede = () => {
-  const date = useGerenciamentoRedeRelatorioStore((state) => state.date);
+  const date = useRelatoriosDateStore((state) => state.date);
   const { data: pdfData, isLoading: isLoadingData } =
     api.hospitalManager.obterRelatoriosAgrupadosPorHospitais.useQuery(date, {
       staleTime: Infinity,

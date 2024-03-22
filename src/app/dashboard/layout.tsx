@@ -1,3 +1,8 @@
+import type { ReactNode } from "react";
+import { endOfDay, startOfDay } from "date-fns";
+import { Info } from "lucide-react";
+
+import { GlobalDatePicker } from "@/components/date-pickers/global-date-picker";
 import { Badge } from "@/components/ui/badge";
 import {
   Popover,
@@ -5,12 +10,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { endOfDay, startOfDay } from "date-fns";
-import type { ReactNode } from "react";
-import { Info } from "lucide-react";
 import { getServerAuthSession } from "@/server/auth";
 import { UserRole } from "@/types/UserRole";
-import { GlobalDatePicker } from "@/components/date-pickers/global-date-picker";
 
 export default async function DashboardLayout(props: {
   crufor: ReactNode;
@@ -43,20 +44,18 @@ export default async function DashboardLayout(props: {
                 <Info className="mr-6 flex text-primary sm:hidden" />
               </PopoverTrigger>
               <PopoverContent className="p-2">
-                Dados referentes ao dia{" "}
-                {periodo.start.toLocaleString().slice(0, 10)} de{" "}
-                {periodo.start.toLocaleString().slice(-8)} às{" "}
-                {periodo.end.toLocaleString().slice(-8)}
+                Dados referentes ao dia {periodo.start.toLocaleDateString()} de{" "}
+                {periodo.start.toLocaleTimeString()} às{" "}
+                {periodo.end.toLocaleTimeString()}
               </PopoverContent>
             </Popover>
             <Badge
               className="ml-auto h-10 flex-1 rounded sm:flex-none"
               variant="secondary"
             >
-              Dados referentes ao dia{" "}
-              {periodo.start.toLocaleString().slice(0, 10)} de{" "}
-              {periodo.start.toLocaleString().slice(-8)} às{" "}
-              {periodo.end.toLocaleString().slice(-8)}
+              Dados referentes ao dia {periodo.start.toLocaleDateString()} de{" "}
+              {periodo.start.toLocaleTimeString()} às{" "}
+              {periodo.end.toLocaleTimeString()}
             </Badge>
           </>
         )}

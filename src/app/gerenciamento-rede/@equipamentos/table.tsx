@@ -1,15 +1,15 @@
 "use client";
 
+import type { RouterOutputs } from "@/trpc/shared";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/table/DataTable";
+import { DataTableColumnHeader } from "@/components/table/DataTableColumnHeader";
+import { DataTablePagination } from "@/components/table/DataTablePagination";
 import { DataTableProvider } from "@/components/table/DataTableProvider";
 import { DataTableSearch } from "@/components/table/DataTableSearch";
-import { DataTableColumnHeader } from "@/components/table/DataTableColumnHeader";
-import { DataTable } from "@/components/table/DataTable";
-import { DataTablePagination } from "@/components/table/DataTablePagination";
-import { RouterOutputs } from "@/trpc/shared";
-import { GerenciamentoRedeAddEquipamento } from "./new";
 import { Card } from "@/components/ui/card";
-import { ColumnDef } from "@tanstack/react-table";
 import { api } from "@/trpc/react";
+import { GerenciamentoRedeAddEquipamento } from "./new";
 
 export function Equipamentos({
   initialData,

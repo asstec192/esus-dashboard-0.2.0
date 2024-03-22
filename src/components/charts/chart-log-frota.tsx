@@ -1,8 +1,7 @@
 "use client";
 
-import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
+import { useMemo, useState } from "react";
+import { addHours } from "date-fns";
 import {
   Legend,
   Line,
@@ -13,12 +12,13 @@ import {
   YAxis,
 } from "recharts";
 
+import type { RouterOutputs } from "@/trpc/shared";
+import { SkeletonChart } from "@/components/skeletons/skeleton-chart";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { getFloatHourFromDate } from "@/utils/getFloatHourFromDate";
-import { addHours } from "date-fns";
-import { useMemo, useState } from "react";
 import { floatToHourString } from "./chart-log-solicitacoes";
-import { RouterOutputs } from "@/trpc/shared";
 
 const initialLineProps = [
   { key: "percentualUSB", color: "#4ade80", hide: false },

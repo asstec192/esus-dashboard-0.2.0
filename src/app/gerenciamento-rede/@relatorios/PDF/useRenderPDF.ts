@@ -4,7 +4,7 @@ import { useAsync } from "react-use";
 import { proxy, wrap } from "comlink";
 import type { WorkerType } from "./web.worker";
 /* eslint-disable import/no-webpack-loader-syntax */
-//@ts-ignore
+//@ts-expect-error
 import Worker from "worker-loader!./web.worker.ts";
 
 export const pdfWorker = wrap<WorkerType>(new Worker());

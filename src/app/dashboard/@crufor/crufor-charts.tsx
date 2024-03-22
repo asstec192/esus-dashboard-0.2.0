@@ -121,7 +121,7 @@ export function CruforCharts() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            Total de ocorrências por motivo
+            Total de ocorrências por motivo (Top 20)
           </CardTitle>
         </CardHeader>
         <CardContent>

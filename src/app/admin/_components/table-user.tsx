@@ -1,14 +1,14 @@
 "use client";
 
+import type { RouterOutputs } from "@/trpc/shared";
+import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/table/DataTable";
 import { DataTablePagination } from "@/components/table/DataTablePagination";
 import { DataTableProvider } from "@/components/table/DataTableProvider";
 import { DataTableSearch } from "@/components/table/DataTableSearch";
 import { Card } from "@/components/ui/card";
 import { api } from "@/trpc/react";
-import type { RouterOutputs } from "@/trpc/shared";
 import { formatProperName } from "@/utils/formatProperName";
-import type { ColumnDef } from "@tanstack/react-table";
 import { FormCadastroUsuario } from "./form-cadastro-usuario";
 import { FormChangeUserPassword } from "./form-change-user-password";
 import { FormChangeUserProfile } from "./form-change-user-profile";
@@ -68,12 +68,12 @@ const columns: ColumnDef<RouterOutputs["users"]["all"][0]>[] = [
   {
     accessorKey: "createdAt",
     header: "Data de Cadastro",
-    cell: ({ row }) => row.original.createdAt.toLocaleString().slice(0, 10),
+    cell: ({ row }) => row.original.createdAt.toLocaleDateString(),
   },
   {
     accessorKey: "updatedAt",
     header: "Última Atualização",
-    cell: ({ row }) => row.original.updatedAt.toLocaleString().slice(0, 10),
+    cell: ({ row }) => row.original.updatedAt.toLocaleDateString(),
     meta: {
       className: "hidden lg:table-cell",
     },

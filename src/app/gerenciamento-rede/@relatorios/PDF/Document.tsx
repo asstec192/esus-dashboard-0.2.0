@@ -81,13 +81,14 @@ export function GerenciamentoRedePDFRelatorios({
           <PDFSmall>{format(date, "dd/MM/yyyy")}</PDFSmall>
         </PDFHeader>
         <View style={styles.body}>
-          {pdfData &&
-            pdfData.map((hospital) => (
-              <UnidadeHospitalar
-                key={hospital.UnidadeCOD}
-                hospital={hospital}
-              />
-            ))}
+          {pdfData
+            ? pdfData.map((hospital) => (
+                <UnidadeHospitalar
+                  key={hospital.UnidadeCOD}
+                  hospital={hospital}
+                />
+              ))
+            : null}
         </View>
         <PDFFooter />
       </Page>
@@ -101,12 +102,9 @@ function UnidadeHospitalar({
   hospital: RouterOutputs["hospitalManager"]["obterRelatoriosAgrupadosPorHospitais"][0];
 }) {
   return hospital.Relatorios.map((relatorio, i) => (
-    <View wrap={false}>
+    <View key={relatorio.id} wrap={false}>
       {i === 0 ? <PDFSubTitle>{hospital.UnidadeDS}</PDFSubTitle> : null}
-      <View
-        key={relatorio.id}
-        style={{ marginLeft: 20, rowGap: 8, marginVertical: 5 }}
-      >
+      <View style={{ marginLeft: 20, rowGap: 8, marginVertical: 5 }}>
         <PDFSmall>{`${relatorio.turno} - Hora do Contato: ${relatorio.horaContato} - Fone: ${relatorio.contato}`}</PDFSmall>
         <PDFParagraph>Pessoa contactada: {relatorio.nomeContato}</PDFParagraph>
         <PDFParagraph>Chefe de Equipe: {relatorio.chefeEquipe}</PDFParagraph>

@@ -14,10 +14,10 @@ export const GerenciamentoRedeAddEquipamento = () => {
   const utils = api.useUtils();
 
   const { mutate } = api.hospitalManager.addEquipamento.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       if (inputRef.current) inputRef.current.value = "";
       inputRef.current?.focus();
-      utils.hospitalManager.getEquipamentos.invalidate();
+      await utils.hospitalManager.getEquipamentos.invalidate();
       toast({ description: "Equipamento adicionada com sucesso!" });
     },
     onError: (error) =>

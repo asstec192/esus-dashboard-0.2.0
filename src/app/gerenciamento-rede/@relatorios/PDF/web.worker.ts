@@ -1,14 +1,16 @@
-import { expose } from "comlink";
-import { PDFRelatorioRedeProps } from "./Document";
 import { createElement } from "react";
+import { expose } from "comlink";
+
+import type { PDFRelatorioRedeProps } from "./Document";
+
 let log = console.info;
 
 /* This prevents live reload problems during development
  * https://stackoverflow.com/questions/66472945/referenceerror-refreshreg-is-not-defined */
 if (process.env.NODE_ENV != "production") {
-  //@ts-ignore
+  //@ts-expect-error
   global.$RefreshReg$ = () => {};
-  //@ts-ignore
+  //@ts-expect-error
   global.$RefreshSig$ = () => () => {};
 }
 
@@ -18,7 +20,7 @@ const renderPDFInWorker = async (props: PDFRelatorioRedeProps) => {
     const { GerenciamentoRedePDFRelatorios } = await import("./Document");
 
     return URL.createObjectURL(
-      // @ts-ignore
+      //@ts-expect-error
       await pdf(createElement(GerenciamentoRedePDFRelatorios, props)).toBlob(),
     );
   } catch (error) {

@@ -120,7 +120,6 @@ export const veiculosRouter = createTRPCRouter({
         turno: input.turn,
       });
 
-
       type RelatorioVeiculo = {
         id: number;
         nome: string | null;
@@ -347,36 +346,49 @@ export const veiculosRouter = createTRPCRouter({
         },
       });
 
+      function calculatePercentage(a: number, b: number) {
+        const percentage = Math.ceil((a / b) * 100);
+        if (isNaN(percentage)) return 0;
+        if (!isFinite(percentage)) return 100;
+        return percentage;
+      }
+
       const mergedData = solicitacoes.map((solicitacao, i) => ({
         USB_pendentes: solicitacao.USB,
         USB_disponiveis: veiculos[i]?.USB_total,
-        USB_percentual: Math.ceil(
-          (solicitacao.USB / (veiculos[i]?.USB_total ?? 0)) * 100,
+        USB_percentual: calculatePercentage(
+          solicitacao.USB,
+          veiculos[i]?.USB_total ?? 0,
         ),
         USA_pendentes: solicitacao.USA,
         USA_disponiveis: veiculos[i]?.USA_total,
-        USA_percentual: Math.ceil(
-          (solicitacao.USA / (veiculos[i]?.USA_total ?? 0)) * 100,
+        USA_percentual: calculatePercentage(
+          solicitacao.USA,
+          veiculos[i]?.USA_total ?? 0,
         ),
         USI_pendentes: solicitacao.USI,
         USI_disponiveis: veiculos[i]?.USI_total,
-        USI_percentual: Math.ceil(
-          (solicitacao.USI / (veiculos[i]?.USI_total ?? 0)) * 100,
+        USI_percentual: calculatePercentage(
+          solicitacao.USI,
+          veiculos[i]?.USI_total ?? 0,
         ),
         MOT_pendentes: solicitacao.MOT,
         MOT_disponiveis: veiculos[i]?.MOT_total,
-        MOT_percentual: Math.ceil(
-          (solicitacao.MOT / (veiculos[i]?.MOT_total ?? 0)) * 100,
+        MOT_percentual: calculatePercentage(
+          solicitacao.MOT,
+          veiculos[i]?.MOT_total ?? 0,
         ),
         BIK_pendentes: solicitacao.BIK,
         BIK_disponiveis: veiculos[i]?.BIK_total,
-        BIK_percentual: Math.ceil(
-          (solicitacao.BIK / (veiculos[i]?.BIK_total ?? 0)) * 100,
+        BIK_percentual: calculatePercentage(
+          solicitacao.BIK,
+          veiculos[i]?.BIK_total ?? 0,
         ),
         REM_pendentes: solicitacao.REM,
         REM_disponiveis: veiculos[i]?.REM_total,
-        REM_percentual: Math.ceil(
-          (solicitacao.REM / (veiculos[i]?.REM_total ?? 0)) * 100,
+        REM_percentual: calculatePercentage(
+          solicitacao.REM,
+          veiculos[i]?.REM_total ?? 0,
         ),
         createdAt: solicitacao.createdAt,
       }));

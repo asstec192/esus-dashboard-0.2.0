@@ -1,15 +1,15 @@
 "use client";
 
+import type { RouterOutputs } from "@/trpc/shared";
+import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/table/DataTable";
 import { DataTableColumnHeader } from "@/components/table/DataTableColumnHeader";
 import { DataTablePagination } from "@/components/table/DataTablePagination";
+import { DataTableProvider } from "@/components/table/DataTableProvider";
 import { DataTableSearch } from "@/components/table/DataTableSearch";
 import { Card } from "@/components/ui/card";
-import { RouterOutputs } from "@/trpc/shared";
-import { ColumnDef } from "@tanstack/react-table";
-import { GerenciamentoRedeAddEspecialidade } from "./new";
-import { DataTableProvider } from "@/components/table/DataTableProvider";
 import { api } from "@/trpc/react";
+import { GerenciamentoRedeAddEspecialidade } from "./new";
 
 export const Especialidades = ({
   initialData,
