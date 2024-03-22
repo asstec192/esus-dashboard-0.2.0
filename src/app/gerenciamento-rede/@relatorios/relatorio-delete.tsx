@@ -1,6 +1,4 @@
-import { differenceInHours } from "date-fns";
 import { Trash2 } from "lucide-react";
-import { useSession } from "next-auth/react";
 
 import type { RouterOutputs } from "@/trpc/shared";
 import {
@@ -17,36 +15,32 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { api } from "@/trpc/react";
-import { UserRole } from "@/types/UserRole";
+import { useRelatorioPermissions } from "./_useRelatorioPermissions";
 
 export function RelatorioDeleteModal({
   relatorio,
 }: {
   relatorio: RouterOutputs["hospitalManager"]["obterRelatorios"][0];
 }) {
-  const session = useSession();
-  const isAdmin = session.data?.user.role === UserRole.admin;
-  const isAuthor = relatorio.criadoPorId.toString() === session.data?.user.id;
-  const deleteExpired = differenceInHours(new Date(), relatorio.createdAt) > 12;
-  const deleteEnabled = isAdmin || (isAuthor && !deleteExpired);
+  const { canDelete } = useRelatorioPermissions(relatorio);
 
   const utils = api.useUtils();
   const { mutate } = api.hospitalManager.deleteRelatorio.useMutation({
-    onSuccess: () => {
-      utils.hospitalManager.obterRelatorios.invalidate(),
-        utils.hospitalManager.obterRelatoriosAgrupadosPorHospitais.invalidate();
+    onSuccess: async () => {
+      await utils.hospitalManager.obterRelatorios.invalidate(),
+        await utils.hospitalManager.obterRelatoriosAgrupadosPorHospitais.invalidate();
     },
     onError: (error) =>
       toast({ description: error.message, variant: "destructive" }),
   });
 
   const handleDeleteRelatorio = () =>
-    deleteEnabled && mutate({ relatorioId: relatorio.id });
+    canDelete && mutate({ relatorioId: relatorio.id });
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" disabled={!deleteEnabled}>
+        <Button variant="destructive" disabled={!canDelete}>
           <Trash2 className="w-4" />
         </Button>
       </AlertDialogTrigger>
@@ -64,7 +58,7 @@ export function RelatorioDeleteModal({
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
           <AlertDialogAction
-            disabled={!deleteEnabled}
+            disabled={!canDelete}
             onClick={handleDeleteRelatorio}
           >
             Confirmar

@@ -1,15 +1,10 @@
 "use client";
 
-import { api } from "@/trpc/react";
-import { differenceInHours } from "date-fns";
 import { useMask } from "@react-input/mask";
-import { useSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
-import { useItensRecentesMutation } from "../hooks/useItensRecentesMutation";
-import { useFormRelatorioUnidade } from "../hooks/useFormRelatorioUnidade";
 
-import { type RouterOutputs } from "@/trpc/shared";
-
+import type { RouterOutputs } from "@/trpc/shared";
+import { Button } from "@/components/ui/button";
+import { DialogDescription } from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -18,43 +13,32 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FormCombobox } from "@/components/ui/form-combobox";
 import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { SelectValue } from "@radix-ui/react-select";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { TransferEquipamentos } from "./transfertlist-equipamentos";
+import { api } from "@/trpc/react";
+import { useFormRelatorioUnidade } from "./_useFormRelatorioUnidade";
+import { useItensRecentesMutation } from "./_useItensRecentesMutation";
+import { useRelatorioPermissions } from "./_useRelatorioPermissions";
 import { TransferEspecialidades } from "./transferlist-especialidades";
-import { DialogDescription } from "@/components/ui/dialog";
-import { FormCombobox } from "@/components/ui/form-combobox";
+import { TransferEquipamentos } from "./transfertlist-equipamentos";
 
-export function GerenciamentoRedeFormRelatorioUnidade({
-  initialData,
-  hospitais,
+function RelatorioForm({
+  relatorioEditavel,
 }: {
-  initialData: RouterOutputs["hospitalManager"]["obterRelatorio"];
-  hospitais: RouterOutputs["destinos"]["getAll"];
+  relatorioEditavel?: RouterOutputs["hospitalManager"]["obterRelatorios"][0];
 }) {
-  //obtem a sessao ativa
-  const session = useSession();
-  const params = useSearchParams();
-  const relatorioId = Number(params.get("relatorioId"));
-
-  const { data: relatorio } = api.hospitalManager.obterRelatorio.useQuery(
-    { relatorioId },
-    { initialData, enabled: !!relatorioId },
-  );
-
-  //obtem o form
-  const { form, onSubmit } = useFormRelatorioUnidade(relatorio); //caso exista passa os dados iniciais
-
-  //hooks para buscar o ultimo registro de items de uma unidade
+  const { form, onSubmit } = useFormRelatorioUnidade(relatorioEditavel);
   const buscarItemsRecentes = useItensRecentesMutation(form);
+  const { canCreate, canEdit } = useRelatorioPermissions(relatorioEditavel);
+  const { data: hospitais } = api.destinos.getAll.useQuery();
 
   //máscara do campo de telefone
   const foneRef = useMask({
@@ -65,20 +49,11 @@ export function GerenciamentoRedeFormRelatorioUnidade({
     replacement: { _: /\d/ },
   });
 
-  // Habilita edição do formulario
-  const editionExpired =
-    relatorio && differenceInHours(new Date(), relatorio.createdAt) > 12;
-  const isAuthor = relatorio?.criadoPorId.toString() === session.data?.user.id;
-  const editionEnabled = isAuthor && !editionExpired;
-
   return (
     <Form {...form}>
       <form
         className="flex flex-col space-y-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSubmit();
-        }}
+        onSubmit={canEdit || canCreate ? onSubmit : undefined}
       >
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-full grid grid-cols-2 gap-2">
@@ -87,12 +62,12 @@ export function GerenciamentoRedeFormRelatorioUnidade({
                 form={form}
                 name="hospitalId"
                 label="Unidade*"
-                disabled={!!relatorio}
+                disabled={!!relatorioEditavel}
                 options={
                   hospitais?.map((h) => ({
                     value: h.UnidadeCOD,
-                    label: h.UnidadeDS || "UNIDADE SEM DESCRIÇÃO",
-                  })) || []
+                    label: h.UnidadeDS ?? "UNIDADE SEM DESCRIÇÃO",
+                  })) ?? []
                 }
                 onValueChange={(option) => {
                   buscarItemsRecentes(Number(option?.value));
@@ -123,7 +98,7 @@ export function GerenciamentoRedeFormRelatorioUnidade({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Turno*</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione" />
@@ -139,6 +114,7 @@ export function GerenciamentoRedeFormRelatorioUnidade({
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="horaContato"
@@ -198,24 +174,22 @@ export function GerenciamentoRedeFormRelatorioUnidade({
         </div>
 
         <div className="flex flex-row-reverse items-center justify-between">
-          <Button
-            className="max-w-[300px] self-end"
-            type="submit"
-            disabled={!editionEnabled}
-          >
+          <Button className="max-w-[300px] self-end" type="submit">
             Salvar
           </Button>
-          {relatorio && (
+          {relatorioEditavel ? (
             <DialogDescription>
-              Criado por {relatorio.criadoPor.operador?.OperadorNM} em{" "}
-              {relatorio.createdAt.toLocaleString()}. <br />
+              Criado por {relatorioEditavel.criadoPor.operador?.OperadorNM} em{" "}
+              {relatorioEditavel.createdAt.toLocaleString()}. <br />
               Editado pela última vez por{" "}
-              {relatorio.editadoPor.operador?.OperadorNM} em{" "}
-              {relatorio.updatedAt.toLocaleString()}.
+              {relatorioEditavel.editadoPor.operador?.OperadorNM} em{" "}
+              {relatorioEditavel.updatedAt.toLocaleString()}.
             </DialogDescription>
-          )}
+          ) : null}
         </div>
       </form>
     </Form>
   );
 }
+
+export { RelatorioForm };

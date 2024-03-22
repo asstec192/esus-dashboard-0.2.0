@@ -1,16 +1,16 @@
-import { api } from "@/trpc/react";
+import type { UseFormReturn } from "react-hook-form";
+import type { z } from "zod";
+import { useState } from "react";
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
-import { UseFormReturn } from "react-hook-form";
-import { z } from "zod";
 
+import type { formSchemaRelatorioHospital } from "@/validators";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formSchemaRelatorioHospital } from "@/validators";
-import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useState } from "react";
+import { api } from "@/trpc/react";
 import { getStringScoreMatches } from "@/utils/getStringScoreMatch";
 
 type TransferEquipamentosProps = {
@@ -115,6 +115,6 @@ export const TransferEquipamentos = ({ form }: TransferEquipamentosProps) => {
           </Card>
         </div>
       )}
-    ></FormField>
+    />
   );
 };

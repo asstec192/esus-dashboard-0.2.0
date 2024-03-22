@@ -1,6 +1,7 @@
-import { SchemaRelatorioHospital } from "@/validators";
+import type { UseFormReturn } from "react-hook-form";
+
+import type { SchemaRelatorioHospital } from "@/validators";
 import { api } from "@/trpc/react";
-import { UseFormReturn } from "react-hook-form";
 
 /**
  * Obtem os equipamentos e unidades mais recentes do hospital selecionado
@@ -20,7 +21,7 @@ export function useItensRecentesMutation(
               itemId: eqp.equipamentoId,
               itemCount: eqp.quantidade.toString(),
               itemDescription: eqp.equipamento.descricao,
-            })) || [],
+            })) ?? [],
           ),
       },
     );
@@ -35,7 +36,7 @@ export function useItensRecentesMutation(
               itemId: esp.especialidadeId,
               itemCount: esp.quantidade.toString(),
               itemDescription: esp.especialidade.descricao,
-            })) || [],
+            })) ?? [],
           ),
       },
     );

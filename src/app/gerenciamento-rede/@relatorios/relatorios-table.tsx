@@ -1,8 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import Link from "next/link";
-import { Pencil, Plus } from "lucide-react";
 
 import type { RouterOutputs } from "@/trpc/shared";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -11,12 +9,12 @@ import { DataTable } from "@/components/table/DataTable";
 import { DataTablePagination } from "@/components/table/DataTablePagination";
 import { DataTableProvider } from "@/components/table/DataTableProvider";
 import { DataTableSearch } from "@/components/table/DataTableSearch";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { api } from "@/trpc/react";
-import { useGerenciamentoRedeRelatorioStore } from "../stores";
+import { useRelatoriosDateStore } from "../_useRelatoriosDateStore";
 import { PDFRelatorioRede } from "./PDF/Link";
 import { RelatorioDeleteModal } from "./relatorio-delete";
+import { RelatorioFormModal } from "./relatorio-form-modal";
 import { RelatorioView } from "./relatorio-view";
 
 export function Relatorios({
@@ -24,11 +22,8 @@ export function Relatorios({
 }: {
   initialData: RouterOutputs["hospitalManager"]["obterRelatorios"];
 }) {
-  const date = useGerenciamentoRedeRelatorioStore((state) => state.date);
-  const setDate = useGerenciamentoRedeRelatorioStore((state) => state.setDate);
-  const setRelatorio = useGerenciamentoRedeRelatorioStore(
-    (state) => state.setRelatorio,
-  );
+  const date = useRelatoriosDateStore((state) => state.date);
+  const setDate = useRelatoriosDateStore((state) => state.setDate);
 
   const { data: relatorios } = api.hospitalManager.obterRelatorios.useQuery(
     date,
@@ -66,24 +61,7 @@ export function Relatorios({
         cell: ({ row: { original: relatorio } }) => (
           <div className="flex gap-2">
             <RelatorioView relatorio={relatorio} />
-            <Button
-              asChild
-              variant="secondary"
-              onClick={() => setRelatorio(relatorio)}
-            >
-              <Link
-                href={{
-                  query: {
-                    isRelatorioOpen: true,
-                    relatorioId: relatorio.id,
-                  },
-                }}
-                prefetch={false}
-                scroll={false}
-              >
-                <Pencil className="w-4" />
-              </Link>
-            </Button>
+            <RelatorioFormModal relatorioEditavel={relatorio} />
             <RelatorioDeleteModal relatorio={relatorio} />
           </div>
         ),
@@ -110,7 +88,7 @@ export function Relatorios({
         meta: { className: "hidden" },
       },
     ],
-    [setRelatorio],
+    [],
   );
 
   return (
@@ -125,11 +103,7 @@ export function Relatorios({
 
         <PDFRelatorioRede />
 
-        <Button asChild className="ml-auto h-8 w-16">
-          <Link href={{ query: { isRelatorioOpen: true } }} scroll={false}>
-            <Plus />
-          </Link>
-        </Button>
+        <RelatorioFormModal />
       </div>
       <Card className="mb-2 bg-background">
         <DataTable />
